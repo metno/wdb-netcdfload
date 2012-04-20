@@ -1,0 +1,4 @@
+This is a program for loading data from a netcdf file into a wdb database.
+
+Note that when attempting to load a new type of netcdf file, you will almost 
+certainly need to update the configuration files and/or the source code.
