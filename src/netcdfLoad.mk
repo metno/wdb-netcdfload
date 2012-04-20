@@ -1,7 +1,7 @@
-bin_PROGRAMS = netcdfLoad
+#bin_PROGRAMS = netcdfLoad
 netcdfLoad_SOURCES = src/main.cpp
-netcdfLoad_LDADD =  libnetcdfLoadCore.a $(fimex_LIBS) $(wdb_LIBS)
-
+#netcdfLoad_LDADD = $(wdb_LIBS) \
+#                      libnetcdfLoadCore.a -lfimex -lgrib_api -lwdbLoad -lwdbConfig -lwdbProj -lwdbExcept -lwdbLog -lwdbMath
 
 noinst_LIBRARIES = libnetcdfLoadCore.a
 libnetcdfLoadCore_a_SOURCES = \
