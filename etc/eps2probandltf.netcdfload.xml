@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE eps2probandltf_config>
+
+<netcdfloadconfiguration xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="netcdfLoad.configuration.xsd">
+
+	<load>
+		<netcdf cfname="weather_symbol" />
+		<wdb name="yr weather symbol" validfrom="validTime - 6 hours" />
+	</load>
+	<load>
+		<netcdf cfname="weather_symbol_confidence" />
+		<wdb name="probability of yr weather symbol" validfrom="validTime - 6 hours" />
+	</load>
+
+	<load>
+		<netcdf cfname="air_temperature" />
+		<wdb name="air temperature" />
+	</load>
+	<load>
+		<netcdf cfname="air_temperature_percentiles">
+			<dimension name="percentile" value="0.1" />
+		</netcdf>
+		<wdb name="10th percentile of air temperature" />
+	</load>
+	<load>
+		<netcdf cfname="air_temperature_percentiles">
+			<dimension name="percentile" value="0.25" />
+		</netcdf>
+		<wdb name="25th percentile of air temperature" />
+	</load>
+	<load>
+		<netcdf cfname="air_temperature_percentiles">
+			<dimension name="percentile" value="0.5" />
+		</netcdf>
+		<wdb name="50th percentile of air temperature" />
+	</load>
+	<load>
+		<netcdf cfname="air_temperature_percentiles">
+			<dimension name="percentile" value="0.75" />
+		</netcdf>
+		<wdb name="75th percentile of air temperature" />
+	</load>
+	<load>
+		<netcdf cfname="air_temperature_percentiles">
+			<dimension name="percentile" value="0.9" />
+		</netcdf>
+		<wdb name="90th percentile of air temperature" />
+	</load>
+	<load>
+		<netcdf cfname="air_temperature_confidence">
+			<dimension name="interval_of_air_temperature" value="1.5"/>
+		</netcdf>
+		<wdb name="probability of air temperature +/-1.5" />
+	</load>
+	<load>
+		<netcdf cfname="air_temperature_confidence">
+			<dimension name="interval_of_air_temperature" value="2.5"/>
+		</netcdf>
+		<wdb name="probability of air temperature +/-2.5" />
+	</load>
+
+	<load>
+		<netcdf cfname="x_wind"/>
+		<wdb name="x wind"/>
+	</load>
+	<load>
+		<netcdf cfname="y_wind"/>
+		<wdb name="y wind"/>
+	</load>
+	<load>
+		<netcdf cfname="wind_speed_confidence"/>
+		<wdb name="probability of wind speed"/>
+	</load>
+
+	<load>
+		<netcdf cfname="precipitation_amount"/>
+		<wdb name="lwe thickness of precipitation amount" scale="0.001" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_percentiles">
+			<dimension name="percentile" value="0.1"/>
+		</netcdf>
+		<wdb name="10th percentile of precipitation amount" scale="0.001" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_percentiles">
+			<dimension name="percentile" value="0.25"/>
+		</netcdf>
+		<wdb name="25th percentile of precipitation amount" scale="0.001" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_percentiles">
+			<dimension name="percentile" value="0.5"/>
+		</netcdf>
+		<wdb name="50th percentile of precipitation amount" scale="0.001" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_percentiles">
+			<dimension name="percentile" value="0.75"/>
+		</netcdf>
+		<wdb name="75th percentile of precipitation amount" scale="0.001" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_percentiles">
+			<dimension name="percentile" value="0.9"/>
+		</netcdf>
+		<wdb name="90th percentile of precipitation amount" scale="0.001" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_limit_confidence">
+			<dimension name="precipitation_limit" value="0.1"/>
+		</netcdf>
+		<wdb name="probability of precipitation >0.1mm" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_limit_confidence">
+			<dimension name="precipitation_limit" value="0.2"/>
+		</netcdf>
+		<wdb name="probability of precipitation >0.2mm" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_limit_confidence">
+			<dimension name="precipitation_limit" value="0.5"/>
+		</netcdf>
+		<wdb name="probability of precipitation >0.5mm" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_limit_confidence">
+			<dimension name="precipitation_limit" value="1"/>
+		</netcdf>
+		<wdb name="probability of precipitation >1.0mm" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_limit_confidence">
+			<dimension name="precipitation_limit" value="2"/>
+		</netcdf>
+		<wdb name="probability of precipitation >2.0mm" validfrom="validtime - 6 hours"/>
+	</load>
+	<load>
+		<netcdf cfname="precipitation_limit_confidence">
+			<dimension name="precipitation_limit" value="5"/>
+		</netcdf>
+		<wdb name="probability of precipitation >5.0mm" validfrom="validtime - 6 hours"/>
+	</load>
+
+	<load>
+		<netcdf cfname="sea_level_pressure"/>
+		<wdb name="air pressure at sea level"/>
+	</load>
+
+</netcdfloadconfiguration>
