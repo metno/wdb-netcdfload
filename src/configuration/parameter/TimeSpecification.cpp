@@ -26,9 +26,14 @@
  MA  02110-1301, USA
  */
 
+// project
 #include "TimeSpecification.h"
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
+
+// boost
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
+
+// std
 #include <vector>
 
 TimeSpecification::TimeSpecification() :
@@ -41,7 +46,7 @@ TimeSpecification::TimeSpecification(const char * spec)
 	std::vector<bool> subtract;
 	std::vector<int> hourOffset;
 
-	using namespace boost::spirit;
+	using namespace boost::spirit::classic;
 	parse_info<> parseResult = parse(spec,
 			// first, choose reference or valid time as base
 			(as_lower_d["referencetime"][assign_a(baseTime_,ReferenceTime)] | as_lower_d["validtime"][assign_a(baseTime_,ValidTime)])
