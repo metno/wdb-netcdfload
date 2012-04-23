@@ -1,4 +1,31 @@
+============================================================
+WDB - Water and Weather Database System
+============================================================
+
+Norwegian Meteorological Institute (met.no)
+Box 43 Blindern
+0313 OSLO
+NORWAY
+
+email: wdb@met.no
+
+WDB is a database system for storage and retrieval of weather and 
+water observations and forecasts. It handles both gridded data
+(raster) and point data.
+
 This is a program for loading data from a netcdf file into a wdb database.
 
 Note that when attempting to load a new type of netcdf file, you will almost 
 certainly need to update the configuration files and/or the source code.
+
+It uses libfimex to read netcdf files and to extract metadata from CDM modell.
+
+Make sure that your development environment is properly set.
+If not, try using something like this:
+export LOCAL_PATH=<some-local-path>
+export LIBRARY_PATH=$LOCAL_PATH/lib
+export C_INCLUDE_PATH=$LOCAL_PATH/include/
+export CPLUS_INCLUDE_PATH=$LOCAL_PATH/include/
+export LD_LIBRARY_PATH=$LOCAL_PATH/lib
+export wdbload_CFLAGS=-I$LOCAL_PATH/include
+export wdbload_LIBS=-lwdbLoad
