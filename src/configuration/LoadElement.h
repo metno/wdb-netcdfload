@@ -29,14 +29,20 @@
 #ifndef LOADELEMENT_H_
 #define LOADELEMENT_H_
 
+// project
 #include "parameter/DataSpecification.h"
+
+// boost
+#include <boost/shared_ptr.hpp>
+
+// std
 #include <string>
 #include <vector>
 
 extern "C"
 {
-typedef struct _xmlNode xmlNode;
-typedef xmlNode* xmlNodePtr;
+    typedef struct _xmlNode xmlNode;
+    typedef xmlNode* xmlNodePtr;
 }
 
 namespace MetNoFimex
@@ -52,10 +58,10 @@ public:
 
 	struct IndexElement
 	{
-		std::string indexName;
-		std::string indexValue;
+            std::string indexName;
+	    std::string indexValue;
 
-		unsigned cdmIndex(MetNoFimex::CDMReader & reader) const;
+	    unsigned cdmIndex(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const;
 	};
 
 	const std::string & cfName() const { return cfName_; }

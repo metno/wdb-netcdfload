@@ -26,16 +26,29 @@
  MA  02110-1301, USA
  */
 
+// project
 #include "CdmLoader.h"
-#include <wdbLogHandler.h>
+
+// wdb
 #include <wdbException.h>
-#include <fimex/NetCDF_CDMReader.h>
+#include <wdbLogHandler.h>
+
+// fimexS
 #include <fimex/CDM.h>
 #include <fimex/Data.h>
+#include <fimex/CDMReader.h>
+#include <fimex/CDMFileReaderFactory.h>
+
+// boost
 #include <boost/foreach.hpp>
+#include <boost/shared_ptr.hpp>
+
+// std
 #include <vector>
 #include <functional>
 
+
+using namespace MetNoFimex;
 
 CdmLoader::CdmLoader(const CdmLoaderConfiguration & conf) :
 	conf_(conf),
@@ -44,48 +57,49 @@ CdmLoader::CdmLoader(const CdmLoaderConfiguration & conf) :
 {
 }
 
-CdmLoader::~CdmLoader()
-{
-}
+CdmLoader::~CdmLoader() { }
 
 void CdmLoader::write(const std::string & file)
 {
-	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
-	log.debug("Loading file " + file);
+    WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+    log.debug("Loading file " + file);
 
-	MetNoFimex::NetCDF_CDMReader reader(file);
-	write(reader);
+    boost::shared_ptr<CDMReader> pReader = CDMFileReaderFactory::create(MIFI_FILETYPE_NETCDF, file);
+
+    write(pReader);
 }
 
-void CdmLoader::write(MetNoFimex::CDMReader & reader)
+void CdmLoader::write(boost::shared_ptr<CDMReader>& reader)
 {
-	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+    WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 
-	std::string placeName = getPlaceName_(reader);
-	Time referenceTime = getReferenceTime_(reader);
-	std::vector<Time> times = getTimes_(reader);
+    std::string placeName = getPlaceName_(reader);
+    Time referenceTime = getReferenceTime_(reader);
+    std::vector<Time> times = getTimes_(reader);
 
-	boost::shared_ptr<MetNoFimex::Data> altitude = getAltitude_(reader);
-	if ( altitude )
-		write_(altitude, "altitude", placeName, referenceTime, "-infinity", "infinity");
-	else
-		log.warn("Unable to find altitude in source data");
+    boost::shared_ptr<MetNoFimex::Data> altitude = getAltitude_(reader);
+    if ( altitude )
+        write_(altitude, "altitude", placeName, referenceTime, "-infinity", "infinity");
+    else
+	log.warn("Unable to find altitude in source data");
 
-	BOOST_FOREACH(const LoadElement & loadElement, loadConfiguration_)
-		write(reader, loadElement, placeName, referenceTime, times);
+    BOOST_FOREACH(const LoadElement & loadElement, loadConfiguration_)
+        write(reader, loadElement, placeName, referenceTime, times);
+
 }
 
 
-void CdmLoader::write(MetNoFimex::CDMReader & reader, const LoadElement & loadElement,
-		const std::string & placeName,
-		const Time & referenceTime,
-		const std::vector<Time> & validTimes)
+void CdmLoader::write(boost::shared_ptr<CDMReader>& reader, 
+                      const LoadElement & loadElement,
+		      const std::string & placeName,
+		      const Time & referenceTime,
+		      const std::vector<Time> & validTimes)
 {
-	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+    WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 
-	const MetNoFimex::CDM & cdm = reader.getCDM();
+    const MetNoFimex::CDM & cdm = reader->getCDM();
 
-	const DataSpecification & specification = loadElement.wdbDataSpecification();
+    const DataSpecification & specification = loadElement.wdbDataSpecification();
 	std::string wdbParameter = specification.wdbParameter();
 
 	const MetNoFimex::CDMDimension * unlimitedDimension = cdm.getUnlimitedDim();
@@ -109,7 +123,7 @@ void CdmLoader::write(MetNoFimex::CDMReader & reader, const LoadElement & loadEl
 		BOOST_FOREACH(const LoadElement::IndexElement & ie, loadElement.indices() )
 			slicer.setStartAndSize(ie.indexName, ie.cdmIndex(reader), 1);
 
-		const boost::shared_ptr<MetNoFimex::Data> & data = reader.getScaledDataSlice(loadElement.cfName(), slicer);
+		const boost::shared_ptr<MetNoFimex::Data> & data = reader->getScaledDataSlice(loadElement.cfName(), slicer);
 
 		write_(data, wdbParameter, placeName, referenceTime,
 				string_from_local_date_time(validFrom),
@@ -142,12 +156,12 @@ void CdmLoader::write_(const boost::shared_ptr<MetNoFimex::Data> & data, const s
 }
 
 
-double CdmLoader::getScaleFactor_(const MetNoFimex::CDMReader & reader, const std::string & cfName, float extraScaling) const
+double CdmLoader::getScaleFactor_(const boost::shared_ptr<CDMReader>& reader, const std::string & cfName, float extraScaling) const
 {
 	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 	double scaleFactor = 1;
 	MetNoFimex::CDMAttribute scale_factor;
-	if ( reader.getCDM().getAttribute(cfName, "scale_factor", scale_factor) )
+	if ( reader->getCDM().getAttribute(cfName, "scale_factor", scale_factor) )
 	{
 		try {
 			scaleFactor = boost::lexical_cast<double>(scale_factor.getStringValue());
@@ -165,51 +179,49 @@ double CdmLoader::getScaleFactor_(const MetNoFimex::CDMReader & reader, const st
 	return scaleFactor;
 }
 
-std::vector<Time> CdmLoader::getTimes_(MetNoFimex::CDMReader & reader) const
+std::vector<Time> CdmLoader::getTimes_(boost::shared_ptr<CDMReader>& reader) const
 {
-	std::vector<Time> ret;
+    std::vector<Time> ret;
 
-	boost::shared_ptr<MetNoFimex::Data> times = reader.getData("time");
-	boost::shared_array<double> values = times->asDouble();
-	for ( unsigned i = 0; i < times->size(); ++ i )
-		ret.push_back(get_time((long long) values[i]));
-	return ret;
+    boost::shared_ptr<MetNoFimex::Data> times = reader->getData("time");
+    boost::shared_array<double> values = times->asDouble();
+    for ( unsigned i = 0; i < times->size(); ++ i )
+        ret.push_back(get_time((long long) values[i]));
+    return ret;
 }
 
-std::string CdmLoader::getPlaceName_(MetNoFimex::CDMReader & reader)
+std::string CdmLoader::getPlaceName_(boost::shared_ptr<CDMReader>& reader)
 {
-	using namespace MetNoFimex;
+    WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 
-	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+    const CDM & cdm = reader->getCDM();
 
-	const CDM & cdm = reader.getCDM();
+    const CDMDimension * xAxis = 0;
+    const CDMDimension * yAxis = 0;
 
-	const CDMDimension * xAxis = 0;
-	const CDMDimension * yAxis = 0;
-
-	BOOST_FOREACH( const CDMDimension & dim, cdm.getDimensions() )
+    BOOST_FOREACH( const CDMDimension & dim, cdm.getDimensions() )
+    {
+        CDMAttribute axis;
+	if ( cdm.getAttribute(dim.getName(), "axis", axis) )
 	{
-		CDMAttribute axis;
-		if ( cdm.getAttribute(dim.getName(), "axis", axis) )
-		{
-			const std::string & axisValue = axis.getStringValue();
-			if ( axisValue == "X" )
-				xAxis = & dim;
-			else if ( axisValue == "Y" )
-				yAxis = & dim;
-		}
+	    const std::string & axisValue = axis.getStringValue();
+	    if ( axisValue == "X" )
+	        xAxis = & dim;
+	    else if ( axisValue == "Y" )
+		yAxis = & dim;
 	}
+    }
 
 	if ( ! xAxis or ! yAxis )
 		throw std::runtime_error("Unable to locate grid definition in netcdf file");
 
 	int xNum = xAxis->getLength();
-	boost::shared_array<float> xValues = reader.getData(xAxis->getName())->asFloat();
+	boost::shared_array<float> xValues = reader->getData(xAxis->getName())->asFloat();
 	float startX = xValues[0];
 	float xIncrement = xValues[1] - xValues[0];
 
 	int yNum = yAxis->getLength();
-	boost::shared_array<float> yValues = reader.getData(yAxis->getName())->asFloat();
+	boost::shared_array<float> yValues = reader->getData(yAxis->getName())->asFloat();
 	float startY = yValues[0];
 	float yIncrement = yValues[1] - yValues[0];
 
@@ -259,18 +271,18 @@ std::string CdmLoader::getPlaceName_(MetNoFimex::CDMReader & reader)
 	}
 }
 
-Time CdmLoader::getReferenceTime_(MetNoFimex::CDMReader & reader) const
+Time CdmLoader::getReferenceTime_(boost::shared_ptr<CDMReader>& reader) const
 {
 	try
 	{
 		boost::shared_ptr<MetNoFimex::Data> data;
 		try
 		{
-			data = reader.getData("forecast_reference_time");
+			data = reader->getData("forecast_reference_time");
 		}
 		catch( std::exception &)
 		{
-			data = reader.getData("runtime");
+			data = reader->getData("runtime");
 		}
 
 		if (data->size() > 1)
@@ -289,7 +301,7 @@ Time CdmLoader::getReferenceTime_(MetNoFimex::CDMReader & reader) const
 	}
 }
 
-boost::shared_ptr<MetNoFimex::Data> CdmLoader::getAltitude_(MetNoFimex::CDMReader & reader) const
+boost::shared_ptr<MetNoFimex::Data> CdmLoader::getAltitude_(boost::shared_ptr<CDMReader>& reader) const
 {
-	return reader.getScaledData("altitude");
+    return reader->getScaledData("altitude");
 }

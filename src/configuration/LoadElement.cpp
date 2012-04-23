@@ -26,14 +26,21 @@
  MA  02110-1301, USA
  */
 
+// project
 #include "LoadElement.h"
+
+// fimex
 #include <fimex/CDM.h>
-#include <fimex/CDMReader.h>
 #include <fimex/Data.h>
+#include <fimex/CDMReader.h>
+
+// libxml2
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
+
+// std
 #include <stdexcept>
 
 
@@ -55,25 +62,25 @@ LoadElement::~LoadElement()
 
 namespace
 {
-bool equal(float a, const std::string & s)
-{
+    bool equal(float a, const std::string & s)
+    {
 	float b = boost::lexical_cast<float>(s);
 	return std::fabs(a -b) < 0.000001;
-}
+    }
 }
 
-unsigned LoadElement::IndexElement::cdmIndex(MetNoFimex::CDMReader & reader) const
+unsigned LoadElement::IndexElement::cdmIndex(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const
 {
-	boost::shared_ptr<MetNoFimex::Data> indexElements = reader.getData(indexName);
-	boost::shared_array<float> elements = indexElements->asFloat();
+    boost::shared_ptr<MetNoFimex::Data> indexElements = reader->getData(indexName);
+    boost::shared_array<float> elements = indexElements->asFloat();
 
-	for ( unsigned index = 0; index < indexElements->size(); ++ index )
-		if ( equal(elements[index], indexValue) )
-			return index;
+    for ( unsigned index = 0; index < indexElements->size(); ++ index )
+        if ( equal(elements[index], indexValue) )
+            return index;
 
-	std::ostringstream msg;
-	msg << "Unable to find index (" << indexName << " = " << indexValue << ")";
-	throw std::runtime_error(msg.str());
+    std::ostringstream msg;
+    msg << "Unable to find index (" << indexName << " = " << indexValue << ")";
+    throw std::runtime_error(msg.str());
 }
 
 namespace
