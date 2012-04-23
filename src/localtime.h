@@ -30,23 +30,26 @@
 #ifndef LOCALTIME_H_
 #define LOCALTIME_H_
 
+// boost
 #include <boost/date_time/local_time/local_date_time.hpp>
+
+// std
 #include <string>
 
-typedef boost::posix_time::time_duration Duration;
 typedef boost::local_time::local_date_time Time;
+typedef boost::posix_time::time_duration   Duration;
 
 extern const Time INVALID_TIME;
 
-/// Get time based on seconds since 1970-01-01
-Time get_time(long long secondsSinceEpoch);
+/// Get time based on seconds since 1970-01-01 - epoch time
+Time time_from_seconds_since_epoch(long long secondsSinceEpoch);
 
-long long get_seconds_since_epoch(const Time & t);
+long long time_to_seconds_since_epoch(const Time& t);
 
 /// Interpret a postgresql time string
-Time local_time_from_string(const std::string & localTime);
+Time time_from_postgresql_string(const std::string & localTime);
 
 /// Create a postgresql time string
-std::string string_from_local_date_time(const Time & t);
+std::string time_to_postgresql_string(const Time & t);
 
 #endif /* LOCALTIME_H_ */

@@ -26,11 +26,16 @@
  MA  02110-1301, USA
  */
 
+// project
 #include "localtime.h"
+
+// boost
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/time_zone_base.hpp>
 #include <boost/regex.hpp>
+
+// std
 #include <string>
 #include <sstream>
 
@@ -40,65 +45,63 @@ using namespace boost::local_time;
 
 namespace
 {
-const boost::posix_time::ptime epoch(boost::gregorian::date(1970,1,1));
-const time_zone_ptr timeZone(new posix_time_zone("+00"));
+    const boost::posix_time::ptime epoch(boost::gregorian::date(1970,1,1));
+    const time_zone_ptr timeZone(new posix_time_zone("+00"));
 }
 
 const Time INVALID_TIME(boost::posix_time::not_a_date_time, timeZone);
 
-Time get_time(long long secondsSinceEpoch)
+Time time_from_seconds_since_epoch(long long secondsSinceEpoch)
 {
+    boost::posix_time::hours hours(secondsSinceEpoch / 3600);
+    boost::posix_time::seconds seconds(secondsSinceEpoch % 3600);
 
-	boost::posix_time::hours hours(secondsSinceEpoch / 3600);
-	boost::posix_time::seconds seconds(secondsSinceEpoch % 3600);
-
-	return Time(epoch, timeZone) + hours + seconds;
+    return Time(epoch, timeZone) + hours + seconds;
 }
 
-long long get_seconds_since_epoch(const Time & t)
+long long time_to_seconds_since_epoch(const Time & t)
 {
-	Time epoch_with_time_zone(epoch, t.zone());
-	Duration timeSinceEpoch = t - epoch_with_time_zone;
+    Time epoch_with_time_zone(epoch, t.zone());
+    Duration timeSinceEpoch = t - epoch_with_time_zone;
 
-	long long ret = timeSinceEpoch.hours() * 60 * 60;
-	ret += timeSinceEpoch.seconds();
+    long long ret = timeSinceEpoch.hours() * 60 * 60;
+    ret += timeSinceEpoch.seconds();
 
-	return ret;
+    return ret;
 }
 
-Time local_time_from_string(const std::string & localTime)
+Time time_from_postgresql_string(const std::string & localTime)
 {
-	string re = "^(\\d{4}-...?-\\d\\d)[ Tt](\\d\\d:\\d\\d:\\d\\d)(.*)$";
-	boost::regex r(re);
-	boost::smatch match;
-	if ( ! boost::regex_match(localTime, match, r) )
-		throw std::logic_error("Invalid syntax for time: " + localTime);
+    string re = "^(\\d{4}-...?-\\d\\d)[ Tt](\\d\\d:\\d\\d:\\d\\d)(.*)$";
+    boost::regex r(re);
+    boost::smatch match;
+    if ( ! boost::regex_match(localTime, match, r) )
+        throw std::logic_error("Invalid syntax for time: " + localTime);
 
-	string fullTime = match[1] + " " + match[2];
-	boost::posix_time::ptime timePart = boost::posix_time::time_from_string(fullTime);
-	string zonePart = match[3];
-	if ( zonePart.empty() )
-		zonePart = "+00";
-	else if ( zonePart == "z" or zonePart == "Z" )
-		zonePart = "+00";
+    string fullTime = match[1] + " " + match[2];
+    boost::posix_time::ptime timePart = boost::posix_time::time_from_string(fullTime);
+    string zonePart = match[3];
+    if ( zonePart.empty() )
+        zonePart = "+00";
+    else if ( zonePart == "z" or zonePart == "Z" )
+        zonePart = "+00";
 
-	time_zone_ptr timeZone(new posix_time_zone(zonePart));
+    time_zone_ptr timeZone(new posix_time_zone(zonePart));
 
-	timePart -= timeZone->base_utc_offset();
+    timePart -= timeZone->base_utc_offset();
 
-	Time t(timePart, timeZone);
+    Time t(timePart, timeZone);
 
-	return t;
+    return t;
 }
 
-
-std::string string_from_local_date_time(const Time & t)
+std::string time_to_postgresql_string(const Time & t)
 {
-	if ( t.is_not_a_date_time() )
-		return std::string();
+    if(t.is_not_a_date_time())
+        return std::string();
 
-	ostringstream ret;
-	ret << t.local_time() << t.zone()->to_posix_string();
+    ostringstream ret;
+    ret << t.local_time() << t.zone()->to_posix_string();
 
-	return ret.str();
+    return ret.str();
 }

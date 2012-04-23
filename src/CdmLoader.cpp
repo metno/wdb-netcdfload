@@ -100,35 +100,38 @@ void CdmLoader::write(boost::shared_ptr<CDMReader>& reader,
     const MetNoFimex::CDM & cdm = reader->getCDM();
 
     const DataSpecification & specification = loadElement.wdbDataSpecification();
-	std::string wdbParameter = specification.wdbParameter();
+    std::string wdbParameter = specification.wdbParameter();
 
-	const MetNoFimex::CDMDimension * unlimitedDimension = cdm.getUnlimitedDim();
+    const MetNoFimex::CDMDimension * unlimitedDimension = cdm.getUnlimitedDim();
 
-	float undef = std::numeric_limits<float>::quiet_NaN();
-	MetNoFimex::CDMAttribute fillValue;
-	if ( cdm.getAttribute(loadElement.cfName(), "_FillValue", fillValue) )
-		undef = fillValue.getData()->asFloat()[0];
+    float undef = std::numeric_limits<float>::quiet_NaN();
+    MetNoFimex::CDMAttribute fillValue;
+    if ( cdm.getAttribute(loadElement.cfName(), "_FillValue", fillValue) )
+        undef = fillValue.getData()->asFloat()[0];
 
-	for (unsigned i = 0; i < validTimes.size(); ++i)
-	{
-		log.debugStream() << "Loading valid time " << string_from_local_date_time(validTimes[i]);
+    for (unsigned i = 0; i < validTimes.size(); ++i)
+    {
+        log.debugStream() << "Loading valid time " << time_to_postgresql_string(validTimes[i]);
 
-		Time validFrom = specification.validTimeFrom().getTime(referenceTime, validTimes[i]);
-		Time validTo = validTimes[i];
+        Time validFrom = specification.validTimeFrom().getTime(referenceTime, validTimes[i]);
+        Time validTo = validTimes[i];
 
-		MetNoFimex::SliceBuilder slicer(cdm, loadElement.cfName());
-		if ( unlimitedDimension )
-			slicer.setStartAndSize(unlimitedDimension->getName(), i, 1);
+        MetNoFimex::SliceBuilder slicer(cdm, loadElement.cfName());
+        if ( unlimitedDimension )
+            slicer.setStartAndSize(unlimitedDimension->getName(), i, 1);
 
-		BOOST_FOREACH(const LoadElement::IndexElement & ie, loadElement.indices() )
-			slicer.setStartAndSize(ie.indexName, ie.cdmIndex(reader), 1);
+        BOOST_FOREACH(const LoadElement::IndexElement & ie, loadElement.indices() )
+                slicer.setStartAndSize(ie.indexName, ie.cdmIndex(reader), 1);
 
-		const boost::shared_ptr<MetNoFimex::Data> & data = reader->getScaledDataSlice(loadElement.cfName(), slicer);
+        const boost::shared_ptr<MetNoFimex::Data> & data = reader->getScaledDataSlice(loadElement.cfName(), slicer);
 
-		write_(data, wdbParameter, placeName, referenceTime,
-				string_from_local_date_time(validFrom),
-				string_from_local_date_time(validTo));
-	}
+        write_(data,
+               wdbParameter,
+               placeName,
+               referenceTime,
+               time_to_postgresql_string(validFrom),
+               time_to_postgresql_string(validTo));
+    }
 }
 
 void CdmLoader::write_(const boost::shared_ptr<MetNoFimex::Data> & data, const std::string & wdbParameter,
@@ -139,7 +142,7 @@ void CdmLoader::write_(const boost::shared_ptr<MetNoFimex::Data> & data, const s
 
 	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 	log.debugStream() << "Saving: " << placeName <<", "<<
-			string_from_local_date_time(referenceTime) <<", "<<
+                        time_to_postgresql_string(referenceTime) <<", "<<
 			validFrom <<", "<<
 			validTo <<", "<<
 			wdbParameter;
@@ -148,35 +151,11 @@ void CdmLoader::write_(const boost::shared_ptr<MetNoFimex::Data> & data, const s
 			values.get(), data->size(),
 			std::string(),
 			placeName,
-			string_from_local_date_time(referenceTime),
+                        time_to_postgresql_string(referenceTime),
 			validFrom,
 			validTo,
 			wdbParameter,
 			"height above ground", 0, 0, 0, 0);
-}
-
-
-double CdmLoader::getScaleFactor_(const boost::shared_ptr<CDMReader>& reader, const std::string & cfName, float extraScaling) const
-{
-	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
-	double scaleFactor = 1;
-	MetNoFimex::CDMAttribute scale_factor;
-	if ( reader->getCDM().getAttribute(cfName, "scale_factor", scale_factor) )
-	{
-		try {
-			scaleFactor = boost::lexical_cast<double>(scale_factor.getStringValue());
-		}
-		catch ( boost::bad_lexical_cast & )
-		{
-			log.warnStream() << "Could not understand netcdf value for scale_factor: " << scale_factor.getStringValue() << " unsing value 1 instead.";
-		}
-	}
-
-	scaleFactor *= extraScaling;
-
-	log.debugStream() << cfName << " scale factor (from netcdf and config): " << scaleFactor;
-
-	return scaleFactor;
 }
 
 std::vector<Time> CdmLoader::getTimes_(boost::shared_ptr<CDMReader>& reader) const
@@ -186,7 +165,7 @@ std::vector<Time> CdmLoader::getTimes_(boost::shared_ptr<CDMReader>& reader) con
     boost::shared_ptr<MetNoFimex::Data> times = reader->getData("time");
     boost::shared_array<double> values = times->asDouble();
     for ( unsigned i = 0; i < times->size(); ++ i )
-        ret.push_back(get_time((long long) values[i]));
+        ret.push_back(time_from_seconds_since_epoch((long long) values[i]));
     return ret;
 }
 
@@ -273,32 +252,26 @@ std::string CdmLoader::getPlaceName_(boost::shared_ptr<CDMReader>& reader)
 
 Time CdmLoader::getReferenceTime_(boost::shared_ptr<CDMReader>& reader) const
 {
-	try
-	{
-		boost::shared_ptr<MetNoFimex::Data> data;
-		try
-		{
-			data = reader->getData("forecast_reference_time");
-		}
-		catch( std::exception &)
-		{
-			data = reader->getData("runtime");
-		}
+    try {
+        boost::shared_ptr<Data> data;
+        try {
+            data = reader->getData("forecast_reference_time");
+        } catch( std::exception &) {
+            data = reader->getData("runtime");
+        }
 
-		if (data->size() > 1)
-			throw std::runtime_error("Can only handle a single runtime");
-		if (data->size() == 0)
-			throw std::runtime_error("Missing runtime specification"); // should never happen
+        if (data->size() > 1)
+            throw std::runtime_error("Can only handle a single runtime from the same CDM modell");
+        if (data->size() == 0)
+            throw std::runtime_error("Missing runtime specification in the CDM modell"); // should never happen
 
-		double time = data->asDouble()[0];
+        double time = data->asDouble()[0];
 
-		return get_time((long long) time);
-	}
-	catch (std::exception &)
-	{
-		// runtime did not exist in spec - it must therefore be specified in configuration.
-		return INVALID_TIME;
-	}
+        return time_from_seconds_since_epoch((long long) time);
+    } catch (std::exception& e) {
+        // runtime did not exist in spec - it must therefore be specified in configuration.
+        return INVALID_TIME;
+    }
 }
 
 boost::shared_ptr<MetNoFimex::Data> CdmLoader::getAltitude_(boost::shared_ptr<CDMReader>& reader) const
