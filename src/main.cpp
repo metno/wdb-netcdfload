@@ -26,26 +26,32 @@
     MA  02110-1301, USA
 */
 
-
+// project
 #include "CdmLoader.h"
 #include "configuration/CdmLoaderConfiguration.h"
+
+// wdb
 #include <wdbLogHandler.h>
+
+// boost
 #include <boost/foreach.hpp>
+
+//std
 #include <iostream>
 
 #define PROGRAM "cdmLoad"
 #define VERSION "1.0.0"
 
+using namespace std;
 
-namespace
-{
-std::ostream & version(std::ostream & out)
-{
-	return out << PROGRAM" "VERSION << std::endl;
-}
+namespace {
+    ostream& version(ostream& out)
+    {
+	return out << PROGRAM" "VERSION << endl;
+    }
 
-std::ostream & help(std::ostream & out, const boost::program_options::options_description & options)
-{
+    ostream & help(ostream& out, const boost::program_options::options_description& options)
+    {
 	version(out);
 	out << '\n';
 	out << "Usage: "PROGRAM" [OPTIONS] FILE...\n";
@@ -53,45 +59,42 @@ std::ostream & help(std::ostream & out, const boost::program_options::options_de
 	out << "Loads data from a netcdf file into a wdb database\n";
 	out << '\n';
 	out << "Options:\n";
-	out << options << std::endl;
+	out << options << endl;
 	return out;
-}
+    }
 }
 
 int main(int argc, char ** argv)
 {
-	CdmLoaderConfiguration conf;
-	conf.parse(argc, argv);
+    CdmLoaderConfiguration conf;
+    conf.parse(argc, argv);
 
-	if ( conf.general().version )
-	{
-		version(std::cout);
-		return 0;
-	}
-	if ( conf.general().help )
-	{
-		help(std::cout, conf.shownOptions());
-		return 0;
-	}
+    if(conf.general().version)
+    {
+        version(cout);
+	return 0;
+    }
+    if(conf.general().help)
+    {
+        help(std::cout, conf.shownOptions());
+	return 0;
+    }
 
-	if ( conf.output().list )
-	{
-		std::clog << "content listing is not supported (yet). Use ncdump instead" << std::endl;
-		return 1;
-	}
+    if(conf.output().list)
+    {
+        clog << "content listing is not supported (yet). Use ncdump instead" << endl;
+	return 1;
+    }
 
-	wdb::WdbLogHandler logHandler( conf.logging().loglevel, conf.logging().logfile );
+    wdb::WdbLogHandler logHandler(conf.logging().loglevel, conf.logging().logfile);
 
-	try
-	{
-		CdmLoader loader(conf);
-		BOOST_FOREACH(const std::string & file, conf.input().file )
-			loader.write(file);
-	}
-	catch ( std::exception & e )
-	{
-		WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
-		log.fatal(e.what());
-		return 1;
-	}
+    try{
+        CdmLoader loader(conf);
+	BOOST_FOREACH(const std::string & file, conf.input().file)
+            loader.write(file);
+    } catch (std::exception& e) {
+        WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+	log.fatal(e.what());
+	return 1;
+    }
 }
