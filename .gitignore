@@ -8,4 +8,21 @@ configure
 depcomp
 install-sh
 missing
+*.o
+*.a
+*.lo
+*.la
+Makefile
+config.h
+config.log
+config.status
+doc/netcdfLoad.1
+netcdfLoad
+src/.deps/
+src/.dirstamp
+src/configuration/.deps/
+src/configuration/.dirstamp
+src/configuration/parameter/.deps/
+src/configuration/parameter/.dirstamp
+stamp-h1
 
