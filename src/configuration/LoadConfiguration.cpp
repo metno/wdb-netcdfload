@@ -36,8 +36,8 @@
 
 namespace
 {
-struct XmlSession
-{
+    struct XmlSession
+    {
 	XmlSession()
 	{
 		xmlInitParser();
@@ -46,52 +46,81 @@ struct XmlSession
 	{
 		xmlCleanupParser();
 	}
-};
+    };
 }
 
 
-LoadConfiguration::LoadConfiguration(const boost::filesystem::path & translationFile)
+LoadConfiguration::LoadConfiguration(const boost::filesystem::path& translationFile)
 {
-	if ( not exists(translationFile) )
-		throw std::runtime_error(translationFile.file_string() + ": No such file");
-	if ( is_directory(translationFile) )
-		throw std::runtime_error(translationFile.file_string() + " is a directory");
+    if(not exists(translationFile))
+        throw std::runtime_error(translationFile.file_string() + ": No netcdfo-wdb translation file");
+    if(is_directory(translationFile))
+        throw std::runtime_error(translationFile.file_string() + " is a directory, netcdf-wdb-transaltion file expecdted");
 
-	const std::string & fileName = translationFile.file_string();
+    const std::string & fileName = translationFile.file_string();
 
-	XmlSession session;
-	boost::shared_ptr<xmlDoc> doc(xmlParseFile(fileName.c_str()), xmlFreeDoc);
-	if ( ! doc )
-		throw std::runtime_error("Unable to parse doc");
+    XmlSession session;
+    boost::shared_ptr<xmlDoc> doc(xmlParseFile(fileName.c_str()), xmlFreeDoc);
+    if (not doc)
+        throw std::runtime_error("Unable to parse doc");
 
-	boost::shared_ptr<xmlXPathContext> xpathCtx(xmlXPathNewContext(doc.get()), xmlXPathFreeContext);
-	if ( ! xpathCtx )
-		throw std::runtime_error("unable to create xpath context");
+    boost::shared_ptr<xmlXPathContext> xpathCtx(xmlXPathNewContext(doc.get()), xmlXPathFreeContext);
+    if (not xpathCtx)
+        throw std::runtime_error("unable to create xpath context");
 
-	init_(xpathCtx.get());
+    init_(xpathCtx.get());
 }
 
 LoadConfiguration::~LoadConfiguration()
 {
-	// TODO Auto-generated destructor stub
+    // TODO Auto-generated destructor stub
 }
 
 void LoadConfiguration::init_(xmlXPathContextPtr context)
 {
-	boost::shared_ptr<xmlXPathObject> xpathObj(
-			xmlXPathEvalExpression((const xmlChar *) "/netcdfloadconfiguration/load", context),
-			xmlXPathFreeObject);
+    boost::shared_ptr<xmlXPathObject>
+            xpathObjLoad(xmlXPathEvalExpression((const xmlChar *) "/netcdfloadconfiguration/load", context),
+                     xmlXPathFreeObject);
 
-	if ( ! xpathObj )
+    if(not xpathObjLoad)
         return;
-	xmlNodeSetPtr nodes = xpathObj->nodesetval;
 
-	for ( int i = 0; i < nodes->nodeNr; ++ i )
-	{
-		xmlNodePtr elementNode =  nodes->nodeTab[i];
-		if ( elementNode->type != XML_ELEMENT_NODE )
-			throw std::runtime_error("Expected element node");
+    xmlNodeSetPtr nodesLoad = xpathObjLoad->nodesetval;
 
-		loadElements_.push_back(LoadElement(elementNode));
-	}
+    for ( int i = 0; i < nodesLoad->nodeNr; ++ i )
+    {
+        xmlNodePtr elementNode =  nodesLoad->nodeTab[i];
+        if ( elementNode->type != XML_ELEMENT_NODE )
+            throw std::runtime_error("Expected element node");
+
+        loadElements_.push_back(LoadElement(elementNode));
+    }
+
+    boost::shared_ptr<xmlXPathObject>
+            xpathObjAxis(xmlXPathEvalExpression((const xmlChar *) "/netcdfloadconfiguration/axis", context),
+                     xmlXPathFreeObject);
+
+    if(not xpathObjAxis)
+        return;
+
+    xmlNodeSetPtr nodesAxis = xpathObjAxis->nodesetval;
+
+    for ( int i = 0; i < nodesAxis->nodeNr; ++ i )
+    {
+        xmlNodePtr axisNode =  nodesAxis->nodeTab[i];
+        if (axisNode->type != XML_ELEMENT_NODE)
+            throw std::runtime_error("Expected element node");
+
+        axisElements_.push_back(AxisElement(axisNode));
+    }
+}
+
+LoadConfiguration::axis_iterator LoadConfiguration::findAxisByCfName(const std::string& cfName)
+{
+    LoadConfiguration::axis_iterator it;
+    for(it = axisElements_.begin(); it != axisElements_.end(); ++it) {
+        if(it->cfName() == cfName)
+            break;
+    }
+    return it;
 }

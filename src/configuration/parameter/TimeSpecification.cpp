@@ -43,45 +43,45 @@ TimeSpecification::TimeSpecification() :
 
 TimeSpecification::TimeSpecification(const char * spec)
 {
-	std::vector<bool> subtract;
-	std::vector<int> hourOffset;
+    std::vector<bool> subtract;
+    std::vector<int> hourOffset;
 
-	using namespace boost::spirit::classic;
-	parse_info<> parseResult = parse(spec,
-			// first, choose reference or valid time as base
-			(as_lower_d["referencetime"][assign_a(baseTime_,ReferenceTime)] | as_lower_d["validtime"][assign_a(baseTime_,ValidTime)])
-			// then, add or subtract from that time
-			>> * (sign_p[push_back_a(subtract)] >> int_p[push_back_a(hourOffset)] >> as_lower_d["hours"]),
-			space_p);
+    using namespace boost::spirit::classic;
+    parse_info<> parseResult = parse(spec,
+                                     // first, choose reference or valid time as base
+                                     (as_lower_d["referencetime"][assign_a(baseTime_,ReferenceTime)] | as_lower_d["validtime"][assign_a(baseTime_,ValidTime)])
+                                     // then, add or subtract from that time
+                                     >> * (sign_p[push_back_a(subtract)] >> int_p[push_back_a(hourOffset)] >> as_lower_d["hours"]),
+                                     space_p);
 
-	if ( not parseResult.full )
-		throw InvalidSpecification(spec);
+    if ( not parseResult.full )
+        throw InvalidSpecification(spec);
 
-	if ( baseTime_ != ReferenceTime and baseTime_ != ValidTime )
-		throw InternalError(spec);
+    if ( baseTime_ != ReferenceTime and baseTime_ != ValidTime )
+        throw InternalError(spec);
 
-	for ( unsigned i = 0; i < subtract.size(); ++ i )
-	{
-		boost::local_time::local_date_time::time_duration_type offset(hourOffset[i], 0, 0);
-		if ( subtract[i] )
-			duration_ -= offset;
-		else
-			duration_ += offset;
-	}
+    for ( unsigned i = 0; i < subtract.size(); ++ i )
+    {
+        boost::local_time::local_date_time::time_duration_type offset(hourOffset[i], 0, 0);
+        if ( subtract[i] )
+            duration_ -= offset;
+        else
+            duration_ += offset;
+    }
 }
 
 boost::local_time::local_date_time TimeSpecification::getTime(
 		const boost::local_time::local_date_time & referenceTime,
 		const boost::local_time::local_date_time & validTime) const
 {
-	boost::local_time::local_date_time ret(boost::posix_time::not_a_date_time);
+    boost::local_time::local_date_time ret(boost::posix_time::not_a_date_time);
 
-	if ( ReferenceTime == baseTime_ )
-		ret = referenceTime;
-	if ( ValidTime == baseTime_ )
-		ret = validTime;
+    if ( ReferenceTime == baseTime_ )
+        ret = referenceTime;
+    if ( ValidTime == baseTime_ )
+        ret = validTime;
 
-	ret += duration_;
+    ret += duration_;
 
-	return ret;
+    return ret;
 }

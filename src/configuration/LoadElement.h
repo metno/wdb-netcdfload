@@ -36,6 +36,8 @@
 #include <boost/shared_ptr.hpp>
 
 // std
+#include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -47,36 +49,64 @@ extern "C"
 
 namespace MetNoFimex
 {
-class CDMReader;
+    class CDMReader;
 }
+
+class AxisElement
+{
+public:
+    explicit AxisElement(xmlNodePtr loadNode);
+    ~AxisElement();
+
+    const std::string & cfName() const { return cfName_; }
+//    const std::string & wdbUnit() const { return wdbUnits_; }
+    const DataSpecification& wdbDataSpecification() const { return wdbDataSpecification_; }
+
+private:
+    void addWdbSpec_(xmlNodePtr wdbNode);
+    void addNetcdfSpec_(xmlNodePtr netcdfNode);
+
+    std::string cfName_;
+//    std::string wdbUnits_;
+    DataSpecification wdbDataSpecification_;
+};
 
 class LoadElement
 {
 public:
-	explicit LoadElement(xmlNodePtr loadNode);
-	~LoadElement();
+    explicit LoadElement(xmlNodePtr loadNode);
+    ~LoadElement();
 
-	struct IndexElement
-	{
-            std::string indexName;
-	    std::string indexValue;
+    struct IndexElement
+    {
+        std::string indexName;
+        std::string indexValue;
 
-	    unsigned cdmIndex(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const;
-	};
+        unsigned cdmIndex(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const;
+    };
 
-	const std::string & cfName() const { return cfName_; }
-	const std::vector<IndexElement> & indices() const { return indices_; }
-	const DataSpecification & wdbDataSpecification() const { return wdbDataSpecification_; }
-
+    const std::string& cfName() const { return cfName_; }
+//    const std::string& wdbUnit() const { return wdbUnits_; }
+    const std::vector<std::vector<IndexElement> >& permutations() const;
+    const std::set<std::string>& indiceKeys() { return indiceKeys_; }
+    const DataSpecification& wdbDataSpecification() const { return wdbDataSpecification_; }
+    void expandIndicePermutations(const boost::shared_ptr<MetNoFimex::CDMReader>& reader, const std::string& dimName);
+    void removeNotToLoadPermutations();
 
 private:
-	void addNetcdfSpec_(xmlNodePtr netcdfNode);
-	void addWdbSpec_(xmlNodePtr wdbNode);
+    void addWdbSpec_(xmlNodePtr wdbNode);
+    void addNetcdfSpec_(xmlNodePtr netcdfNode);
+    void makeIndicePermutations_();
 
-	std::string cfName_;
-	std::vector<IndexElement> indices_;
+    std::string cfName_;
+//    std::string wdbUnits_;
+    DataSpecification wdbDataSpecification_;
 
-	DataSpecification wdbDataSpecification_;
+    std::set<std::string> indiceKeys_;
+    std::multimap<std::string, IndexElement> indicesToLoad_;
+    std::multimap<std::string, IndexElement> indicesNotToLoad_;
+    std::vector<std::vector<IndexElement> >  indicesPermutations_;
+
 };
 
 #endif /* LOADELEMENT_H_ */

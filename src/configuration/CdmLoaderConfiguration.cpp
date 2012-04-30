@@ -28,18 +28,13 @@
 
 #include "CdmLoaderConfiguration.h"
 
-namespace
+CdmLoaderConfiguration::CdmLoaderConfiguration()
+    : wdb::load::LoaderConfiguration("pgen_probability")
 {
-const std::string & DEFAULT_CONFIG_FILE = SYSCONFDIR"/netcdfLoad/eps2probandltf.netcdfload.xml";
-}
-
-CdmLoaderConfiguration::CdmLoaderConfiguration() :
-	wdb::load::LoaderConfiguration("pgen_probability")
-{
-	using namespace boost::program_options;
+    using namespace boost::program_options;
 
     options_description conf( "Load configuration" );
-    std::string helpText = "Read netcdf-to-wdb configuration from the given file. Default is " + DEFAULT_CONFIG_FILE;
+    std::string helpText = "Read netcdf-to-wdb configuration from the given file.";
     conf.add_options()
     ( "configuration,c", value<std::string>(& loadConfiguration_), helpText.c_str())
     ;
@@ -49,13 +44,9 @@ CdmLoaderConfiguration::CdmLoaderConfiguration() :
 	shownOptions().add(conf);
 }
 
-CdmLoaderConfiguration::~CdmLoaderConfiguration()
-{
-}
+CdmLoaderConfiguration::~CdmLoaderConfiguration() { }
 
 void CdmLoaderConfiguration::parse( int argc, char ** argv )
 {
-	wdb::load::LoaderConfiguration::parse(argc, argv);
-	if ( loadConfiguration_.empty() )
-		loadConfiguration_ = DEFAULT_CONFIG_FILE;
+    wdb::load::LoaderConfiguration::parse(argc, argv);
 }

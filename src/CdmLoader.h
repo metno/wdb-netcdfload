@@ -52,40 +52,37 @@ public:
     CdmLoader(const CdmLoaderConfiguration & conf);
     ~CdmLoader();
 
-    void write(const std::string & file);
-
-    void write(boost::shared_ptr<MetNoFimex::CDMReader>& reader);
-
-    void write(boost::shared_ptr<MetNoFimex::CDMReader>& reader,
-               const LoadElement & loadElement,
-               const std::string & placeName,
-               const Time & referenceTime,
-               const std::vector<Time> & validTimes);
-
-    void write(boost::shared_ptr<MetNoFimex::CDMReader>& reader,
-               const std::string & cfName,
-               const std::string & placeName,
-               const Time & referenceTime,
-               const std::vector<Time> & validTimes);
+    void load(const std::string & file);
 
 private:
 
-    void write_(const boost::shared_ptr<MetNoFimex::Data> & data,
-                const std::string & wdbParameter,
-                const std::string & placeName,
-                const Time & referenceTime,
-                const std::string & validFrom,
-                const std::string & validTo);
+    void write_();
+    void write_(LoadElement& loadElement);
 
-    std::vector<Time> getTimes_(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const;
-    std::string getPlaceName_(boost::shared_ptr<MetNoFimex::CDMReader>& reader);
-    Time getReferenceTime_(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const;
-    boost::shared_ptr<MetNoFimex::Data> getAltitude_(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const;
+    void write_(const boost::shared_ptr<MetNoFimex::Data>& data,
+                const std::string& wdbParameter,
+                const std::string& placeName,
+                const std::string& validFrom,
+                const std::string& validTo,
+                const std::string& wdbLevelName,
+                double levelFrom,
+                double levelTo,
+                size_t dataVersion);
+
+    Time getReferenceTime_();
+    std::vector<Time> getTimes_();
+
+    std::string getPlaceName_(const std::string& cfName);
+    boost::shared_ptr<MetNoFimex::Data> getLevels_(const std::string& cfName) const;
 
     CdmLoaderConfiguration conf_;
     wdb::load::LoaderDatabaseConnection wdbConnection_;
 
     LoadConfiguration loadConfiguration_;
+
+    boost::shared_ptr<Time> pReferenceTime_;
+    std::vector<Time> timeAxis_;
+    boost::shared_ptr<MetNoFimex::CDMReader> pReader_;
 };
 
 #endif /* CDMLOADER_H_ */

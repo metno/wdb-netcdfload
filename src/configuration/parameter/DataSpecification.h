@@ -36,20 +36,22 @@
 class DataSpecification
 {
 public:
-	DataSpecification() {}
-	DataSpecification(const std::string wdbParameterName, float scale, const std::string validFrom, const std::string & validTo = "validtime");
-	virtual ~DataSpecification();
+    DataSpecification() {}
+    DataSpecification(const std::string& wdbParameterName, const std::string& units, float scale, const std::string& validFrom, const std::string& validTo = "validtime");
+    virtual ~DataSpecification();
 
-	const std::string & wdbParameter() const { return wdbParameter_; }
-	float scale() const { return scale_; }
-	const TimeSpecification & validTimeFrom() const { return validTimeFrom_; }
-	const TimeSpecification & validTimeTo() const { return validTimeTo_; }
+    const std::string & wdbParameter() const { return wdbParameter_; }
+    const std::string & wdbUnits() const { return wdbUnits_; }
+    float scale() const { return scale_; }
+    const TimeSpecification & validTimeFrom() const { return validTimeFrom_; }
+    const TimeSpecification & validTimeTo() const { return validTimeTo_; }
 
 private:
-	std::string wdbParameter_;
-	float scale_;
-	TimeSpecification validTimeFrom_;
-	TimeSpecification validTimeTo_;
+    std::string wdbParameter_;
+    std::string wdbUnits_;
+    float scale_;
+    TimeSpecification validTimeFrom_;
+    TimeSpecification validTimeTo_;
 };
 
 
