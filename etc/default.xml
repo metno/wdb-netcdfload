@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE eps2probandltf_config>
+
+<netcdfloadconfiguration xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="netcdfLoad.configuration.xsd">
+
+	<axis>
+		<netcdf cfname="pressure" />
+		<wdb name="air pressure" units="hPa"/>
+	</axis>
+
+         <load>
+		<netcdf cfname="precipitation_percentiles">
+			<dimension name="percentile" value="0.25"/>
+		</netcdf>
+		<wdb name="25th percentile of precipitation amount" scale="0.001" validfrom="validtime - 6 hours" units="kg m2"/>
+	</load>
+
+	<load>
+		<netcdf cfname="geopotential_height">
+		    <dimension name="pressure" value="10" />
+		    <dimension name="pressure" value="30" />
+		</netcdf>
+		<wdb name="geopotential height" units="m"/>
+	</load>
+
+	<load>
+		<netcdf cfname="air_potential_temperature">
+                    <dimension name="pressure" value="10" />
+		</netcdf>
+		<wdb name="air temperature" units="K"/>
+	</load>
+
+	<load>
+		<netcdf cfname="x_wind">
+                    <dimension name="pressure" value="10" />
+		</netcdf>
+		<wdb name="x wind on 10" units="m/s"/>
+	</load>
+
+	<load>
+		<netcdf cfname="x_wind">
+                    <dimension name="pressure" value="30" />
+		</netcdf>
+		<wdb name="x wind on 30" units="m/s"/>
+	</load>
+
+	<load>
+		<netcdf cfname="y_wind">
+                    <dimension name="pressure" value="!10" />
+		</netcdf>
+		<wdb name="y wind" units="m/s"/>
+	</load>
+</netcdfloadconfiguration>
