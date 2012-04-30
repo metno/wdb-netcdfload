@@ -37,7 +37,7 @@ using namespace boost::gregorian;
 
 TEST(TimeConversionTest, specificTimeZone)
 {
-	const local_date_time in = local_time_from_string("2008-11-25 13:00:00+01");
+	const local_date_time in = time_from_postgresql_string("2008-11-25 13:00:00+01");
 	date d(2008, 11, 25);
 	ptime expected(d, hours(12));
 
@@ -47,7 +47,7 @@ TEST(TimeConversionTest, specificTimeZone)
 
 TEST(TimeConversionTest, negativeTimeZone)
 {
-	const local_date_time in = local_time_from_string("2008-11-25 13:00:00-01");
+	const local_date_time in = time_from_postgresql_string("2008-11-25 13:00:00-01");
 	date d(2008, 11, 25);
 	ptime expected(d, hours(14));
 
@@ -58,7 +58,7 @@ TEST(TimeConversionTest, negativeTimeZone)
 
 TEST(TimeConversionTest, implicitlyUtc)
 {
-	const local_date_time in = local_time_from_string("2008-11-25 13:00:00");
+	const local_date_time in = time_from_postgresql_string("2008-11-25 13:00:00");
 	date d(2008, 11, 25);
 	ptime expected(d, hours(13));
 
@@ -68,7 +68,7 @@ TEST(TimeConversionTest, implicitlyUtc)
 
 TEST(TimeConversionTest, explicitlyUtc)
 {
-	const local_date_time in = local_time_from_string("2008-11-25 13:00:00Z");
+	const local_date_time in = time_from_postgresql_string("2008-11-25 13:00:00Z");
 	date d(2008, 11, 25);
 	ptime expected(d, hours(13));
 

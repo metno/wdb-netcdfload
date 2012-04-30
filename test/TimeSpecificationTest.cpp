@@ -47,8 +47,8 @@ TEST(TimeSpecificationTest, returnReferenceTime)
 {
 	TimeSpecification ts("referencetime");
 
-	local_date_time referenceTime = local_time_from_string("2010-02-01 12:00:00");
-	local_date_time validTime = local_time_from_string("2010-02-03 18:00:00");
+	local_date_time referenceTime = time_from_postgresql_string("2010-02-01 12:00:00");
+	local_date_time validTime = time_from_postgresql_string("2010-02-03 18:00:00");
 
 	ASSERT_EQ(referenceTime, ts.getTime(referenceTime, validTime));
 }
@@ -57,8 +57,8 @@ TEST(TimeSpecificationTest, returnValidTime)
 {
 	TimeSpecification ts("validtime");
 
-	local_date_time referenceTime = local_time_from_string("2010-02-01 12:00:00");
-	local_date_time validTime = local_time_from_string("2010-02-03 18:00:00");
+	local_date_time referenceTime = time_from_postgresql_string("2010-02-01 12:00:00");
+	local_date_time validTime = time_from_postgresql_string("2010-02-03 18:00:00");
 
 	ASSERT_EQ(validTime, ts.getTime(referenceTime, validTime));
 }
@@ -66,10 +66,10 @@ TEST(TimeSpecificationTest, returnValidTime)
 TEST(TimeSpecificationTest, complexSpecificationAddTime)
 {
 	TimeSpecification ts("validtime + 6 hours");
-	local_date_time referenceTime = local_time_from_string("2010-02-01 12:00:00");
-	local_date_time validTime = local_time_from_string("2010-02-03 18:00:00");
+	local_date_time referenceTime = time_from_postgresql_string("2010-02-01 12:00:00");
+	local_date_time validTime = time_from_postgresql_string("2010-02-03 18:00:00");
 
-	local_date_time expectedTime = local_time_from_string("2010-02-04 00:00:00");
+	local_date_time expectedTime = time_from_postgresql_string("2010-02-04 00:00:00");
 
 	ASSERT_EQ(expectedTime, ts.getTime(referenceTime, validTime));
 }
@@ -77,10 +77,10 @@ TEST(TimeSpecificationTest, complexSpecificationAddTime)
 TEST(TimeSpecificationTest, complexSpecificationSubtractTime)
 {
 	TimeSpecification ts("referencetime - 12 hours");
-	local_date_time referenceTime = local_time_from_string("2010-02-01 12:00:00");
-	local_date_time validTime = local_time_from_string("2010-02-03 18:00:00");
+	local_date_time referenceTime = time_from_postgresql_string("2010-02-01 12:00:00");
+	local_date_time validTime = time_from_postgresql_string("2010-02-03 18:00:00");
 
-	local_date_time expectedTime = local_time_from_string("2010-02-01 00:00:00");
+	local_date_time expectedTime = time_from_postgresql_string("2010-02-01 00:00:00");
 
 	ASSERT_EQ(expectedTime, ts.getTime(referenceTime, validTime));
 }
@@ -88,10 +88,10 @@ TEST(TimeSpecificationTest, complexSpecificationSubtractTime)
 TEST(TimeSpecificationTest, noSpace)
 {
 	TimeSpecification ts("referencetime-12hours");
-	local_date_time referenceTime = local_time_from_string("2010-02-01 12:00:00");
-	local_date_time validTime = local_time_from_string("2010-02-03 18:00:00");
+	local_date_time referenceTime = time_from_postgresql_string("2010-02-01 12:00:00");
+	local_date_time validTime = time_from_postgresql_string("2010-02-03 18:00:00");
 
-	local_date_time expectedTime = local_time_from_string("2010-02-01 00:00:00");
+	local_date_time expectedTime = time_from_postgresql_string("2010-02-01 00:00:00");
 
 	ASSERT_EQ(expectedTime, ts.getTime(referenceTime, validTime));
 }
@@ -99,10 +99,10 @@ TEST(TimeSpecificationTest, noSpace)
 TEST(TimeSpecificationTest, complexSpecificationMultipleOperations)
 {
 	TimeSpecification ts("referencetime - 12 hours +8 hours");
-	local_date_time referenceTime = local_time_from_string("2010-02-01 12:00:00");
-	local_date_time validTime = local_time_from_string("2010-02-03 18:00:00");
+	local_date_time referenceTime = time_from_postgresql_string("2010-02-01 12:00:00");
+	local_date_time validTime = time_from_postgresql_string("2010-02-03 18:00:00");
 
-	local_date_time expectedTime = local_time_from_string("2010-02-01 08:00:00");
+	local_date_time expectedTime = time_from_postgresql_string("2010-02-01 08:00:00");
 
 	ASSERT_EQ(expectedTime, ts.getTime(referenceTime, validTime));
 }
@@ -111,8 +111,8 @@ TEST(TimeSpecificationTest, caseInsensitive)
 {
 	TimeSpecification ts("ValidTime");
 
-	local_date_time referenceTime = local_time_from_string("2010-02-01 12:00:00");
-	local_date_time validTime = local_time_from_string("2010-02-03 18:00:00");
+	local_date_time referenceTime = time_from_postgresql_string("2010-02-01 12:00:00");
+	local_date_time validTime = time_from_postgresql_string("2010-02-03 18:00:00");
 
 	ASSERT_EQ(validTime, ts.getTime(referenceTime, validTime));
 }
