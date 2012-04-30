@@ -1,4 +1,4 @@
-if HAVE_GTEST
+#if HAVE_GTEST
 
 TESTS = netcdfLoadTest
 
@@ -16,4 +16,4 @@ BOOST_LIBS = \
 netcdfLoadTest_CPPFLAGS = -I$(top_srcdir)/src/ $(gtest_CFLAGS)
 netcdfLoadTest_LDADD = libnetcdfLoadCore.a $(BOOST_LIBS) $(gtest_LIBS) -lgtest_main
 
-endif
+#endif

@@ -26,7 +26,7 @@ netcdfLoad_LDADD = $(wdb_LIBS) \
                       libnetcdfLoadCore.a -lfimex -lgrib_api -lxml2 -lwdbLoad -lwdbConfig -lwdbProj -lwdbExcept -lwdbLog -lwdbMath
 
 include src/netcdfLoad.mk
-#include test/netcdfLoad.mk
+include test/netcdfLoad.mk
 include etc/netcdfLoad.mk
 include doc/netcdfLoad.mk
 
