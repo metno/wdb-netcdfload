@@ -25,4 +25,7 @@ src/configuration/.dirstamp
 src/configuration/parameter/.deps/
 src/configuration/parameter/.dirstamp
 stamp-h1
+netcdfLoadTest
+test/.deps/netcdfLoadTest-TimeSpecificationTest.Po
+test/.deps/netcdfLoadTest-timeTest.Po
 
