@@ -44,8 +44,8 @@
 //std
 #include <iostream>
 
-#define PROGRAM "cdmLoad"
-#define VERSION "1.0.0"
+#define PROGRAM "netcdfLoad"
+#define VERSION "0.7.0"
 
 using namespace std;
 
