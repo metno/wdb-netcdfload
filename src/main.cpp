@@ -33,6 +33,11 @@
 // wdb
 #include <wdbLogHandler.h>
 
+// fimex
+#include "fimex/CDM.h"
+#include "fimex/CDMReader.h"
+#include "fimex/CDMFileReaderFactory.h"
+
 // boost
 #include <boost/foreach.hpp>
 
@@ -82,8 +87,14 @@ int main(int argc, char ** argv)
 
     if(conf.output().list)
     {
-        clog << "content listing is not supported (yet). Use ncdump instead" << endl;
-	return 1;
+        BOOST_FOREACH(const std::string& file, conf.input().file)
+        {
+            boost::shared_ptr<MetNoFimex::CDMReader> reader = MetNoFimex::CDMFileReaderFactory::create(MIFI_FILETYPE_NETCDF, file);
+            reader->getCDM().toXMLStream(cout);
+            cout <<"--------------------------------------------------------------------------------------------------------------"<< endl;
+        }
+
+        return 0;
     }
 
     wdb::WdbLogHandler logHandler(conf.logging().loglevel, conf.logging().logfile);
@@ -91,7 +102,7 @@ int main(int argc, char ** argv)
     try{
         CdmLoader loader(conf);
 	BOOST_FOREACH(const std::string & file, conf.input().file)
-            loader.write(file);
+            loader.load(file);
     } catch (std::exception& e) {
         WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 	log.fatal(e.what());
