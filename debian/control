@@ -1,7 +1,7 @@
 Source: netcdfload
 Section: science
 Priority: extra
-Maintainer: Vegard Bones <vegard.bones@met.no>
+Maintainer: Aleksandar Babic <aleksandar.babic@met.no>
 Build-Depends: debhelper (>= 7), autotools-dev,
  libfimex-dev,
  libfelt-dev,
@@ -20,8 +20,6 @@ Standards-Version: 3.8.4
 Package: netcdfload
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Load netcdf and other fimex-supported files into wdb
- Loads files that are readable by fimex into a wdb database. Note that
- this program has only been tested on probability forecast
- files. Therefore it is very likely that it will fail to load wahtever
- you want it to.
+Description: Load field data from netcdf files into wdb
+ Loads files that are readable by fimex into a wdb database. Change
+ configuration file to suit youor need for particula NetCDF file.
