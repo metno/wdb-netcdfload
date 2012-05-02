@@ -34,13 +34,13 @@ PKG_CHECK_MODULES([fimex], [fimex],
 	[AC_MSG_ERROR([Unable to find fimex.])
 	])
 
-#PKG_CHECK_MODULES([wdb], [libwdbLoad],
-#   	[
-#		AC_SUBST(wdb_CFLAGS)
-#		AC_SUBST(wdb_LIBS)
-#	],
-#	[AC_MSG_ERROR([Unable to find libwdbload.])
-#	])
+PKG_CHECK_MODULES([wdb], [libwdbLoad],
+   	[
+		AC_SUBST(wdb_CFLAGS)
+         	AC_SUBST(wdb_LIBS)
+	],
+	[AC_MSG_ERROR([Unable to find libwdbload.])
+	])
 
 AC_PATH_PROG([XMLTO], [xmlto], [false])
 

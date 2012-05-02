@@ -4,6 +4,8 @@ TESTS = netcdfLoadTest
 
 check_PROGRAMS = netcdfLoadTest
 netcdfLoadTest_SOURCES = \
+        src/localtime.cpp \
+        src/configuration/parameter/TimeSpecification.cpp \
 	test/TimeSpecificationTest.cpp \
 	test/timeTest.cpp
 

@@ -15,7 +15,7 @@ sqldir = 		        $(wdbdatadir)/sql
 wdblibdir = 			$(libdir)/wdb
 
 netcdfloadbindir = $(bindir)
-etcnetcdfloaddir = /usr/share/doc/wdb-netcdfload
+etcnetcdfloaddir = /usr/share/doc/netcdfload
 dist_etcnetcdfload_DATA =
 
 bin_PROGRAMS = netcdfLoad

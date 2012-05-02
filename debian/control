@@ -1,4 +1,4 @@
-Source: wdb-netcdfload
+Source: netcdfload
 Section: science
 Priority: extra
 Maintainer: Aleksandar Babic <aleksandar.babic@met.no>
@@ -17,7 +17,7 @@ Build-Depends: debhelper (>= 7), autotools-dev,
  xmlto
 Standards-Version: 3.9.1 
 
-Package: wdb-netcdfload
+Package: netcdfload
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Load field data from netcdf files into wdb
