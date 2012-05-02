@@ -28,4 +28,12 @@ stamp-h1
 netcdfLoadTest
 test/.deps/netcdfLoadTest-TimeSpecificationTest.Po
 test/.deps/netcdfLoadTest-timeTest.Po
+debian/*.log
+netcdfload-0.7.0.tar.gz
+netcdfload-0.7.0/
+*.dsc
+*.orig.tar.gz
+*.tar.gz
+*_amd64.changes
+*_amd64.deb
 
