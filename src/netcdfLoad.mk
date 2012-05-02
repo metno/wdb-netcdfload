@@ -1,13 +1,7 @@
-#bin_PROGRAMS = netcdfLoad
-netcdfLoad_SOURCES = src/main.cpp
-#netcdfLoad_LDADD = $(wdb_LIBS) \
-#                      libnetcdfLoadCore.a -lfimex -lgrib_api -lwdbLoad -lwdbConfig -lwdbProj -lwdbExcept -lwdbLog -lwdbMath
-
-noinst_LIBRARIES = libnetcdfLoadCore.a
-libnetcdfLoadCore_a_SOURCES = \
-	src/localtime.h \
-	src/localtime.cpp \
-	src/CdmLoader.h \
+netcdfLoad_SOURCES = src/main.cpp \
+	             src/localtime.h \
+	             src/localtime.cpp \
+	             src/CdmLoader.h \
 	src/CdmLoader.cpp \
 	src/configuration/LoadElement.h \
 	src/configuration/LoadElement.cpp \
@@ -19,3 +13,5 @@ libnetcdfLoadCore_a_SOURCES = \
 	src/configuration/parameter/DataSpecification.cpp \
 	src/configuration/parameter/TimeSpecification.h \
 	src/configuration/parameter/TimeSpecification.cpp
+
+EXTRA_DIST += src/netcdfLoad.mk

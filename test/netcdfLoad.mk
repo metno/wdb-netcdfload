@@ -13,7 +13,9 @@ BOOST_LIBS = \
 	$(BOOST_DATE_TIME_LIB) \
 	$(BOOST_FILESYSTEM_LIB)
 
-netcdfLoadTest_CPPFLAGS = -I$(top_srcdir)/src/ $(gtest_CFLAGS)
-netcdfLoadTest_LDADD = libnetcdfLoadCore.a $(BOOST_LIBS) $(gtest_LIBS) -lgtest_main
+netcdfLoadTest_CPPFLAGS = -I$(top_srcdir)/src $(gtest_CFLAGS)
+netcdfLoadTest_LDADD = $(netcdfLoad_LDADD) $(BOOST_LIBS) $(gtest_LIBS) -lgtest_main
 
 #endif
+
+EXTRA_DIST += test/netcdfLoad.mk

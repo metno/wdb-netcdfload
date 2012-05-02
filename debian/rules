@@ -55,15 +55,15 @@ clean:
 	[ ! -f Makefile ] || $(MAKE) clean
 
 
-	dh_clean 
+	dh_prep 
 
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k 
+	dh_prep 
 	dh_installdirs
-# Add here commands to install the package into debian/wdb-pointload
-	$(MAKE) DESTDIR=$(CURDIR)/debian/wdb-pointload install
+# Add here commands to install the package into debian/wdb-netcdfload
+	$(MAKE) DESTDIR=$(CURDIR)/debian/wdb-netcdfload install
 
 
 # Build architecture-independent files here.
