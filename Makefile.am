@@ -26,7 +26,7 @@ EXTRA_DIST =
 # This is to be replaced by a "find wdb" macro:
 AM_CXXFLAGS =			-DSYSCONFDIR=\"$(pkgsysconfdir)\" $(wdb_CFLAGS) -I/usr/include/libxml2
 netcdfLoad_LDADD = $(wdb_LIBS) \
-                      -lfimex -lgrib_api -lxml2 -lwdbLoad -lwdbConfig -lwdbProj -lwdbExcept -lwdbLog -lwdbMath
+                      -llog4cpp -lboost_date_time -lboost_filesystem -lboost_regex -lboost_program_options -lboost_system -lfimex -lgrib_api -lxml2 -lwdbLoad -lwdbConfig -lwdbProj -lwdbExcept -lwdbLog -lwdbMath
 
 include src/netcdfLoad.mk
 include test/netcdfLoad.mk

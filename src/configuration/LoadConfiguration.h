@@ -29,6 +29,10 @@
 #ifndef LOADCONFIGURATION_H_
 #define LOADCONFIGURATION_H_
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include "LoadElement.h"
 #include <boost/filesystem/path.hpp>
 #include <vector>
