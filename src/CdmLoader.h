@@ -29,6 +29,10 @@
 #ifndef CDMLOADER_H_
 #define CDMLOADER_H_
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 // project
 #include "localtime.h"
 #include "configuration/CdmLoaderConfiguration.h"
