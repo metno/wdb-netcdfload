@@ -20,7 +20,7 @@ AC_PROG_LN_S
 AC_DEFINE(BOOST_FILESYSTEM_VERSION, 2, [makes thing compilable under precise pangolin])
 
 # Checks for libraries.
-
+WDB_REQUIRE_FIMEX
 WDB_BOOST_BASE_HEADERS(1.40.0)
 WDB_BOOST_PROGRAM_OPTIONS(1.40.0)
 WDB_BOOST_REGEX(1.40.0)
