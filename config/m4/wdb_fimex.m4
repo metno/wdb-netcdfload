@@ -53,24 +53,31 @@ AC_DEFUN([WDB_WITH_FIMEX], [
 	LDFLAGS="${LDFLAGS} ${FIMEX_LDFLAGS}"
 
 	# C version
+        AC_REQUIRE([AC_PROG_CPP])
 	AC_LANG_PUSH(C)
 	AC_CHECK_HEADER([fimex/c_fimex.h], [], [
 	    AC_MSG_ERROR([the required fimex.h header was not found])
 	])
-	AC_CHECK_LIB([fimex], [nccreate], [], [
+	AC_CHECK_LIB([fimex], [mifi_new_cdminterpolator], [], [
 	    AC_MSG_ERROR([the required fimex library was not found])
 	])
 	AC_LANG_POP(C)
 
 	# C++ version
-#	AC_LANG_PUSH(C++)
-#	AC_CHECK_HEADER([netcdf.hh], [], [
-#	    AC_MSG_ERROR([the required netcdf.hh header was not found])
-#	])
-#	AC_CHECK_LIB([netcdf_c++], [main], [], [
-#	    AC_MSG_ERROR([the required netcdf_c++ library was not found])
-#	])
-#	AC_LANG_POP(C++)
+        AC_REQUIRE([AC_PROG_CXXCPP])
+        AC_LANG_PUSH(C++)
+        AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <fimex/CDMconstants.h>
+                                         #include <fimex/CDM.h>
+                                         #include <fimex/CDMInterpolator.h>
+                                         #include <fimex/CDMFileReaderFactory.h>
+                                         #include <string>],
+                                         [using namespace MetNoFimex;
+                                          CDMInterpolator(CDMFileReaderFactory::create(MIFI_FILETYPE_NETCDF, "")).changeProjection(1, "template.nc");
+                                         ])],
+                          [AC_MSG_NOTICE([Fimex found])],
+                          [AC_MSG_ERROR([Fimex not found --- stopping])])])
+
+	AC_LANG_POP(C++)
 
 	# export our stuff
 	FIMEX_LIBS="${LIBS}"
