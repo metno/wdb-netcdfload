@@ -4,8 +4,6 @@ Priority: extra
 Maintainer: Aleksandar Babic <aleksandar.babic@met.no>
 Build-Depends: debhelper (>= 7), autotools-dev,
  libfimex-dev,
- libfelt-dev,
- libwdbload1-dev,
  libboost-dev, 
  libboost-program-options-dev,
  libboost-regex-dev,

@@ -16,7 +16,7 @@ BOOST_LIBS = \
 	$(BOOST_FILESYSTEM_LIB)
 
 netcdfLoadTest_CPPFLAGS = -I$(top_srcdir)/src $(gtest_CFLAGS)
-netcdfLoadTest_LDADD = $(netcdfLoad_LDADD) $(BOOST_LIBS) $(gtest_LIBS) -lgtest_main
+netcdfLoadTest_LDADD = $(netcdfLoad_LDADD) $(BOOST_LIBS) $(gtest_LIBS) -lgtest-dev
 
 #endif
 

@@ -29,7 +29,7 @@ netcdfLoad_LDADD = $(wdb_LIBS) \
                       -llog4cpp -lboost_date_time -lboost_filesystem -lboost_regex -lboost_program_options -lboost_system -lfimex -lgrib_api -lxml2 -lwdbLoad -lwdbConfig -lwdbProj -lwdbExcept -lwdbLog -lwdbMath
 
 include src/netcdfLoad.mk
-include test/netcdfLoad.mk
+#include test/netcdfLoad.mk
 include etc/netcdfLoad.mk
 include doc/netcdfLoad.mk
 

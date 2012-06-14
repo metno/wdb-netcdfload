@@ -1,4 +1,4 @@
-netcdfload (0.7.0-1) lucid; urgency=low
+netcdfload (0.7.1) lucid; urgency=low
 
   * new release - more generalized netcdf loader
 
