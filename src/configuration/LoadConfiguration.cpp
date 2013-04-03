@@ -53,9 +53,9 @@ namespace
 LoadConfiguration::LoadConfiguration(const boost::filesystem::path& translationFile)
 {
     if(not exists(translationFile))
-        throw std::runtime_error(translationFile.file_string() + ": No netcdfo-wdb translation file");
+        throw std::runtime_error(translationFile.file_string() + ": No netcdf-wdb translation file");
     if(is_directory(translationFile))
-        throw std::runtime_error(translationFile.file_string() + " is a directory, netcdf-wdb-transaltion file expecdted");
+        throw std::runtime_error(translationFile.file_string() + " is a directory, netcdf-wdb-transaltion file expected");
 
     const std::string & fileName = translationFile.file_string();
 
@@ -73,7 +73,6 @@ LoadConfiguration::LoadConfiguration(const boost::filesystem::path& translationF
 
 LoadConfiguration::~LoadConfiguration()
 {
-    // TODO Auto-generated destructor stub
 }
 
 void LoadConfiguration::init_(xmlXPathContextPtr context)
@@ -95,32 +94,4 @@ void LoadConfiguration::init_(xmlXPathContextPtr context)
 
         loadElements_.push_back(LoadElement(elementNode));
     }
-
-    boost::shared_ptr<xmlXPathObject>
-            xpathObjAxis(xmlXPathEvalExpression((const xmlChar *) "/netcdfloadconfiguration/axis", context),
-                     xmlXPathFreeObject);
-
-    if(not xpathObjAxis)
-        return;
-
-    xmlNodeSetPtr nodesAxis = xpathObjAxis->nodesetval;
-
-    for ( int i = 0; i < nodesAxis->nodeNr; ++ i )
-    {
-        xmlNodePtr axisNode =  nodesAxis->nodeTab[i];
-        if (axisNode->type != XML_ELEMENT_NODE)
-            throw std::runtime_error("Expected element node");
-
-        axisElements_.push_back(AxisElement(axisNode));
-    }
-}
-
-LoadConfiguration::axis_iterator LoadConfiguration::findAxisByCfName(const std::string& cfName)
-{
-    LoadConfiguration::axis_iterator it;
-    for(it = axisElements_.begin(); it != axisElements_.end(); ++it) {
-        if(it->cfName() == cfName)
-            break;
-    }
-    return it;
 }

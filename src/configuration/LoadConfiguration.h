@@ -56,12 +56,6 @@ class LoadConfiguration
         load_iterator load_begin() const { return loadElements_.begin(); }
         load_iterator load_end() const { return loadElements_.end(); }
 
-        typedef std::vector<AxisElement>::iterator axis_iterator;
-        typedef std::vector<AxisElement>::const_iterator axis_const_iterator;
-        axis_iterator axis_begin() { return axisElements_.begin(); }
-        axis_iterator axis_end() { return axisElements_.end(); }
-        axis_iterator findAxisByCfName(const std::string& cfName);
-
 	typedef std::vector<LoadElement>::size_type size_type;
 	size_type size() const { return loadElements_.size(); }
 
@@ -70,7 +64,6 @@ class LoadConfiguration
 private:
 	void init_(xmlXPathContextPtr context);
 	std::vector<LoadElement> loadElements_;
-        std::vector<AxisElement> axisElements_;
 };
 
 #endif /* LOADCONFIGURATION_H_ */

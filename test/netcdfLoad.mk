@@ -1,5 +1,3 @@
-#if HAVE_GTEST
-
 TESTS = netcdfLoadTest
 
 check_PROGRAMS = netcdfLoadTest
@@ -16,8 +14,9 @@ BOOST_LIBS = \
 	$(BOOST_FILESYSTEM_LIB)
 
 netcdfLoadTest_CPPFLAGS = -I$(top_srcdir)/src $(gtest_CFLAGS)
-netcdfLoadTest_LDADD = $(netcdfLoad_LDADD) $(BOOST_LIBS) $(gtest_LIBS) -lgtest-dev
-
-#endif
+netcdfLoadTest_LDADD = $(netcdfLoad_LDADD) $(BOOST_LIBS) $(gtest_LIBS) -lgtest_main
 
 EXTRA_DIST += test/netcdfLoad.mk
+
+include config/mk/gtest.mk
+

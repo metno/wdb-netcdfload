@@ -52,25 +52,6 @@ namespace MetNoFimex
     class CDMReader;
 }
 
-class AxisElement
-{
-public:
-    explicit AxisElement(xmlNodePtr loadNode);
-    ~AxisElement();
-
-    const std::string & cfName() const { return cfName_; }
-//    const std::string & wdbUnit() const { return wdbUnits_; }
-    const DataSpecification& wdbDataSpecification() const { return wdbDataSpecification_; }
-
-private:
-    void addWdbSpec_(xmlNodePtr wdbNode);
-    void addNetcdfSpec_(xmlNodePtr netcdfNode);
-
-    std::string cfName_;
-//    std::string wdbUnits_;
-    DataSpecification wdbDataSpecification_;
-};
-
 class LoadElement
 {
 public:

@@ -66,43 +66,6 @@ namespace {
 } // end namespace
 
 
-AxisElement::AxisElement(xmlNodePtr loadNode)
-{
-    for(xmlNodePtr subNode = loadNode->children; subNode; subNode = subNode->next)
-    {
-        if(xmlStrEqual(subNode->name, (xmlChar*) "netcdf"))
-            addNetcdfSpec_(subNode);
-        else if(xmlStrEqual(subNode->name, (xmlChar*) "wdb") )
-            addWdbSpec_(subNode);
-    }
-}
-
-AxisElement::~AxisElement() { }
-
-void AxisElement::addNetcdfSpec_(xmlNodePtr netcdfNode)
-{
-    cfName_ = getAttribute(netcdfNode, "cfname");
-//    for(xmlNodePtr subNode = netcdfNode->children; subNode; subNode = subNode->next)
-//    {
-//        if(xmlStrEqual(subNode->name, (xmlChar*) "dimension"))
-//        {
-//            string name = getAttribute(subNode, "name");
-//            string value = getAttribute(subNode, "value");
-//        }
-//    }
-}
-
-void AxisElement::addWdbSpec_(xmlNodePtr wdbNode)
-{
-    string wdbName = getAttribute(wdbNode, "name");
-    string wdbUnits = getAttribute(wdbNode, "units");
-    float scale = boost::lexical_cast<float>(getAttribute(wdbNode, "scale", "1"));
-    string validFrom = getAttribute(wdbNode, "validfrom", "validtime");
-
-    wdbDataSpecification_ = DataSpecification(wdbName, wdbUnits, scale, validFrom);
-}
-
-
 
 LoadElement::LoadElement(xmlNodePtr loadNode)
 {
@@ -228,7 +191,13 @@ void LoadElement::addNetcdfSpec_(xmlNodePtr netcdfNode)
 void LoadElement::addWdbSpec_(xmlNodePtr wdbNode)
 {
     string wdbName = getAttribute(wdbNode, "name");
-    string wdbUnits = getAttribute(wdbNode, "units");
+    string wdbUnits;
+    try
+    {
+    	wdbUnits = getAttribute(wdbNode, "units");
+    }
+    catch (std::exception & )
+    {}
     float scale = boost::lexical_cast<float>(getAttribute(wdbNode, "scale", "1"));
     string validFrom = getAttribute(wdbNode, "validfrom", "validtime");
 
