@@ -69,7 +69,6 @@ void CdmLoader::load(const std::string& file)
     // cache common data (for one file to be loaded)
     pReader_ = CDMFileReaderFactory::create(MIFI_FILETYPE_NETCDF, file);
     pReferenceTime_ = boost::shared_ptr<Time>(new Time(getReferenceTime_()));
-    std::cerr << time_to_postgresql_string(getReferenceTime_()) << std::endl;
     timeAxis_ = getTimes_();
 
     write_();
@@ -83,6 +82,43 @@ void CdmLoader::write_()
         LoadElement element = *cit;
         write_(element);
     }
+}
+
+namespace
+{
+struct scale_data
+{
+	const float scale_;
+	scale_data(float scale) : scale_(scale) {}
+	float operator () (float val) const
+	{
+		return val * scale_;
+	}
+};
+}
+
+CdmLoader::Blob CdmLoader::getData_(const SliceBuilder & slicer, LoadElement & loadElement)
+{
+	boost::shared_ptr<Data> data;
+	if (loadElement.wdbDataSpecification().wdbUnits().empty())
+		data = pReader_->getDataSlice(loadElement.cfName(), slicer);
+	else
+		data = pReader_->getScaledDataSliceInUnit(loadElement.cfName(),
+				loadElement.wdbDataSpecification().wdbUnits(), slicer);
+
+	Blob ret;
+	ret.length = data->size();
+	ret.data = data->asFloat();
+
+	float scale = loadElement.wdbDataSpecification().scale();
+	if ( scale != 1 )
+	{
+		float * newData = new float[ret.length];
+		std::transform(ret.data.get(), ret.data.get() + ret.length, newData, scale_data(scale));
+		ret.data.reset(newData);
+	}
+
+	return ret;
 }
 
 void CdmLoader::write_(LoadElement& loadElement)
@@ -144,15 +180,7 @@ void CdmLoader::write_(LoadElement& loadElement)
 
         if ( loadElement.permutations().empty() )
         {
-        	boost::shared_ptr<Data> data;
-        	if ( loadElement.wdbDataSpecification().wdbUnits().empty() )
-        		data = pReader_->getDataSlice(loadElement.cfName(), slicer);
-        	else
-        		data = pReader_->getScaledDataSliceInUnit(
-						loadElement.cfName(),
-						loadElement.wdbDataSpecification().wdbUnits(),
-						slicer);
-
+			Blob data = getData_(slicer, loadElement);
             write_(data,
                    wdbParameter,
                    placeName,
@@ -180,16 +208,7 @@ void CdmLoader::write_(LoadElement& loadElement)
                 slicer.setStartAndSize(ie.indexName, ie.cdmIndex(pReader_), 1);
             }
 
-        	boost::shared_ptr<Data> data;
-        	if ( loadElement.wdbDataSpecification().wdbUnits().empty() )
-        		data = pReader_->getDataSlice(loadElement.cfName(), slicer);
-        	else
-        		data = pReader_->getScaledDataSliceInUnit(
-						loadElement.cfName(),
-						loadElement.wdbDataSpecification().wdbUnits(),
-						slicer);
-
-            write_(data,
+            write_(getData_(slicer, loadElement),
                    wdbParameter,
                    placeName,
                    time_to_postgresql_string(validFrom),
@@ -202,7 +221,7 @@ void CdmLoader::write_(LoadElement& loadElement)
     }
 }
 
-void CdmLoader::write_(const boost::shared_ptr<MetNoFimex::Data>& data,
+void CdmLoader::write_(const Blob & data,
                        const std::string& wdbParameter,
                        const std::string& placeName,
                        const std::string& validFrom,
@@ -214,10 +233,8 @@ void CdmLoader::write_(const boost::shared_ptr<MetNoFimex::Data>& data,
 {
     std::string referencetime = time_to_postgresql_string(*pReferenceTime_);
 
-    boost::shared_array<double> values = data->asDouble();
-
     std::clog       << "data size: "
-                    << data->size()<<", "
+                    << data.length<<", "
                     << "Saving: "
                     << "placename: " << placeName <<", "
                     << referencetime <<", "
@@ -231,8 +248,8 @@ void CdmLoader::write_(const boost::shared_ptr<MetNoFimex::Data>& data,
                     << std::endl;
 
     wdbConnection_.write(
-                values.get(),
-                data->size(),
+                data.data.get(),
+                data.length,
                 conf_.loading().dataProvider,
                 placeName,
                 referencetime,
