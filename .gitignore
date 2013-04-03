@@ -36,4 +36,8 @@ netcdfload-0.7.0/
 *.tar.gz
 *_amd64.changes
 *_amd64.deb
+.autotools
+.cproject
+.project
+.settings/
 
