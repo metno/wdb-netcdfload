@@ -3,6 +3,7 @@ Section: science
 Priority: extra
 Maintainer: Aleksandar Babic <aleksandar.babic@met.no>
 Build-Depends: debhelper (>= 7), autotools-dev, cdbs,
+ help2man,
  libfimex-dev,
  libboost-dev, 
  libboost-program-options-dev,

@@ -18,6 +18,13 @@
 	<xs:complexType name="wdb_type">
 		<xs:attribute name="name" type="xs:string" use="required" />
 		<xs:attribute name="scale" type="xs:float" use="optional" />
+		
+		<!-- 
+		Validfrom can be times, as understood by postgresql, or one of the 
+		special values "validtime" or "referencetime". You may use postgresql 
+		durations to mean times relative to this, for example 
+		"validtime - 6 hours".
+		-->
 		<xs:attribute name="validfrom" type="xs:string" use="optional" default="validtime" />
 		<!-- <xs:attribute name="validto" type="xs:string" use="optional" default="validtime" /> -->
 	</xs:complexType>

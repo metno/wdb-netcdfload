@@ -1,9 +1,5 @@
-.xml.1:
-	$(XMLTO) man $< -o `dirname $@`
+man1_MANS = netcdfLoad.man
 
-MAN_DOCS = doc/netcdfLoad.xml
 
-man1_MANS = $(MAN_DOCS:.xml=.1)
-
-EXTRA_DIST += $(MAN_DOCS)
-CLEANFILES += $(MAN_DOCS:.xml=.1)
+netcdfLoad.man:	netcdfLoad doc/netcdfLoad.txt
+	$(HELP2MAN) -N -n"Load a netcdf file into the WDB database" -i$(top_srcdir)/doc/netcdfLoad.txt ./$< -o$@

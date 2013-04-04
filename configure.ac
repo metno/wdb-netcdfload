@@ -19,10 +19,6 @@ AC_PROG_LN_S
 
 AC_DEFINE(BOOST_FILESYSTEM_VERSION, 2, [makes thing compilable under precise pangolin])
 
-# Checks for libraries.
-#WDB_REQUIRE_FIMEX
-#WDB_REQUIRE_FIMEX_VERSION(0.37.0)
-
 AX_BOOST_BASE(1.40.0)
 AX_BOOST_PROGRAM_OPTIONS
 AX_BOOST_DATE_TIME
@@ -49,6 +45,7 @@ AC_PATH_PROG([XMLTO], [xmlto], [false])
 
 GMOCK_DIST_CHECK(.)
 
+AC_PATH_PROG(HELP2MAN, help2man)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL

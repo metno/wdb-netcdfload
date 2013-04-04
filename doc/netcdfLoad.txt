@@ -1,0 +1,23 @@
+[Description]
+
+This program loads the contents of the given netcdf file into the wdb
+database. The database must be up and running for this program to
+work, unless one of the options --help or --list have been given on
+the command line.
+
+Note that you _must_ provide a value for the --configuration
+option. This file specifies what data is supposed to be found in the
+file to load, and how it should be translated. The file should be an
+xml document, conforming to the xsd document found under
+PREFIX/etc/netcdfLoad/netcdfLoad.configuration.xsd. The xsd file
+should be reasonably easy to understand if you are familiar with the
+xsd format, and there is some inline documentation there. You can also
+find examples in the same directory.
+
+[Exit Status]
+
+netcdfLoad returns 0 to the shell if it finished normally and 1 if a
+fatal error occured during loading (out of memory, files not found,
+database not found, etc.). Note that not being able to load a field is
+not considered a fatal error; in such cases, netcdfLoad simply logs a
+warning or error to the log and tries to load the next field.

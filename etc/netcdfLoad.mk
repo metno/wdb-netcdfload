@@ -1,2 +1,3 @@
 dist_pkgsysconf_DATA += etc/netcdfLoad.configuration.xsd \
-                           etc/default.xml
+                           etc/eps2probandltf.netcdfload.xml \
+                           etc/arome.netcdfload.xml

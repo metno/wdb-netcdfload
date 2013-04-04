@@ -53,19 +53,16 @@ using namespace std;
 namespace {
     ostream& version(ostream& out)
     {
-	return out << PACKAGE_STRING << endl;
+    	return out << PACKAGE_STRING << endl;
     }
 
     ostream & help(ostream& out, const boost::program_options::options_description& options)
     {
-	version(out);
-	out << '\n';
-        out << "Usage:"  PACKAGE_NAME " [OPTIONS] FILES...\n\n";
-	out << "Loads data from a netcdf file into a wdb database\n";
-	out << '\n';
-	out << "Options:\n";
-	out << options << endl;
-	return out;
+		out << "Usage: " << PACKAGE_NAME << " -c CONFIGURATION_FILE [OPTIONS] FILES...\n";
+		out << '\n';
+		out << "Options:\n";
+		out << options << endl;
+		return out;
     }
 }
 
