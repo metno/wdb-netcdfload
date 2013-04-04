@@ -127,7 +127,7 @@ void CdmLoader::write_(LoadElement& loadElement)
 
     std::string placeName = getPlaceName_(loadElement.cfName());
     if(placeName.empty()) {
-        std::cerr << "no placename for cfname: " << loadElement.cfName() << std::endl;
+        log.errorStream() << "no placename for cfname: " << loadElement.cfName();
         return;
     }
 
@@ -138,7 +138,7 @@ void CdmLoader::write_(LoadElement& loadElement)
 
     std::string tAxisName = cdm.getTimeAxis(loadElement.cfName());
     if(tAxisName.empty()) {
-        std::cerr << "no time axis for cfname: " << loadElement.cfName() << std::endl;
+    	log.errorStream() << "no time axis for cfname: " << loadElement.cfName();
         return;
     }
 
@@ -169,7 +169,7 @@ void CdmLoader::write_(LoadElement& loadElement)
 
     for(size_t t = 0; t < timeAxis_.size(); ++t)
     {
-        std::clog << "Loading valid time " << time_to_postgresql_string(timeAxis_[t]) << std::endl;
+        log.infoStream() << "Loading valid time " << time_to_postgresql_string(timeAxis_[t]);
 
         Time validFrom = specification.validTimeFrom().getTime(*pReferenceTime_, timeAxis_[t]);
         Time validTo = timeAxis_[t];
@@ -231,9 +231,11 @@ void CdmLoader::write_(const Blob & data,
                        double levelTo,
                        size_t dataVersion)
 {
+	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+
     std::string referencetime = time_to_postgresql_string(*pReferenceTime_);
 
-    std::clog       << "data size: "
+    log.debugStream()<< "data size: "
                     << data.length<<", "
                     << "Saving: "
                     << "placename: " << placeName <<", "
@@ -244,8 +246,7 @@ void CdmLoader::write_(const Blob & data,
                     << "levelfrom: " << levelFrom <<", "
                     << "levelto: " << levelTo <<", "
                     << "paramname: " <<  wdbParameter <<", "
-                    << "version: " <<  dataVersion <<", "
-                    << std::endl;
+                    << "version: " <<  dataVersion;
 
     wdbConnection_.write(
                 data.data.get(),
@@ -293,7 +294,7 @@ std::string CdmLoader::getPlaceName_(const std::string& varName)
             return ret;
 
         if(not conf_.loading().placeName.empty()) {
-            std::cerr << "Saving data using placename: " << conf_.loading().placeName << " even if data is identfied as " << ret << std::endl;
+        	log.debugStream() << "Saving data using placename: " << conf_.loading().placeName << " even if data is identfied as " << ret;
             return conf_.loading().placeName;
         }
         return ret;
@@ -303,7 +304,6 @@ std::string CdmLoader::getPlaceName_(const std::string& varName)
             if(placeName.empty())
                 placeName = "netcdf auto";
 
-            std::cout << placeName << std::endl;
             return wdbConnection_.addPlaceDefinition(placeName,
                                                      xNum,
                                                      yNum,

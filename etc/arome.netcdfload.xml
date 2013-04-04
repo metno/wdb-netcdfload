@@ -10,20 +10,20 @@
 	<!-- 
 	<load>
 		<netcdf cfname="precipitation_amount_low_estimate"/>
-		<wdb name="precipitation amount" validfrom="referencetime"/>
+		<wdb name="precipitation amount" validfrom="validtime - 1 hour"/>
 	</load>
 	<load>
 		<netcdf cfname="precipitation_amount_middle_estimate"/>
-		<wdb name="precipitation amount" validfrom="referencetime"/>
+		<wdb name="precipitation amount" validfrom="validtime - 1 hour"/>
 	</load>
 	<load>
 		<netcdf cfname="precipitation_amount_high_estimate"/>
-		<wdb name="precipitation amount" validfrom="referencetime"/>
+		<wdb name="precipitation amount" validfrom="validtime - 1 hour"/>
 	</load>
 	
 	<load>
 		<netcdf cfname="precipitation_amount_prob_low"/>
-		<wdb name="precipitation amount" validfrom="referencetime"/>
+		<wdb name="precipitation amount" validfrom="validtime - 1 hour"/>
 	</load>
 	 -->
 	
