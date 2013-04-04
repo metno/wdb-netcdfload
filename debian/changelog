@@ -1,3 +1,9 @@
+netcdfload (0.8.0) precise; urgency=low
+
+  * new version
+
+ -- Aleksandar Babic <aleksandarb@met.no>  Thu, 04 Apr 2013 13:18:36 +0200
+
 netcdfload (0.7.1) lucid; urgency=low
 
   * new release - more generalized netcdf loader

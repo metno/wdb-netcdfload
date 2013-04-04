@@ -2,7 +2,7 @@ Source: netcdfload
 Section: science
 Priority: extra
 Maintainer: Aleksandar Babic <aleksandar.babic@met.no>
-Build-Depends: debhelper (>= 7), autotools-dev,
+Build-Depends: debhelper (>= 7), autotools-dev, cdbs,
  libfimex-dev,
  libboost-dev, 
  libboost-program-options-dev,
@@ -15,9 +15,12 @@ Build-Depends: debhelper (>= 7), autotools-dev,
  xmlto
 Standards-Version: 3.9.1 
 
-Package: netcdfload
+Package: netcdfload-0.8
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: netcdfload
+Conflicts: netcdfload
 Description: Load field data from netcdf files into wdb
  Loads files that are readable by fimex into a wdb database. Change
  configuration file to suit youor need for particula NetCDF file.
+

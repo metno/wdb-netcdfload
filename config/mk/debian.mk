@@ -9,11 +9,6 @@ DEBIAN_DIR     = $(PKG_DIR)/debian
 ARCH = `dpkg-architecture -qDEB_HOST_ARCH_CPU`
 DEBIAN_PACKAGE_NAME_BASE = `head -n1 $(DEBIAN_SOURCE)/changelog | sed "s/ (/_/" | sed "s/).*//"`
 DEBIAN_PACKAGE = $(DEBIAN_PACKAGE_NAME_BASE)
-DEBIAN_PACKAGE_NAME= $(DEBIAN_PACKAGE_NAME_BASE)_$(ARCH).deb
-DEBIAN_SOURCE_PACKAGE_NAME = $(DEBIAN_PACKAGE_NAME_BASE).dsc
-
-debian-name:
-	@echo $(DEBIAN_PACKAGE_NAME)
 
 
 
@@ -41,14 +36,14 @@ debian:	dist clean-debian
 	chmod 744 $(DEBIAN_DIR)/rules
 	cp $(PKG_DIR).tar.gz $(DEBIAN_PACKAGE).orig.tar.gz
 	cd $(PKG_DIR) && dpkg-buildpackage -rfakeroot -us -uc -sa
-	lintian $(DEBIAN_PACKAGE_NAME) 
+	lintian -i *.deb *.dsc 
 
 update-debian:
 	rm -rf $(DEBIAN_DIR)/*
 	cp -r $(DEBIAN_SOURCE)/* $(DEBIAN_DIR)
 	chmod 744 $(DEBIAN_DIR)/rules
 	cd $(PKG_DIR) && dpkg-buildpackage -rfakeroot -us -uc -nc
-	lintian $(DEBIAN_PACKAGE_NAME) 
+	lintian -i  *.deb *.dsc 
 
 
 clean-debian:
