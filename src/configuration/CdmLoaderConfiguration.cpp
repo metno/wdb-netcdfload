@@ -34,12 +34,11 @@ CdmLoaderConfiguration::CdmLoaderConfiguration()
     using namespace boost::program_options;
 
     options_description conf( "Load configuration" );
-    std::string helpText = "Read netcdf-to-wdb configuration from the given file.";
+    const char * helpText = "Read netcdf-to-wdb configuration from the given file.";
     conf.add_options()
-    ( "configuration,c", value<std::string>(& loadConfiguration_), helpText.c_str())
+    ( "configuration,c", value<std::string>(& loadConfiguration_), helpText)
     ;
 
-    cmdOptions().add(conf);
     configOptions().add(conf);
 	shownOptions().add(conf);
 }

@@ -41,6 +41,7 @@
 // wdb
 #include <wdb/LoaderDatabaseConnection.h>
 
+#include <boost/shared_array.hpp>
 // std
 #include <string>
 
@@ -48,6 +49,7 @@ namespace MetNoFimex
 {
     class CDMReader;
     class Data;
+    class SliceBuilder;
 }
 
 class CdmLoader
@@ -63,7 +65,13 @@ private:
     void write_();
     void write_(LoadElement& loadElement);
 
-    void write_(const boost::shared_ptr<MetNoFimex::Data>& data,
+    struct Blob
+    {
+    	unsigned length;
+    	boost::shared_array<float> data;
+    };
+
+    void write_(const Blob & data,
                 const std::string& wdbParameter,
                 const std::string& placeName,
                 const std::string& validFrom,
@@ -78,6 +86,9 @@ private:
 
     std::string getPlaceName_(const std::string& cfName);
     boost::shared_ptr<MetNoFimex::Data> getLevels_(const std::string& cfName) const;
+
+    Blob getData_(const MetNoFimex::SliceBuilder & slicer,
+			LoadElement& loadElement);
 
     CdmLoaderConfiguration conf_;
     wdb::load::LoaderDatabaseConnection wdbConnection_;

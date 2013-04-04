@@ -69,7 +69,6 @@ void CdmLoader::load(const std::string& file)
     // cache common data (for one file to be loaded)
     pReader_ = CDMFileReaderFactory::create(MIFI_FILETYPE_NETCDF, file);
     pReferenceTime_ = boost::shared_ptr<Time>(new Time(getReferenceTime_()));
-    std::cerr << time_to_postgresql_string(getReferenceTime_()) << std::endl;
     timeAxis_ = getTimes_();
 
     write_();
@@ -85,6 +84,42 @@ void CdmLoader::write_()
     }
 }
 
+namespace
+{
+struct scale_data
+{
+	const float scale_;
+	scale_data(float scale) : scale_(scale) {}
+	float operator () (float val) const
+	{
+		return val * scale_;
+	}
+};
+}
+
+CdmLoader::Blob CdmLoader::getData_(const SliceBuilder & slicer, LoadElement & loadElement)
+{
+	boost::shared_ptr<Data> data;
+	if (loadElement.wdbDataSpecification().wdbUnits().empty())
+		data = pReader_->getDataSlice(loadElement.cfName(), slicer);
+	else
+		data = pReader_->getScaledDataSliceInUnit(loadElement.cfName(),
+				loadElement.wdbDataSpecification().wdbUnits(), slicer);
+
+	Blob ret;
+	ret.length = data->size();
+	ret.data = data->asFloat();
+
+	float scale = loadElement.wdbDataSpecification().scale();
+	if ( scale != 1 )
+	{
+		float * newData = new float[ret.length];
+		std::transform(ret.data.get(), ret.data.get() + ret.length, newData, scale_data(scale));
+		ret.data.reset(newData);
+	}
+
+	return ret;
+}
 
 void CdmLoader::write_(LoadElement& loadElement)
 {
@@ -92,7 +127,7 @@ void CdmLoader::write_(LoadElement& loadElement)
 
     std::string placeName = getPlaceName_(loadElement.cfName());
     if(placeName.empty()) {
-        std::cerr << "no placename for cfname: " << loadElement.cfName() << std::endl;
+        log.errorStream() << "no placename for cfname: " << loadElement.cfName();
         return;
     }
 
@@ -103,18 +138,8 @@ void CdmLoader::write_(LoadElement& loadElement)
 
     std::string tAxisName = cdm.getTimeAxis(loadElement.cfName());
     if(tAxisName.empty()) {
-        std::cerr << "no time axis for cfname: " << loadElement.cfName() << std::endl;
+    	log.errorStream() << "no time axis for cfname: " << loadElement.cfName();
         return;
-    }
-
-    // check vertical axis
-    std::string zAxisName = cdm.getVerticalAxis(loadElement.cfName());
-    if(zAxisName.empty()) {
-        std::cerr << "no level for cfname: " << loadElement.cfName() << std::endl;
-        return;
-    } else {
-        if(loadElement.indiceKeys().find(zAxisName) == loadElement.indiceKeys().end())
-            loadElement.expandIndicePermutations(pReader_, zAxisName);
     }
 
     // check if CDM modell has eps axis at all
@@ -129,29 +154,11 @@ void CdmLoader::write_(LoadElement& loadElement)
         // see if variable has ensemble in its shape
         const CDMVariable& var = cdm.getVariable(loadElement.cfName());
         const std::vector<std::string>& shape = var.getShape();
-        if(std::find(shape.begin(), shape.end(), eAxisName) == shape.end()) {
-            std::cerr << "not eps dependent: " << loadElement.cfName() << std::endl;
-        } else {
-            if(loadElement.indiceKeys().find(zAxisName) == loadElement.indiceKeys().end())
-                loadElement.expandIndicePermutations(pReader_, eAxisName);
-        }
-    } else {
-        std::cerr << " eps axis not existing " << std::endl;
+        if( std::find(shape.begin(), shape.end(), eAxisName) != shape.end() )
+			loadElement.expandIndicePermutations(pReader_, eAxisName);
     }
 
     loadElement.removeNotToLoadPermutations();
-
-    LoadConfiguration::axis_iterator it = loadConfiguration_.findAxisByCfName(zAxisName);
-    if(it == loadConfiguration_.axis_end()) {
-        std::cerr << "no wdbname for level: " << zAxisName << std::endl;
-        return;
-    }
-
-    std::string wdbLevelName = it->wdbDataSpecification().wdbParameter();
-
-    boost::shared_ptr<Data> levels = pReader_->getData(zAxisName);
-    if(levels.get() == 0 or levels->size() == 0)
-        return;
 
     const CDMDimension* unlimitedDimension = cdm.getUnlimitedDim();
 
@@ -162,7 +169,7 @@ void CdmLoader::write_(LoadElement& loadElement)
 
     for(size_t t = 0; t < timeAxis_.size(); ++t)
     {
-        std::clog << "Loading valid time " << time_to_postgresql_string(timeAxis_[t]) << std::endl;
+        log.infoStream() << "Loading valid time " << time_to_postgresql_string(timeAxis_[t]);
 
         Time validFrom = specification.validTimeFrom().getTime(*pReferenceTime_, timeAxis_[t]);
         Time validTo = timeAxis_[t];
@@ -171,20 +178,28 @@ void CdmLoader::write_(LoadElement& loadElement)
         if(unlimitedDimension)
             slicer.setStartAndSize(unlimitedDimension->getName(), t, 1);
 
+        if ( loadElement.permutations().empty() )
+        {
+			Blob data = getData_(slicer, loadElement);
+            write_(data,
+                   wdbParameter,
+                   placeName,
+                   time_to_postgresql_string(validFrom),
+                   time_to_postgresql_string(validTo),
+                   "height above ground",
+                   0,
+                   0,
+                   0);
+        }
         for(size_t permutationindex = 0; permutationindex < loadElement.permutations().size(); ++permutationindex)
         {
             const std::vector<LoadElement::IndexElement>& permutation = loadElement.permutations()[permutationindex];
 
             size_t dataVersion = 0;
-            boost::shared_ptr<double> pCurrentLevelValue;
 
             for(size_t i = 0; i < permutation.size(); ++i)
             {
                 const LoadElement::IndexElement& ie = permutation[i];
-
-                if(zAxisName == ie.indexName) {
-                    pCurrentLevelValue = boost::shared_ptr<double>(new double (boost::lexical_cast<double>(ie.indexValue)));
-                }
 
                 if(eAxisName == ie.indexName) {
                     dataVersion = boost::lexical_cast<size_t>(ie.indexValue);
@@ -193,30 +208,20 @@ void CdmLoader::write_(LoadElement& loadElement)
                 slicer.setStartAndSize(ie.indexName, ie.cdmIndex(pReader_), 1);
             }
 
-            if(pCurrentLevelValue.get() == 0)
-                throw;
-
-            double levelFrom = *pCurrentLevelValue;
-            double levelTo = *pCurrentLevelValue;
-
-            std::clog << "Loading level: " << *pCurrentLevelValue << std::endl;
-
-            const boost::shared_ptr<Data>& data = pReader_->getScaledDataSliceInUnit(loadElement.cfName(), loadElement.wdbDataSpecification().wdbUnits(), slicer);
-
-            write_(data,
+            write_(getData_(slicer, loadElement),
                    wdbParameter,
                    placeName,
                    time_to_postgresql_string(validFrom),
                    time_to_postgresql_string(validTo),
-                   wdbLevelName,
-                   levelFrom,
-                   levelTo,
+                   "height above ground",
+                   0,
+                   0,
                    dataVersion);
         }
     }
 }
 
-void CdmLoader::write_(const boost::shared_ptr<MetNoFimex::Data>& data,
+void CdmLoader::write_(const Blob & data,
                        const std::string& wdbParameter,
                        const std::string& placeName,
                        const std::string& validFrom,
@@ -226,12 +231,12 @@ void CdmLoader::write_(const boost::shared_ptr<MetNoFimex::Data>& data,
                        double levelTo,
                        size_t dataVersion)
 {
+	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+
     std::string referencetime = time_to_postgresql_string(*pReferenceTime_);
 
-    boost::shared_array<double> values = data->asDouble();
-
-    std::clog       << "data size: "
-                    << data->size()<<", "
+    log.debugStream()<< "data size: "
+                    << data.length<<", "
                     << "Saving: "
                     << "placename: " << placeName <<", "
                     << referencetime <<", "
@@ -241,12 +246,11 @@ void CdmLoader::write_(const boost::shared_ptr<MetNoFimex::Data>& data,
                     << "levelfrom: " << levelFrom <<", "
                     << "levelto: " << levelTo <<", "
                     << "paramname: " <<  wdbParameter <<", "
-                    << "version: " <<  dataVersion <<", "
-                    << std::endl;
+                    << "version: " <<  dataVersion;
 
     wdbConnection_.write(
-                values.get(),
-                data->size(),
+                data.data.get(),
+                data.length,
                 conf_.loading().dataProvider,
                 placeName,
                 referencetime,
@@ -266,7 +270,6 @@ std::string CdmLoader::getPlaceName_(const std::string& varName)
     std::string yAxisName = cdm.getHorizontalYAxis(varName);
     if(xAxisName.empty() || yAxisName.empty())
         return std::string();
-//        throw std::runtime_error("Unable to locate grid definition in netcdf file");
 
     const CDMDimension& xAxis = cdm.getDimension(xAxisName);
     const CDMDimension& yAxis = cdm.getDimension(yAxisName);;
@@ -287,12 +290,11 @@ std::string CdmLoader::getPlaceName_(const std::string& varName)
 
     try {
         std::string ret = wdbConnection_.getPlaceName(xNum, yNum, xIncrement, yIncrement, startX, startY, projDefinition);
-
         if(not ret.empty())
             return ret;
 
         if(not conf_.loading().placeName.empty()) {
-            std::cerr << "Saving data using placename: " << conf_.loading().placeName << " even if data is identfied as " << ret << std::endl;
+        	log.debugStream() << "Saving data using placename: " << conf_.loading().placeName << " even if data is identfied as " << ret;
             return conf_.loading().placeName;
         }
         return ret;
