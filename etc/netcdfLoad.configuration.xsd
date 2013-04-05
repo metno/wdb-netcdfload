@@ -20,10 +20,9 @@
 		<xs:attribute name="scale" type="xs:float" use="optional" />
 		
 		<!-- 
-		Validfrom can be times, as understood by postgresql, or one of the 
-		special values "validtime" or "referencetime". You may use postgresql 
-		durations to mean times relative to this, for example 
-		"validtime - 6 hours".
+		Validfrom can be one of the special values "validtime" or 
+		"referencetime". You may add or subtract a fixed amount of hours from 
+		this selection, such as this: "validtime - 6 hours".
 		-->
 		<xs:attribute name="validfrom" type="xs:string" use="optional" default="validtime" />
 		<!-- <xs:attribute name="validto" type="xs:string" use="optional" default="validtime" /> -->
