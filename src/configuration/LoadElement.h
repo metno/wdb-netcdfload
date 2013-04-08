@@ -40,6 +40,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <iosfwd>
 
 extern "C"
 {
@@ -89,5 +90,9 @@ private:
     std::vector<std::vector<IndexElement> >  indicesPermutations_;
 
 };
+
+
+std::ostream & operator << (std::ostream & s, const LoadElement & loadElement);
+
 
 #endif /* LOADELEMENT_H_ */

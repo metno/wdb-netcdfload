@@ -69,7 +69,6 @@ void CdmLoader::load(const std::string& file)
     // cache common data (for one file to be loaded)
     pReader_ = CDMFileReaderFactory::create(MIFI_FILETYPE_NETCDF, file);
     pReferenceTime_ = boost::shared_ptr<Time>(new Time(getReferenceTime_()));
-    timeAxis_ = getTimes_();
 
     write_();
 }
@@ -125,6 +124,8 @@ void CdmLoader::write_(LoadElement& loadElement)
 {
     WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 
+    log.infoStream() << "Loading " << loadElement;
+
     std::string placeName = getPlaceName_(loadElement.cfName());
     if(placeName.empty()) {
         log.errorStream() << "no placename for cfname: " << loadElement.cfName();
@@ -136,11 +137,11 @@ void CdmLoader::write_(LoadElement& loadElement)
     const DataSpecification& specification = loadElement.wdbDataSpecification();
     std::string wdbParameter = specification.wdbParameter();
 
-    std::string tAxisName = cdm.getTimeAxis(loadElement.cfName());
-    if(tAxisName.empty()) {
-    	log.errorStream() << "no time axis for cfname: " << loadElement.cfName();
-        return;
-    }
+//    std::string tAxisName = cdm.getTimeAxis(loadElement.cfName());
+//    if(tAxisName.empty()) {
+//    	log.errorStream() << "no time axis for cfname: " << loadElement.cfName();
+//        return;
+//    }
 
     // check if CDM modell has eps axis at all
     // based on the non-standardized "realization"
@@ -160,23 +161,26 @@ void CdmLoader::write_(LoadElement& loadElement)
 
     loadElement.removeNotToLoadPermutations();
 
-    const CDMDimension* unlimitedDimension = cdm.getUnlimitedDim();
-
     float undef = std::numeric_limits<float>::quiet_NaN();
     CDMAttribute fillValue;
     if(cdm.getAttribute(loadElement.cfName(), "_FillValue", fillValue))
         undef = fillValue.getData()->asFloat()[0];
 
-    for(size_t t = 0; t < timeAxis_.size(); ++t)
-    {
-        log.infoStream() << "Loading valid time " << time_to_postgresql_string(timeAxis_[t]);
+    std::vector<Time> times = getTimes_(cdm, loadElement);
+    if ( times.empty() )
+    	times.push_back(Time(boost::local_time::pos_infin)); // infinity
 
-        Time validFrom = specification.validTimeFrom().getTime(*pReferenceTime_, timeAxis_[t]);
-        Time validTo = timeAxis_[t];
+    for(size_t t = 0; t < times.size(); ++t)
+    {
+        log.infoStream() << "Loading valid time " << time_to_postgresql_string(times[t]);
+
+        const Time & validFrom = specification.validTimeFrom().getTime(*pReferenceTime_, times[t]);
+        const Time & validTo = times[t];
 
         SliceBuilder slicer(cdm, loadElement.cfName());
-        if(unlimitedDimension)
-            slicer.setStartAndSize(unlimitedDimension->getName(), t, 1);
+        std::string timeDimensionName = cdm.getTimeAxis(loadElement.cfName());
+        if ( not timeDimensionName.empty() )
+            slicer.setStartAndSize(timeDimensionName, t, 1);
 
         if ( loadElement.permutations().empty() )
         {
@@ -330,6 +334,23 @@ std::vector<Time> CdmLoader::getTimes_()
     for(size_t i = 0; i < times->size(); ++ i)
         ret.push_back(time_from_seconds_since_epoch(static_cast<long long> (values[i])));
     return ret;
+}
+
+std::vector<Time> CdmLoader::getTimes_(const CDM & cdm, const LoadElement & loadElement) const
+{
+    std::vector<Time> ret;
+
+    std::string tAxisName = cdm.getTimeAxis(loadElement.cfName());
+
+    if ( not tAxisName.empty() )
+    {
+		boost::shared_ptr<MetNoFimex::Data> times = pReader_->getData(tAxisName);
+		boost::shared_array<double> values = times->asDouble();
+		for(size_t i = 0; i < times->size(); ++ i)
+			ret.push_back(time_from_seconds_since_epoch(static_cast<long long> (values[i])));
+    }
+    return ret;
+
 }
 
 Time CdmLoader::getReferenceTime_()

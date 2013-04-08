@@ -39,12 +39,10 @@
 		<wdb name="precipitation amount" validfrom="referencetime"/>
 	</load>
 
-	<!--
 	<load>
 		<netcdf cfname="land_area_fraction"/>
-		<wdb name="cloud area fraction"/>
+		<wdb name="land area fraction"/>
 	</load>
-	-->
 
 	<load>
 		<netcdf cfname="cloud_area_fraction"/>

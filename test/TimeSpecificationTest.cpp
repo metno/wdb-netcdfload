@@ -63,6 +63,41 @@ TEST(TimeSpecificationTest, returnValidTime)
 	ASSERT_EQ(validTime, ts.getTime(referenceTime, validTime));
 }
 
+TEST(TimeSpecificationTest, returnInfinity)
+{
+	TimeSpecification ts("infinity");
+
+	local_date_time referenceTime = time_from_postgresql_string("2010-02-01 12:00:00");
+	local_date_time validTime = time_from_postgresql_string("2010-02-03 18:00:00");
+
+	local_date_time expected(pos_infin);
+
+	ASSERT_EQ(expected, ts.getTime(referenceTime, validTime));
+}
+
+TEST(TimeSpecificationTest, infinityCannotBeModified)
+{
+	EXPECT_THROW(TimeSpecification ts("infinity - 24 hours"), InvalidSpecification);
+}
+
+TEST(TimeSpecificationTest, returnNegativeInfinity)
+{
+	TimeSpecification ts("-infinity");
+
+	local_date_time referenceTime = time_from_postgresql_string("2010-02-01 12:00:00");
+	local_date_time validTime = time_from_postgresql_string("2010-02-03 18:00:00");
+
+	local_date_time expected(neg_infin);
+
+	ASSERT_EQ(expected, ts.getTime(referenceTime, validTime));
+}
+
+TEST(TimeSpecificationTest, negativeInfinityCannotBeModified)
+{
+	EXPECT_THROW(TimeSpecification ts("-infinity + 24 hours"), InvalidSpecification);
+}
+
+
 TEST(TimeSpecificationTest, complexSpecificationAddTime)
 {
 	TimeSpecification ts("validtime + 6 hours");

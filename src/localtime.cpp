@@ -99,6 +99,10 @@ std::string time_to_postgresql_string(const Time & t)
 {
     if(t.is_not_a_date_time())
         return std::string();
+    else if ( t.is_infinity() )
+    	return "infinity";
+    else if ( t.is_neg_infinity() )
+		return "-infinity";
 
     ostringstream ret;
     ret << t.local_time() << t.zone()->to_posix_string();

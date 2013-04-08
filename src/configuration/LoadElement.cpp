@@ -244,3 +244,8 @@ void LoadElement::makeIndicePermutations_()
         indicesPermutations_ = subproduct;
     }
 }
+
+std::ostream & operator << (std::ostream & s, const LoadElement & loadElement)
+{
+	return s << "LoadElement(" << loadElement.cfName() << ')';
+}

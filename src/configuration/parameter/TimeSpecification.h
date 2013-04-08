@@ -67,7 +67,9 @@ public:
 
 	enum BaseTime
 	{
-		ReferenceTime, ValidTime
+		ReferenceTime, ValidTime,
+		Infinity, NegativeInfinity,
+		SENTRY_
 	};
 
 	BaseTime baseTime() const { return baseTime_; }
@@ -88,8 +90,12 @@ inline std::ostream & operator << (std::ostream & s, const TimeSpecification & t
 {
 	if ( ts.baseTime() == TimeSpecification::ReferenceTime )
 		s << "referencetime";
-	else
+	else if ( ts.baseTime() == TimeSpecification::ValidTime )
 		s << "validtime";
+	else if ( ts.baseTime() == TimeSpecification::Infinity )
+		s << "infinity";
+	else if ( ts.baseTime() == TimeSpecification::NegativeInfinity )
+		s << "-infinity";
 	long hours = ts.duration().hours();
 	if ( hours != 0 )
 	{

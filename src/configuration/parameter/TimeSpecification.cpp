@@ -49,7 +49,11 @@ TimeSpecification::TimeSpecification(const char * spec)
     using namespace boost::spirit::classic;
     parse_info<> parseResult = parse(spec,
                                      // first, choose reference or valid time as base
-                                     (as_lower_d["referencetime"][assign_a(baseTime_,ReferenceTime)] | as_lower_d["validtime"][assign_a(baseTime_,ValidTime)])
+                                     (as_lower_d["referencetime"][assign_a(baseTime_,ReferenceTime)] |
+											 as_lower_d["validtime"][assign_a(baseTime_,ValidTime)] |
+											 as_lower_d["infinity"][assign_a(baseTime_,Infinity)] |
+											 as_lower_d["-infinity"][assign_a(baseTime_,NegativeInfinity)]
+                                     )
                                      // then, add or subtract from that time
                                      >> * (sign_p[push_back_a(subtract)] >> int_p[push_back_a(hourOffset)] >> as_lower_d["hours"]),
                                      space_p);
@@ -57,7 +61,7 @@ TimeSpecification::TimeSpecification(const char * spec)
     if ( not parseResult.full )
         throw InvalidSpecification(spec);
 
-    if ( baseTime_ != ReferenceTime and baseTime_ != ValidTime )
+    if ( baseTime_ < 0 or SENTRY_ <= baseTime_ )
         throw InternalError(spec);
 
     for ( unsigned i = 0; i < subtract.size(); ++ i )
@@ -68,6 +72,9 @@ TimeSpecification::TimeSpecification(const char * spec)
         else
             duration_ += offset;
     }
+
+    if ( (baseTime_ == Infinity or baseTime_ == NegativeInfinity) and not hourOffset.empty() )
+    	throw InvalidSpecification(spec);
 }
 
 boost::local_time::local_date_time TimeSpecification::getTime(
@@ -76,10 +83,21 @@ boost::local_time::local_date_time TimeSpecification::getTime(
 {
     boost::local_time::local_date_time ret(boost::posix_time::not_a_date_time);
 
-    if ( ReferenceTime == baseTime_ )
+    switch ( baseTime_ )
+    {
+    case ReferenceTime:
         ret = referenceTime;
-    if ( ValidTime == baseTime_ )
-        ret = validTime;
+        break;
+    case ValidTime:
+    	ret = validTime;
+    	break;
+    case Infinity:
+    	ret = boost::local_time::local_date_time(boost::local_time::pos_infin);
+    	break;
+    case NegativeInfinity:
+		ret = boost::local_time::local_date_time(boost::local_time::neg_infin);
+		break;
+    }
 
     ret += duration_;
 

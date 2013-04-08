@@ -47,6 +47,7 @@
 
 namespace MetNoFimex
 {
+	class CDM;
     class CDMReader;
     class Data;
     class SliceBuilder;
@@ -83,6 +84,8 @@ private:
 
     Time getReferenceTime_();
     std::vector<Time> getTimes_();
+    std::vector<Time> getTimes_(const MetNoFimex::CDM & cdm, const LoadElement & loadElement) const;
+
 
     std::string getPlaceName_(const std::string& cfName);
     boost::shared_ptr<MetNoFimex::Data> getLevels_(const std::string& cfName) const;
@@ -96,7 +99,6 @@ private:
     LoadConfiguration loadConfiguration_;
 
     boost::shared_ptr<Time> pReferenceTime_;
-    std::vector<Time> timeAxis_;
     boost::shared_ptr<MetNoFimex::CDMReader> pReader_;
 };
 
