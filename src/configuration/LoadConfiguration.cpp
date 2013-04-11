@@ -75,6 +75,14 @@ LoadConfiguration::~LoadConfiguration()
 {
 }
 
+const LoadElement * LoadConfiguration::getLoadElement(const std::string & name) const
+{
+	for ( load_iterator it = load_begin(); it != load_end(); ++ it )
+		if ( it->cfName() == name )
+			return &* it;
+	return 0;
+}
+
 void LoadConfiguration::init_(xmlXPathContextPtr context)
 {
     boost::shared_ptr<xmlXPathObject>
