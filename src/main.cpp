@@ -74,12 +74,12 @@ int main(int argc, char ** argv)
     if(conf.general().version)
     {
         version(cout);
-	return 0;
+        return 0;
     }
     if(conf.general().help)
     {
         help(std::cout, conf.shownOptions());
-	return 0;
+        return 0;
     }
 
     if(conf.output().list)
