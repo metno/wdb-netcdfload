@@ -36,7 +36,7 @@ class CdmLoaderConfiguration : public wdb::load::LoaderConfiguration
 {
 public:
 	CdmLoaderConfiguration();
-	~CdmLoaderConfiguration();
+	virtual ~CdmLoaderConfiguration();
 
 	const std::string & loadConfiguration() const { return loadConfiguration_; }
 

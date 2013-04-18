@@ -29,7 +29,7 @@
 #include "CdmLoaderConfiguration.h"
 
 CdmLoaderConfiguration::CdmLoaderConfiguration()
-    : wdb::load::LoaderConfiguration("pgen_probability")
+//    : wdb::load::LoaderConfiguration(defaultDataProvider)
 {
     using namespace boost::program_options;
 

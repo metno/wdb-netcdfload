@@ -1,14 +1,17 @@
 Examples of how to call program:
 
 netcdfLoad \
+	--dataprovider=pgen_probability \
 	--configuration=${SYSCONFDIR}/netcdfLoad/eps2probandltf.netcdfload.xml \
 	test.orginal.nc
 
 netcdfLoad \
+	--dataprovider=pgen_probability \
 	--configuration=${SYSCONFDIR}/netcdfLoad/eps2probandltf.eps_yr.netcdfload.xml \
 	test.eps_yr.nc
 
 netcdfLoad \
+	--dataprovider=pgen_probability \
 	--configuration=${SYSCONFDIR}/netcdfLoad/eps2probandltf.eps_yr.netcdfload.xml \
 	test.eps_yrcal.nc
 
