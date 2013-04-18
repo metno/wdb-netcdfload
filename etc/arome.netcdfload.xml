@@ -5,7 +5,10 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="netcdfLoad.configuration.xsd">
 
-	<!-- altitude -->
+	<load>
+		<netcdf cfname="altitude" />
+		<wdb name="altitude" />
+	</load>
 
 	<!-- 
 	<load>
@@ -27,12 +30,10 @@
 	</load>
 	 -->
 	
-	<!--  
 	<load>
 		<netcdf cfname="thunderstorm_index_combined"/>
-		<wdb name="thunderstorm index"/>
+		<wdb name="thunderstorm probability"/>
 	</load>
-	-->
 
 	<load>
 		<netcdf cfname="precipitation_amount_acc"/>
@@ -50,106 +51,57 @@
 	</load>
 	<load>
 		<netcdf cfname="air_temperature_2m"/>
-		<wdb name="air temperature"/>
+		<wdb name="air temperature">
+			<level name="height above ground" value="2" />
+		</wdb>
 	</load>
 
 	<load>
 		<netcdf cfname="relative_humidity_2m"/>
-		<wdb name="relative humidity"/>
+		<wdb name="relative humidity">
+			<level name="height above ground" value="2" />
+		</wdb>
 	</load>
 
 	<load>
 		<netcdf cfname="x_wind_10m"/>
-		<wdb name="x wind"/>
+		<wdb name="x wind">
+			<level name="height above ground" value="10" />
+		</wdb>
 	</load>
 	<load>
 		<netcdf cfname="y_wind_10m"/>
-		<wdb name="y wind"/>
+		<wdb name="y wind">
+			<level name="height above ground" value="10" />
+		</wdb>
 	</load>
 
-	<!-- 
 	<load>
 		<netcdf cfname="fog_area_fraction"/>
-		<wdb name="fog area fraction"/>
+		<wdb name="cloud area fraction in atmosphere layer">
+			<level name="atmosphere sigma coordinate" value="1000"/>
+		</wdb>
 	</load>
-	 -->
-
-	<!-- 
+ 
 	<load>
-		<netcdf cfname="high_type_cloud_area_fraction">
-			<dimension name="sigma" value="300"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
-	</load>
-	<load>
-		<netcdf cfname="high_type_cloud_area_fraction">
-			<dimension name="sigma" value="500"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
+		<netcdf cfname="high_type_cloud_area_fraction" />
+		<wdb name="cloud area fraction in atmosphere layer">
+			<level name="atmosphere sigma coordinate" value="300"/>
+		</wdb>
 	</load>
 	<load>
-		<netcdf cfname="high_type_cloud_area_fraction">
-			<dimension name="sigma" value="750"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
+		<netcdf cfname="mean_type_cloud_area_fraction" />
+		<wdb name="cloud area fraction in atmosphere layer">
+			<level name="atmosphere sigma coordinate" value="500"/>
+		</wdb>
 	</load>
 	<load>
-		<netcdf cfname="high_type_cloud_area_fraction">
-			<dimension name="sigma" value="1000"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
+		<netcdf cfname="low_type_cloud_area_fraction" />
+		<wdb name="cloud area fraction in atmosphere layer">
+			<level name="atmosphere sigma coordinate" value="850"/>
+		</wdb>
 	</load>
 
-	<load>
-		<netcdf cfname="mean_type_cloud_area_fraction">
-			<dimension name="sigma" value="300"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
-	</load>
-	<load>
-		<netcdf cfname="mean_type_cloud_area_fraction">
-			<dimension name="sigma" value="500"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
-	</load>
-	<load>
-		<netcdf cfname="mean_type_cloud_area_fraction">
-			<dimension name="sigma" value="750"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
-	</load>
-	<load>
-		<netcdf cfname="mean_type_cloud_area_fraction">
-			<dimension name="sigma" value="1000"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
-	</load>
-
-	<load>
-		<netcdf cfname="low_type_cloud_area_fraction">
-			<dimension name="sigma" value="300"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
-	</load>
-	<load>
-		<netcdf cfname="low_type_cloud_area_fraction">
-			<dimension name="sigma" value="500"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
-	</load>
-	<load>
-		<netcdf cfname="low_type_cloud_area_fraction">
-			<dimension name="sigma" value="750"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
-	</load>
-	<load>
-		<netcdf cfname="low_type_cloud_area_fraction">
-			<dimension name="sigma" value="1000"/>
-		</netcdf>
-		<wdb name="cloud area fraction"/>
-	</load>
--->
 	<load>
 		<netcdf cfname="air_pressure_at_sea_level"/>
 		<wdb name="air pressure at sea level"/>

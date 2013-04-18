@@ -15,10 +15,14 @@
 		<xs:attribute name="cfname" type="xs:string" use="required" />
 	</xs:complexType>
 
+	<xs:complexType name="level_type">
+		<xs:attribute name="name" type="xs:string" use="required" />
+		<xs:attribute name="value" type="xs:double" use="optional" default="0" />
+	</xs:complexType>
+
 	<xs:complexType name="wdb_type">
 		<xs:attribute name="name" type="xs:string" use="required" />
 		<xs:attribute name="scale" type="xs:float" use="optional" />
-		
 		<!-- 
 		Validfrom can be one of the special values "validtime" or 
 		"referencetime". You may add or subtract a fixed amount of hours from 
@@ -26,6 +30,11 @@
 		-->
 		<xs:attribute name="validfrom" type="xs:string" use="optional" default="validtime" />
 		<!-- <xs:attribute name="validto" type="xs:string" use="optional" default="validtime" /> -->
+
+		<xs:sequence>
+			<xs:element name="level" type="level_type"
+				minOccurs="" maxOccurs="1" />
+		</xs:sequence>
 	</xs:complexType>
 
 	<xs:complexType name="load_type">

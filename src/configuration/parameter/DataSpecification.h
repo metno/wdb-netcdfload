@@ -46,12 +46,29 @@ public:
     const TimeSpecification & validTimeFrom() const { return validTimeFrom_; }
     const TimeSpecification & validTimeTo() const { return validTimeTo_; }
 
+    class Level
+    {
+    public:
+    	Level(const std::string & name = "height above ground", float value = 0) :
+    		name_(name), value_(value)
+    	{}
+    	const std::string & name() const { return name_; }
+    	float value() const { return value_; }
+    private:
+    	std::string name_;
+    	float value_;
+    };
+    const Level & level() const { return level_; }
+    void level(const Level & level) { level_ = level; }
+
 private:
     std::string wdbParameter_;
     std::string wdbUnits_;
     float scale_;
     TimeSpecification validTimeFrom_;
     TimeSpecification validTimeTo_;
+
+    Level level_;
 };
 
 

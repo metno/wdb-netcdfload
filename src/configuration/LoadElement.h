@@ -77,6 +77,7 @@ public:
 
 private:
     void addWdbSpec_(xmlNodePtr wdbNode);
+    DataSpecification::Level getWdbLevelSpec_(xmlNodePtr levelNode);
     void addNetcdfSpec_(xmlNodePtr netcdfNode);
     void makeIndicePermutations_();
 

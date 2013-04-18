@@ -202,6 +202,27 @@ void LoadElement::addWdbSpec_(xmlNodePtr wdbNode)
     string validFrom = getAttribute(wdbNode, "validfrom", "validtime");
 
     wdbDataSpecification_ = DataSpecification(wdbName, wdbUnits, scale, validFrom);
+
+
+    for(xmlNodePtr subNode = wdbNode->children; subNode; subNode = subNode->next)
+        if(xmlStrEqual(subNode->name, (xmlChar*) "level"))
+        	wdbDataSpecification_.level(getWdbLevelSpec_(subNode));
+}
+
+DataSpecification::Level LoadElement::getWdbLevelSpec_(xmlNodePtr levelNode)
+{
+    string name = getAttribute(levelNode, "name");
+    float value = 0;
+    std::string val;
+    try
+    {
+    	val = getAttribute(levelNode, "value");
+    }
+    catch (std::exception & )
+    {}
+	value = boost::lexical_cast<float>(val);
+
+	return DataSpecification::Level(name, value);
 }
 
 const std::vector<std::vector<LoadElement::IndexElement> >& LoadElement::permutations() const

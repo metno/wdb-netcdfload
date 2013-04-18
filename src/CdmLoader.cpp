@@ -202,9 +202,9 @@ void CdmLoader::write_(LoadElement& loadElement)
                    placeName,
                    time_to_postgresql_string(validFrom),
                    time_to_postgresql_string(validTo),
-                   "height above ground",
-                   0,
-                   0,
+                   specification.level().name(),
+                   specification.level().value(),
+                   specification.level().value(),
                    0);
         }
         for(size_t permutationindex = 0; permutationindex < loadElement.permutations().size(); ++permutationindex)
