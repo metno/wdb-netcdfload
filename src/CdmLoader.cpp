@@ -78,22 +78,22 @@ void CdmLoader::write_()
 {
 //    WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 
-	const CDM & cdm = pReader_->getCDM();
-	BOOST_FOREACH( const CDMVariable & variable, cdm.getVariables() )
-	{
-		const LoadElement * loadElement = loadConfiguration_.getLoadElement(variable.getName());
-		if ( loadElement )
-		{
-			LoadElement element = * loadElement;
-			write_(element);
-		}
-	}
+// Ruins support for multiple dimensions in netcdf file:
+//	const CDM & cdm = pReader_->getCDM();
+//	BOOST_FOREACH( const CDMVariable & variable, cdm.getVariables() )
+//	{
+//		const LoadElement * loadElement = loadConfiguration_.getLoadElement(variable.getName());
+//		if ( loadElement )
+//		{
+//			LoadElement element = * loadElement;
+//			write_(element);
+//		}
+//	}
 
-
-//    for(LoadConfiguration::load_const_iterator cit = loadConfiguration_.load_begin(); cit != loadConfiguration_.load_end(); ++cit) {
-//        LoadElement element = *cit;
-//        write_(element);
-//    }
+    for(LoadConfiguration::load_const_iterator cit = loadConfiguration_.load_begin(); cit != loadConfiguration_.load_end(); ++cit) {
+        LoadElement element = *cit;
+        write_(element);
+    }
 }
 
 namespace
@@ -153,6 +153,7 @@ void CdmLoader::write_(LoadElement& loadElement)
 
     const DataSpecification& specification = loadElement.wdbDataSpecification();
     std::string wdbParameter = specification.wdbParameter();
+    std::cout << wdbParameter << std::endl;
 
 //    std::string tAxisName = cdm.getTimeAxis(loadElement.cfName());
 //    if(tAxisName.empty()) {
