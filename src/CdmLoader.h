@@ -91,7 +91,7 @@ private:
     boost::shared_ptr<MetNoFimex::Data> getLevels_(const std::string& cfName) const;
 
     Blob getData_(const MetNoFimex::SliceBuilder & slicer,
-			LoadElement& loadElement);
+			LoadElement& loadElement, float undef);
 
     CdmLoaderConfiguration conf_;
     wdb::load::LoaderDatabaseConnection wdbConnection_;

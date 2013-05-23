@@ -48,6 +48,7 @@
 // std
 #include <vector>
 #include <functional>
+#include <algorithm>
 
 
 using namespace MetNoFimex;
@@ -108,7 +109,7 @@ struct scale_data
 };
 }
 
-CdmLoader::Blob CdmLoader::getData_(const SliceBuilder & slicer, LoadElement & loadElement)
+CdmLoader::Blob CdmLoader::getData_(const SliceBuilder & slicer, LoadElement & loadElement, float undef)
 {
 	boost::shared_ptr<Data> data;
 	if (loadElement.wdbDataSpecification().wdbUnits().empty())
@@ -120,6 +121,10 @@ CdmLoader::Blob CdmLoader::getData_(const SliceBuilder & slicer, LoadElement & l
 	Blob ret;
 	ret.length = data->size();
 	ret.data = data->asFloat();
+
+	float * begin = ret.data.get();
+	float * end = begin + ret.length;
+	std::replace(begin, end, undef, std::numeric_limits<float>::quiet_NaN());
 
 	float scale = loadElement.wdbDataSpecification().scale();
 	if ( scale != 1 )
@@ -196,8 +201,12 @@ void CdmLoader::write_(LoadElement& loadElement)
 
         if ( loadElement.permutations().empty() )
         {
-			Blob data = getData_(slicer, loadElement);
-            write_(data,
+			Blob data = getData_(slicer, loadElement, undef);
+			float * begin = data.data.get();
+			float * end = begin + data.length;
+			std::replace(begin, end, undef, std::numeric_limits<float>::quiet_NaN());
+
+			write_(data,
                    wdbParameter,
                    placeName,
                    time_to_postgresql_string(validFrom),
@@ -224,7 +233,7 @@ void CdmLoader::write_(LoadElement& loadElement)
                 slicer.setStartAndSize(ie.indexName, ie.cdmIndex(pReader_), 1);
             }
 
-            write_(getData_(slicer, loadElement),
+            write_(getData_(slicer, loadElement, undef),
                    wdbParameter,
                    placeName,
                    time_to_postgresql_string(validFrom),
