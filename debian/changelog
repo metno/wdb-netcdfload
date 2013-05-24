@@ -2,7 +2,7 @@ netcdfload (0.9.0) precise; urgency=low
 
   * new release
 
- -- Aleksandar Babic <aleksandarb@met.no>  Fri, 24 May 2013 13:39:28 +0200
+ -- Vegard Bønes <vegard.bones@met.no>  Thu, 23 May 2013 15:17:32 +0200
 
 netcdfload (0.8.0) precise; urgency=low
 
