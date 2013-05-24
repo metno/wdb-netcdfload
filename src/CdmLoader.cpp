@@ -193,7 +193,7 @@ void CdmLoader::write_(LoadElement& loadElement)
         log.infoStream() << "Loading valid time " << time_to_postgresql_string(times[t]);
 
         const Time & validFrom = specification.validTimeFrom().getTime(*pReferenceTime_, times[t]);
-        const Time & validTo = times[t];
+        const Time & validTo = specification.validTimeTo().getTime(*pReferenceTime_, times[t]);
 
         SliceBuilder slicer(cdm, loadElement.cfName());
         std::string timeDimensionName = cdm.getTimeAxis(loadElement.cfName());

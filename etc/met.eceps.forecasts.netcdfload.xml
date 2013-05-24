@@ -6,6 +6,11 @@
 	xsi:noNamespaceSchemaLocation="netcdfLoad.configuration.xsd">
 
 	<load>
+		<netcdf cfname="altitude" />
+		<wdb name="altitude" validfrom="-infinity" validto="infinity"/>
+	</load>
+
+	<load>
 		<netcdf cfname="weather_symbol" />
 		<wdb name="yr weather symbol" validfrom="validTime - 6 hours" />
 	</load>
