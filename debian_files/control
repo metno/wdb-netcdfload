@@ -1,7 +1,7 @@
-Source: netcdfload
+Source: wdb-netcdfload
 Section: science
 Priority: extra
-Maintainer: Aleksandar Babic <aleksandar.babic@met.no>
+Maintainer: Vegard Bønes <vegard.bones@met.no>
 Build-Depends: debhelper (>= 7), autotools-dev, cdbs,
  help2man,
  libfimex-dev,
@@ -14,14 +14,13 @@ Build-Depends: debhelper (>= 7), autotools-dev, cdbs,
  libxml2-dev,
  liblog4cpp5-dev,
  xmlto
-Standards-Version: 3.9.1 
+Standards-Version: 3.9.3 
 
-Package: netcdfload-0.8
+Package: wdb-netcdfload-0.9
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Provides: netcdfload
-Conflicts: netcdfload
+Provides: wdb-netcdfload
+Conflicts: wdb-netcdfload, netcdfload
 Description: Load field data from netcdf files into wdb
  Loads files that are readable by fimex into a wdb database. Change
- configuration file to suit youor need for particula NetCDF file.
-
+ configuration file to suit your need for particular NetCDF file.

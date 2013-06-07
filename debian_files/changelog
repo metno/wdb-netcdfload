@@ -1,4 +1,4 @@
-netcdfload (0.9.0) precise; urgency=low
+wdb-netcdfload (0.9.0-1) precise; urgency=low
 
   * new release
 
