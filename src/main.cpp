@@ -69,7 +69,15 @@ namespace {
 int main(int argc, char ** argv)
 {
     CdmLoaderConfiguration conf;
-    conf.parse(argc, argv);
+    try
+    {
+    	conf.parse(argc, argv);
+    }
+    catch ( std::exception & e )
+    {
+    	std::clog << "ERROR: " << e.what() << std::endl;
+    	return 1;
+    }
 
     if(conf.general().version)
     {
@@ -103,7 +111,7 @@ int main(int argc, char ** argv)
             loader.load(file);
     } catch (std::exception& e) {
         WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
-	log.fatal(e.what());
-	return 1;
+        log.fatal(e.what());
+        return 1;
     }
 }

@@ -27,6 +27,8 @@
  */
 
 #include "CdmLoaderConfiguration.h"
+#include <fimex/CDMconstants.h>
+#include <set>
 
 CdmLoaderConfiguration::CdmLoaderConfiguration()
 //    : wdb::load::LoaderConfiguration(defaultDataProvider)
@@ -46,7 +48,36 @@ CdmLoaderConfiguration::CdmLoaderConfiguration()
 
 CdmLoaderConfiguration::~CdmLoaderConfiguration() { }
 
+
+namespace
+{
+std::set<std::string> getAvailableFileTypes()
+{
+	std::set<std::string> ret;
+	int fileType = 0;
+	while ( true )
+	{
+		std::string typeName = mifi_get_filetype_name(fileType);
+		if ( typeName.empty() )
+			break;
+		ret.insert(typeName);
+		++ fileType;
+	}
+	return ret;
+}
+}
+
 void CdmLoaderConfiguration::parse( int argc, char ** argv )
 {
     wdb::load::LoaderConfiguration::parse(argc, argv);
+
+    const std::set<std::string> types = getAvailableFileTypes();
+    if ( types.find(fileType_) == types.end() )
+    {
+    	std::ostringstream msg;
+    	msg << "Invalid file type (" << fileType_ <<"). Available types are:";
+    	for ( std::set<std::string>::const_iterator it = types.begin(); it != types.end(); ++ it )
+    		msg << ' ' << * it;
+    	throw std::runtime_error(msg.str());
+    }
 }
