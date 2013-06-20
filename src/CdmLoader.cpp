@@ -68,7 +68,7 @@ void CdmLoader::load(const std::string& file)
     log.debug("Loading file " + file);
 
     // cache common data (for one file to be loaded)
-    pReader_ = CDMFileReaderFactory::create(MIFI_FILETYPE_NETCDF, file);
+    pReader_ = CDMFileReaderFactory::create(conf_.fileType(), file, conf_.fileTypeConfiguration());
     pReferenceTime_ = boost::shared_ptr<Time>(new Time(getReferenceTime_()));
 
     write_();

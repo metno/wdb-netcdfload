@@ -38,11 +38,15 @@ public:
 	CdmLoaderConfiguration();
 	virtual ~CdmLoaderConfiguration();
 
+	const std::string fileType() const { return fileType_; }
+	const std::string & fileTypeConfiguration() const { return fileTypeConfiguration_; }
 	const std::string & loadConfiguration() const { return loadConfiguration_; }
 
 	virtual void parse( int argc, char ** argv );
 
 private:
+	std::string fileType_;
+	std::string fileTypeConfiguration_;
 	std::string loadConfiguration_;
 };
 

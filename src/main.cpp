@@ -86,7 +86,8 @@ int main(int argc, char ** argv)
     {
         BOOST_FOREACH(const std::string& file, conf.input().file)
         {
-            boost::shared_ptr<MetNoFimex::CDMReader> reader = MetNoFimex::CDMFileReaderFactory::create(MIFI_FILETYPE_NETCDF, file);
+            boost::shared_ptr<MetNoFimex::CDMReader> reader =
+            		MetNoFimex::CDMFileReaderFactory::create(conf.fileType(), file, conf.fileTypeConfiguration());
             reader->getCDM().toXMLStream(cout);
             cout <<"--------------------------------------------------------------------------------------------------------------"<< endl;
         }
