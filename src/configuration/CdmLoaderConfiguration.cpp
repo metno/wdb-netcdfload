@@ -54,15 +54,14 @@ namespace
 std::set<std::string> getAvailableFileTypes()
 {
 	std::set<std::string> ret;
-	int fileType = 0;
-	while ( true )
+
+	int numberOfFileTypes = mifi_get_max_filetype_number();
+	for (int i = 0; i < numberOfFileTypes; ++ i )
 	{
-		std::string typeName = mifi_get_filetype_name(fileType);
-		if ( typeName.empty() )
-			break;
+		std::string typeName = mifi_get_filetype_name(i);
 		ret.insert(typeName);
-		++ fileType;
 	}
+
 	return ret;
 }
 }
