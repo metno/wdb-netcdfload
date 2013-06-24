@@ -48,7 +48,7 @@
 
 	<load>
 		<netcdf cfname="y_wind">
-                    <dimension name="pressure" value="!10" />
+                    <dimension name="pressure" value="10" />
 		</netcdf>
 		<wdb name="y wind" units="m/s"/>
 	</load>

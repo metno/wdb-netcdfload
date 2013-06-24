@@ -135,39 +135,6 @@ void LoadElement::expandIndicePermutations(const boost::shared_ptr<MetNoFimex::C
 
 }
 
-void LoadElement::removeNotToLoadPermutations()
-{
-    std::vector<std::vector<IndexElement> >  permutations;
-
-    for(size_t p = 0; p < indicesPermutations_.size(); ++p)
-    {
-        vector<IndexElement> permutation = indicesPermutations_[p];
-
-        bool toLoad = true;
-        for(size_t i = 0; i < permutation.size(); ++i)
-        {
-            const IndexElement ie = permutation[i];
-            multimap<string, IndexElement>::const_iterator cit;
-            for(cit = indicesNotToLoad_.begin(); cit != indicesNotToLoad_.end(); ++cit)
-            {
-                const IndexElement notIe = cit->second;
-                string notValue = string("!").append(ie.indexValue);
-                if(ie.indexName == notIe.indexName and notIe.indexValue == notValue) {
-                    toLoad = false;
-                    break;
-                }
-            }
-            if(not toLoad)
-                break;
-
-        }
-        if(toLoad)
-            permutations.push_back(permutation);
-    }
-
-    indicesPermutations_ = permutations;
-}
-
 void LoadElement::addNetcdfSpec_(xmlNodePtr netcdfNode)
 {
     cfName_ = getAttribute(netcdfNode, "cfname");
@@ -178,12 +145,8 @@ void LoadElement::addNetcdfSpec_(xmlNodePtr netcdfNode)
             string name = getAttribute(subNode, "name");
             string value = getAttribute(subNode, "value");
             IndexElement ie = {name, value};
-            if(value.find("!") == string::npos) {
-                indiceKeys_.insert(name);
-                indicesToLoad_.insert(make_pair<string, LoadElement::IndexElement>(name, ie));
-            } else {
-                indicesNotToLoad_.insert(make_pair<string, LoadElement::IndexElement>(name, ie));
-            }
+			indiceKeys_.insert(name);
+			indicesToLoad_.insert(make_pair<string, LoadElement::IndexElement>(name, ie));
         }
     }
 }

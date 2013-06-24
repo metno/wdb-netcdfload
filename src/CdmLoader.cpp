@@ -177,8 +177,6 @@ void CdmLoader::write_(LoadElement& loadElement)
 			loadElement.expandIndicePermutations(pReader_, eAxisName);
     }
 
-    loadElement.removeNotToLoadPermutations();
-
     float undef = std::numeric_limits<float>::quiet_NaN();
     CDMAttribute fillValue;
     if(cdm.getAttribute(loadElement.cfName(), "_FillValue", fillValue))

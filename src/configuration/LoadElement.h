@@ -68,12 +68,15 @@ public:
     };
 
     const std::string& cfName() const { return cfName_; }
-//    const std::string& wdbUnit() const { return wdbUnits_; }
+
+    const DataSpecification & wdbDataSpecification() const { return wdbDataSpecification_; }
+
+    /**
+     * Get at list of all possible dimensions and indices for this element
+     */
     const std::vector<std::vector<IndexElement> >& permutations() const;
-    const std::set<std::string>& indiceKeys() { return indiceKeys_; }
-    const DataSpecification& wdbDataSpecification() const { return wdbDataSpecification_; }
+
     void expandIndicePermutations(const boost::shared_ptr<MetNoFimex::CDMReader>& reader, const std::string& dimName);
-    void removeNotToLoadPermutations();
 
 private:
     void addWdbSpec_(xmlNodePtr wdbNode);
@@ -87,7 +90,6 @@ private:
 
     std::set<std::string> indiceKeys_;
     std::multimap<std::string, IndexElement> indicesToLoad_;
-    std::multimap<std::string, IndexElement> indicesNotToLoad_;
     std::vector<std::vector<IndexElement> >  indicesPermutations_;
 
 };
