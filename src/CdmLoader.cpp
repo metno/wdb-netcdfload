@@ -164,7 +164,7 @@ void CdmLoader::write_(LoadElement& loadElement)
     // check if CDM modell has eps axis at all
     // based on the non-standardized "realization"
     std::string eAxisName;
-    std::string epsDimStandardName = std::string("realization");
+    std::string epsDimStandardName = "realization";
     if(not cdm.findVariables("standard_name", epsDimStandardName).empty()) {
         eAxisName = cdm.findVariables("standard_name", epsDimStandardName)[0];
     }
@@ -205,6 +205,10 @@ void CdmLoader::write_(LoadElement& loadElement)
 			float * end = begin + data.length;
 			std::replace(begin, end, undef, std::numeric_limits<float>::quiet_NaN());
 
+			size_t dataVersion = 0;
+
+
+
 			write_(data,
                    wdbParameter,
                    placeName,
@@ -213,7 +217,7 @@ void CdmLoader::write_(LoadElement& loadElement)
                    specification.level().name(),
                    specification.level().value(),
                    specification.level().value(),
-                   0);
+                   dataVersion);
         }
         for(size_t permutationindex = 0; permutationindex < loadElement.permutations().size(); ++permutationindex)
         {

@@ -30,22 +30,14 @@
 #include <config.h>
 #endif
 
-// project
-#include "CdmLoader.h"
+#include "NetcdfLoader.h"
+#include "NetcdfFile.h"
 #include "configuration/CdmLoaderConfiguration.h"
-
-// wdb
 #include <wdbLogHandler.h>
-
-// fimex
 #include "fimex/CDM.h"
 #include "fimex/CDMReader.h"
 #include "fimex/CDMFileReaderFactory.h"
-
-// boost
 #include <boost/foreach.hpp>
-
-//std
 #include <iostream>
 
 using namespace std;
@@ -75,7 +67,7 @@ int main(int argc, char ** argv)
     }
     catch ( std::exception & e )
     {
-    	std::clog << "ERROR: " << e.what() << std::endl;
+    	std::clog << "ERROR: Command line arguments: " << e.what() << std::endl;
     	return 1;
     }
 
@@ -90,25 +82,18 @@ int main(int argc, char ** argv)
         return 0;
     }
 
-    if(conf.output().list)
-    {
-        BOOST_FOREACH(const std::string& file, conf.input().file)
-        {
-            boost::shared_ptr<MetNoFimex::CDMReader> reader =
-            		MetNoFimex::CDMFileReaderFactory::create(conf.fileType(), file, conf.fileTypeConfiguration());
-            reader->getCDM().toXMLStream(cout);
-            cout <<"--------------------------------------------------------------------------------------------------------------"<< endl;
-        }
-
-        return 0;
-    }
-
     wdb::WdbLogHandler logHandler(conf.logging().loglevel, conf.logging().logfile);
 
     try{
-        CdmLoader loader(conf);
-	BOOST_FOREACH(const std::string & file, conf.input().file)
-            loader.load(file);
+        NetcdfLoader loader(conf);
+        BOOST_FOREACH(const std::string & file, conf.input().file)
+        {
+        	NetcdfFile toLoad(file, conf.fileTypeConfiguration(), conf.fileType());
+        	if ( conf.output().list )
+        		loader.list(toLoad, std::cout);
+        	else
+        		loader.load(toLoad);
+        }
     } catch (std::exception& e) {
         WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
         log.fatal(e.what());

@@ -1,6 +1,12 @@
 netcdfLoad_SOURCES = src/main.cpp \
 	             src/localtime.h \
 	             src/localtime.cpp \
+	             src/NetcdfFile.h \
+	             src/NetcdfFile.cpp \
+	             src/NetcdfField.h \
+	             src/NetcdfField.cpp \
+	             src/NetcdfLoader.h \
+	             src/NetcdfLoader.cpp \
 	             src/CdmLoader.h \
 	src/CdmLoader.cpp \
 	src/configuration/LoadElement.h \
