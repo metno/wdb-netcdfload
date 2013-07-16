@@ -41,6 +41,9 @@ namespace MetNoFimex
 class CDMReader;
 }
 
+/**
+ * Handler class for a netcdf file
+ */
 class NetcdfFile
 {
 public:
@@ -49,10 +52,11 @@ public:
 
 	std::vector<NetcdfField::Ptr> getFields() const;
 
-	Time getReferenceTime() const;
+	Time referenceTime() const { return referenceTime_; }
 
 private:
 	boost::shared_ptr<MetNoFimex::CDMReader> reader_;
+	Time referenceTime_;
 };
 
 

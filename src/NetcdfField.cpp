@@ -36,126 +36,151 @@
 #include <boost/foreach.hpp>
 #include <boost/date_time.hpp>
 #include <set>
+#include <sstream>
+#include <iomanip>
 
 
 using namespace MetNoFimex;
 
 
-
-namespace
-{
-typedef std::map<std::string, unsigned> DimensionList;
-void buildSlices(std::vector<SliceBuilder> & out,
-		DimensionList::const_reverse_iterator start, DimensionList::const_reverse_iterator stop,
-		const SliceBuilder & slicer)
-{
-	if (start == stop)
-	{
-		out.push_back(slicer);
-		return;
-	}
-
-	std::string name = start->first;
-	unsigned count = start->second;
-	++start;
-	for (unsigned i = 0; i < count; ++i)
-	{
-		SliceBuilder newSlicer(slicer);
-		newSlicer.setStartAndSize(name, i, 1);
-		buildSlices(out, start, stop, newSlicer);
-	}
-}
-
-void buildIndexList(std::vector<NetcdfField::IndexList> & out,
-		DimensionList::const_reverse_iterator start, DimensionList::const_reverse_iterator stop,
-		const NetcdfField::IndexList & indexList = NetcdfField::IndexList())
-{
-	if (start == stop)
-	{
-		out.push_back(indexList);
-		return;
-	}
-
-	std::string name = start->first;
-	unsigned count = start->second;
-	++start;
-	for (unsigned i = 0; i < count; ++i)
-	{
-		NetcdfField::IndexList newIndexList(indexList);
-		newIndexList[name] = i;
-		buildIndexList(out, start, stop, newIndexList);
-	}
-}
-
-
-}
-
-void NetcdfField::get(std::vector<Ptr> & out, const boost::shared_ptr<MetNoFimex::CDMReader> & reader, const NetcdfFile & netcdfFile)
+NetcdfField::NetcdfField(const NetcdfFile & netcdfFile, boost::shared_ptr<MetNoFimex::CDMReader> reader, const std::string & variableName) :
+		netcdfFile_(netcdfFile),
+		reader_(reader),
+		variableName_(variableName)
 {
 	const CDM & cdm = reader->getCDM();
 
-	BOOST_FOREACH( const CDMVariable & variable, cdm.getVariables() )
+	const CDMVariable & variable = cdm.getVariable(variableName);
+	BOOST_FOREACH(const std::string & dimension, variable.getShape())
 	{
-		const std::string var = variable.getName();
+		unsigned count = cdm.getDimension(dimension).getLength();
+		indexList_[dimension] = count;
+	}
+}
 
-		std::set<std::string> ignoreDimensions;
-		ignoreDimensions.insert(cdm.getHorizontalXAxis(var));
-		ignoreDimensions.insert(cdm.getHorizontalYAxis(var));
-		//ignoreDimensions.insert(cdm.getTimeAxis(var));
+NetcdfField::~NetcdfField()
+{
+}
 
-		DimensionList dimensions;
-		BOOST_FOREACH(const std::string & dimension, variable.getShape())
-			if ( ignoreDimensions.find(dimension) == ignoreDimensions.end() )
-			{
-				unsigned count = cdm.getDimension(dimension).getLength();
-				dimensions[dimension] = count;
-			}
+NetcdfField::IndexList NetcdfField::unHandledIndexes() const
+{
+	IndexList ret;
 
-
-		std::vector<SliceBuilder> slicers;
-		buildSlices(slicers, dimensions.rbegin(), dimensions.rend(), SliceBuilder(cdm, var));
-
-		std::vector<IndexList> indexLists;
-		buildIndexList(indexLists, dimensions.rbegin(), dimensions.rend());
-
-		BOOST_FOREACH(const IndexList & indexList, indexLists)
+	BOOST_FOREACH(const IndexList::value_type & val, indexList_)
+	{
+		if ( not canHandleIndex(val.first) )
 		{
-			Ptr ret(new NetcdfField(indexList, netcdfFile));
-			ret->reader_ = reader;
-			ret->variableName_ = var;
-			out.push_back(ret);
+			const CDM & cdm = reader_->getCDM();
+			const CDMDimension & dimension = cdm.getDimension(val.first);
+			if ( dimension.getLength() > 1 )
+				ret.insert(val);
 		}
 	}
+	return ret;
 }
 
-
-const boost::shared_array<float> & NetcdfField::data() const
+bool NetcdfField::canHandleIndex(const std::string & name) const
 {
-	if ( ! data_ )
+	return name == timeDimension() or
+			name == realizationDimension() or
+			name == xDimension() or
+			name == yDimension();
+}
+
+double NetcdfField::indexValue(std::string dimension, unsigned index) const
+{
+	IndexList::const_iterator find = indexList_.find(dimension);
+	if ( find == indexList_.end() )
+		throw std::runtime_error(dimension + " does not exist for variable " + variableName_);
+	if ( find->second <= index )
 	{
-		DataPtr data = reader_->getScaledDataSlice(variableName_, getSliceBuilder_());
-		data_ = data->asFloat();
+		std::ostringstream s;
+		s << "Invalid index for dimension " << dimension << ": " << index;
+		throw std::runtime_error(s.str());
 	}
-	return data_;
+
+	boost::shared_array<double> & values = dimensionValues_[dimension];
+	if ( ! values )
+	{
+		DataPtr data = reader_->getData(dimension);
+		values = data->asDouble();
+	}
+	return values[index];
 }
 
-unsigned NetcdfField::dataSize() const
+std::vector<Time> NetcdfField::times() const
 {
-	unsigned ret = 1;
-	const SliceBuilder & sliceBuilder = getSliceBuilder_();
-	BOOST_FOREACH(size_t size, sliceBuilder.getDimensionSizes())
-		ret *= size;
+	std::vector<Time> ret;
+	std::string dim = timeDimension();
+	if ( not dim.empty() )
+	{
+		DataPtr data = reader_->getData(dim);
+
+		boost::shared_array<long long> values = data->asInt64();
+
+		size_t numberOfValues = data->size();
+		for ( size_t i = 0; i < numberOfValues; ++ i )
+			ret.push_back(time_from_seconds_since_epoch(values[i]));
+	}
+	else
+		ret.push_back(INVALID_TIME);
 
 	return ret;
 }
 
-std::string NetcdfField::str() const
+std::vector<int> NetcdfField::realizations() const
 {
-	std::ostringstream s;
+	std::vector<int> ret;
 
-	s << variableName_ << '(' << dataSize() << ") ";// << slicer_;
+	std::string dim = realizationDimension();
+	if ( dim.empty() )
+		ret.push_back(0);
+	else
+	{
+		DataPtr data = reader_->getData(dim);
+		boost::shared_array<int> values = data->asInt();
+		std::copy(values.get(), values.get() + data->size(), std::back_inserter(ret));
+	}
 
-	return s.str();
+	return ret;
+}
+
+std::string NetcdfField::timeDimension() const
+{
+    const CDM & cdm = reader_->getCDM();
+	return cdm.getTimeAxis(variableName_);
+}
+
+std::string NetcdfField::realizationDimension() const
+{
+    const CDM & cdm = reader_->getCDM();
+
+    for ( IndexList::const_iterator it = indexList_.begin(); it != indexList_.end(); ++ it )
+    {
+    	CDMAttribute attribute;
+    	if ( cdm.getAttribute(it->first, "standard_name", attribute) )
+    		if ( attribute.getStringValue() == "realization" )
+    			return it->first;
+    }
+
+    return std::string();
+}
+
+std::string NetcdfField::xDimension() const
+{
+    const CDM & cdm = reader_->getCDM();
+	return cdm.getHorizontalXAxis(variableName_);
+}
+
+std::string NetcdfField::yDimension() const
+{
+    const CDM & cdm = reader_->getCDM();
+	return cdm.getHorizontalYAxis(variableName_);
+}
+
+Time NetcdfField::referenceTime() const
+{
+	return netcdfFile_.referenceTime();
 }
 
 boost::shared_ptr<GridGeometry> NetcdfField::placeSpecification() const
@@ -168,7 +193,7 @@ boost::shared_ptr<GridGeometry> NetcdfField::placeSpecification() const
         return boost::shared_ptr<GridGeometry>();
 
     const CDMDimension& xAxis = cdm.getDimension(xAxisName);
-    const CDMDimension& yAxis = cdm.getDimension(yAxisName);;
+    const CDMDimension& yAxis = cdm.getDimension(yAxisName);
 
     int xNum = xAxis.getLength();
     boost::shared_array<float> xValues = reader_->getData(xAxis.getName())->asFloat();
@@ -186,98 +211,4 @@ boost::shared_ptr<GridGeometry> NetcdfField::placeSpecification() const
 
     return boost::shared_ptr<GridGeometry>( new
     		GridGeometry(projDefinition, GridGeometry::LeftLowerHorizontal, xNum, yNum, xIncrement, yIncrement, startX, startY));
-}
-
-Time NetcdfField::validtime() const
-{
-	const CDM & cdm = reader_->getCDM();
-	std::string timeAxis = cdm.getTimeAxis(variableName_);
-
-	IndexList::const_iterator find = indexList_.find(timeAxis);
-	if ( find == indexList_.end() )
-		return netcdfFile_.getReferenceTime();
-	DataPtr data = reader_->getData(timeAxis);
-	double time = data->asDouble()[find->second];
-
-	return time_from_seconds_since_epoch(static_cast<long long> (time));
-}
-
-unsigned NetcdfField::dataVersion() const
-{
-	const CDMDimension * epsDimension = 0;
-	const CDM & cdm = reader_->getCDM();
-	BOOST_FOREACH ( const CDMDimension & dimension, cdm.getDimensions() )
-	{
-		try
-		{
-			std::string standard_name = cdm.getAttribute(dimension.getName(), "standard_name").getStringValue();
-			if ( standard_name == "realization" )
-			{
-				epsDimension = & dimension;
-				break;
-			}
-		}
-		catch ( CDMException & )
-		{
-			// ignore dimension
-		}
-	}
-	if ( ! epsDimension )
-		return 0;
-
-
-
-	IndexList::const_iterator find = indexList_.find(epsDimension->getName());
-	if ( find == indexList_.end() )
-		return 0;
-	DataPtr data = reader_->getData(epsDimension->getName());
-	return data->asInt()[find->second];
-}
-
-unsigned NetcdfField::maxDataVersion() const
-{
-	const CDMDimension * epsDimension = 0;
-	const CDM & cdm = reader_->getCDM();
-	BOOST_FOREACH ( const CDMDimension & dimension, cdm.getDimensions() )
-	{
-		try
-		{
-			std::string standard_name = cdm.getAttribute(dimension.getName(), "standard_name").getStringValue();
-			if ( standard_name == "realization" )
-			{
-				epsDimension = & dimension;
-				break;
-			}
-		}
-		catch ( CDMException & )
-		{
-			// ignore dimension
-		}
-	}
-	if ( ! epsDimension )
-		return 0;
-
-	IndexList::const_iterator find = indexList_.find(epsDimension->getName());
-	if ( find == indexList_.end() )
-		return 0;
-	DataPtr data = reader_->getData(epsDimension->getName());
-	return data->asInt()[data->size() -1];
-}
-
-NetcdfField::NetcdfField(const IndexList & indexList, const NetcdfFile & netcdfFile) :
-		indexList_(indexList),
-		netcdfFile_(netcdfFile)
-{
-}
-
-NetcdfField::~NetcdfField()
-{
-}
-
-SliceBuilder NetcdfField::getSliceBuilder_() const
-{
-	SliceBuilder builder(reader_->getCDM(), variableName_);
-	for ( IndexList::const_iterator it = indexList_.begin(); it != indexList_.end(); ++ it )
-		builder.setStartAndSize(it->first, it->second, 1);
-	return builder;
 }

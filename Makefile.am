@@ -18,7 +18,7 @@ CLEANFILES =
 EXTRA_DIST =
 
 # This is to be replaced by a "find wdb" macro:
-AM_CXXFLAGS =			-DSYSCONFDIR=\"$(pkgsysconfdir)\" -DBOOST_FILESYSTEM_VERSION=2 $(wdb_CFLAGS) $(fimex_CFLAGS) -I/usr/include/libxml2
+AM_CXXFLAGS =			-DSYSCONFDIR=\"$(pkgsysconfdir)\" -DBOOST_FILESYSTEM_VERSION=2 -I$(top_srcdir)/src $(wdb_CFLAGS) $(fimex_CFLAGS) -I/usr/include/libxml2
 netcdfLoad_LDADD = $(wdb_LIBS) $(fimex_LIBS) \
                       -llog4cpp -lboost_date_time -lboost_filesystem -lboost_regex -lboost_program_options -lboost_system -lfimex -lgrib_api -lxml2 -lwdbLoad -lwdbConfig -lwdbProj -lwdbExcept -lwdbLog -lwdbMath -lproj
 

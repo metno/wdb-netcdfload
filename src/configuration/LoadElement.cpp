@@ -77,63 +77,63 @@ LoadElement::LoadElement(xmlNodePtr loadNode)
             addWdbSpec_(subNode);
     }
 
-    makeIndicePermutations_();
+    //makeIndicePermutations_();
 }
 
 LoadElement::~LoadElement() { }
 
-unsigned LoadElement::IndexElement::cdmIndex(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const
+//unsigned LoadElement::IndexElement::cdmIndex(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const
+unsigned LoadElement::cdmIndex(MetNoFimex::CDMReader & reader, const std::string & dimensionName, const std::string & dimensionValue) const
 {
-    boost::shared_ptr<MetNoFimex::Data> indexElements = reader->getData(indexName);
+    boost::shared_ptr<MetNoFimex::Data> indexElements = reader.getData(dimensionName);
     boost::shared_array<float> elements = indexElements->asFloat();
 
     for(unsigned index = 0; index < indexElements->size(); ++ index)
-        if(equal(elements[index], indexValue))
+        if(equal(elements[index], dimensionValue))
             return index;
 
     ostringstream msg;
-    msg << "Unable to find index (" << indexName << " = " << indexValue << ")";
+    msg << "Unable to find index (" << dimensionName << " = " << dimensionValue << ")";
     throw runtime_error(msg.str());
 }
 
-void LoadElement::expandIndicePermutations(const boost::shared_ptr<MetNoFimex::CDMReader>& reader, const std::string& dimName)
-{
-    const MetNoFimex::CDM& cdmRef = reader->getCDM();
-    if(not cdmRef.hasDimension(dimName))
-        return;
-
-    boost::shared_ptr<MetNoFimex::Data> indexElements = reader->getData(dimName);
-    boost::shared_array<float> elements = indexElements->asFloat();
-
-    vector<IndexElement> indices2add;
-    for(size_t index = 0; index < indexElements->size(); ++ index) {
-        IndexElement ie = {dimName, boost::lexical_cast<string>(elements[index])};
-        indices2add.push_back(ie);
-    }
-
-    vector<vector<IndexElement> > subproduct;
-    for(size_t index = 0; index < indices2add.size(); ++index)
-    {
-        IndexElement ie = indices2add[index];
-
-        if(indicesPermutations_.empty()) {
-            vector<IndexElement> subvector;
-            subvector.push_back(ie);
-            subproduct.push_back(subvector);
-        } else {
-            for(size_t index = 0; index < indicesPermutations_.size(); ++index)
-            {
-                vector<IndexElement> subvector;
-                subvector.push_back(ie);
-                subvector.insert(subvector.end(), indicesPermutations_[index].begin(), indicesPermutations_[index].end());
-                subproduct.push_back(subvector);
-            }
-        }
-    }
-
-    indicesPermutations_ = subproduct;
-
-}
+//void LoadElement::expandIndicePermutations(const boost::shared_ptr<MetNoFimex::CDMReader>& reader, const std::string& dimName)
+//{
+//    const MetNoFimex::CDM& cdmRef = reader->getCDM();
+//    if(not cdmRef.hasDimension(dimName))
+//        return;
+//
+//    boost::shared_ptr<MetNoFimex::Data> indexElements = reader->getData(dimName);
+//    boost::shared_array<float> elements = indexElements->asFloat();
+//
+//    vector<IndexElement> indices2add;
+//    for(size_t index = 0; index < indexElements->size(); ++ index) {
+//        IndexElement ie = {dimName, boost::lexical_cast<string>(elements[index])};
+//        indices2add.push_back(ie);
+//    }
+//
+//    vector<vector<IndexElement> > subproduct;
+//    for(size_t index = 0; index < indices2add.size(); ++index)
+//    {
+//        IndexElement ie = indices2add[index];
+//
+//        if(indicesPermutations_.empty()) {
+//            vector<IndexElement> subvector;
+//            subvector.push_back(ie);
+//            subproduct.push_back(subvector);
+//        } else {
+//            for(size_t index = 0; index < indicesPermutations_.size(); ++index)
+//            {
+//                vector<IndexElement> subvector;
+//                subvector.push_back(ie);
+//                subvector.insert(subvector.end(), indicesPermutations_[index].begin(), indicesPermutations_[index].end());
+//                subproduct.push_back(subvector);
+//            }
+//        }
+//    }
+//
+//    indicesPermutations_ = subproduct;
+//}
 
 void LoadElement::addNetcdfSpec_(xmlNodePtr netcdfNode)
 {
@@ -143,10 +143,8 @@ void LoadElement::addNetcdfSpec_(xmlNodePtr netcdfNode)
         if(xmlStrEqual(subNode->name, (xmlChar*) "dimension"))
         {
             string name = getAttribute(subNode, "name");
-            string value = getAttribute(subNode, "value");
-            IndexElement ie = {name, value};
-			indiceKeys_.insert(name);
-			indicesToLoad_.insert(make_pair<string, LoadElement::IndexElement>(name, ie));
+            double value = boost::lexical_cast<double>(getAttribute(subNode, "value"));
+			indicesToLoad_[name] = value;
         }
     }
 }
@@ -165,7 +163,6 @@ void LoadElement::addWdbSpec_(xmlNodePtr wdbNode)
     string validFrom = getAttribute(wdbNode, "validfrom", "validtime");
 
     wdbDataSpecification_ = DataSpecification(wdbName, wdbUnits, scale, validFrom);
-
 
     for(xmlNodePtr subNode = wdbNode->children; subNode; subNode = subNode->next)
         if(xmlStrEqual(subNode->name, (xmlChar*) "level"))
@@ -188,46 +185,47 @@ DataSpecification::Level LoadElement::getWdbLevelSpec_(xmlNodePtr levelNode)
 	return DataSpecification::Level(name, value);
 }
 
-const std::vector<std::vector<LoadElement::IndexElement> >& LoadElement::permutations() const
-{
-    return indicesPermutations_;
-}
+//const std::vector<std::vector<LoadElement::IndexElement> >& LoadElement::permutations() const
+//{
+//    return indicesPermutations_;
+//}
 
-void LoadElement::makeIndicePermutations_()
-{
-    set<string>::const_iterator key;
-
-    for(key = indiceKeys_.begin(); key != indiceKeys_.end(); ++key)
-    {
-        vector<vector<IndexElement> > subproduct;
-
-        pair<multimap<string, IndexElement>::const_iterator, multimap<string, IndexElement>::const_iterator > rangeIt;
-        rangeIt = indicesToLoad_.equal_range(*key);
-
-        multimap<string, IndexElement>::const_iterator cit2;
-        for(cit2 = rangeIt.first; cit2 != rangeIt.second; ++cit2)
-        {
-            IndexElement ie = cit2->second;
-            cerr << "  [" << ie.indexName << ", " << ie.indexValue << "]" << endl;
-
-            if(indicesPermutations_.empty()) {
-                vector<IndexElement> subvector;
-                subvector.push_back(ie);
-                subproduct.push_back(subvector);
-            } else {
-                for(size_t index = 0; index < indicesPermutations_.size(); ++index)
-                {
-                    vector<IndexElement> subvector;
-                    subvector.push_back(ie);
-                    subvector.insert(subvector.end(), indicesPermutations_[index].begin(), indicesPermutations_[index].end());
-                    subproduct.push_back(subvector);
-                }
-            }
-        }
-
-        indicesPermutations_ = subproduct;
-    }
-}
+//void LoadElement::makeIndicePermutations_()
+//{
+//    set<string>::const_iterator key;
+//
+//    for ( std::map<std::string, IndexElement>::const_iterator it = indicesToLoad_.begin(); it != indicesToLoad_.end(); ++ it )
+//    {
+//    	const std::string * key = & it->first;
+//        vector<vector<IndexElement> > subproduct;
+//
+//        pair<multimap<string, IndexElement>::const_iterator, multimap<string, IndexElement>::const_iterator > rangeIt;
+//        rangeIt = indicesToLoad_.equal_range(*key);
+//
+//        multimap<string, IndexElement>::const_iterator cit2;
+//        for(cit2 = rangeIt.first; cit2 != rangeIt.second; ++cit2)
+//        {
+//            IndexElement ie = cit2->second;
+//            cerr << "  [" << ie.indexName << ", " << ie.indexValue << "]" << endl;
+//
+//            if(indicesPermutations_.empty()) {
+//                vector<IndexElement> subvector;
+//                subvector.push_back(ie);
+//                subproduct.push_back(subvector);
+//            } else {
+//                for(size_t index = 0; index < indicesPermutations_.size(); ++index)
+//                {
+//                    vector<IndexElement> subvector;
+//                    subvector.push_back(ie);
+//                    subvector.insert(subvector.end(), indicesPermutations_[index].begin(), indicesPermutations_[index].end());
+//                    subproduct.push_back(subvector);
+//                }
+//            }
+//        }
+//
+//        indicesPermutations_ = subproduct;
+//    }
+//}
 
 std::ostream & operator << (std::ostream & s, const LoadElement & loadElement)
 {

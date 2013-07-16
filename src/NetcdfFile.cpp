@@ -29,13 +29,24 @@
 #include "NetcdfFile.h"
 #include <fimex/CDMFileReaderFactory.h>
 #include <fimex/CDMReaderUtils.h>
+#include <fimex/CDM.h>
+#include <fimex/CDMDimension.h>
+#include <fimex/CDMVariable.h>
 #include <boost/date_time.hpp>
+#include <boost/foreach.hpp>
 
 
+using namespace MetNoFimex;
 
-NetcdfFile::NetcdfFile(const std::string & fileName, const std::string & configurationFile, const std::string & fileType)
+
+NetcdfFile::NetcdfFile(const std::string & fileName, const std::string & configurationFile, const std::string & fileType) :
+	referenceTime_(INVALID_TIME)
 {
     reader_ = MetNoFimex::CDMFileReaderFactory::create(fileType, fileName, configurationFile);
+
+    boost::posix_time::ptime time = getUniqueForecastReferenceTime(reader_);
+	static boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
+	referenceTime_ = Time(time, zone);
 }
 
 NetcdfFile::~NetcdfFile()
@@ -46,14 +57,24 @@ NetcdfFile::~NetcdfFile()
 std::vector<NetcdfField::Ptr> NetcdfFile::getFields() const
 {
 	std::vector<NetcdfField::Ptr> ret;
-	NetcdfField::get(ret, reader_, * this);
+
+	const CDM & cdm = reader_->getCDM();
+
+	const CDM::DimVec & dims = cdm.getDimensions();
+	std::set<std::string> dimensions;
+	BOOST_FOREACH(const CDMDimension & dimension, dims)
+		dimensions.insert(dimension.getName());
+
+	BOOST_FOREACH(const CDMVariable & var, cdm.getVariables())
+	{
+		if ( dimensions.find(var.getName()) != dimensions.end() )
+			continue;
+
+		NetcdfField::Ptr field(new NetcdfField(* this, reader_, var.getName()));
+		ret.push_back(field);
+	}
+
+	//NetcdfField::get(ret, reader_, * this);
 
 	return ret;
-}
-
-Time NetcdfFile::getReferenceTime() const
-{
-	boost::posix_time::ptime time = getUniqueForecastReferenceTime(reader_);
-	static boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
-	return Time(time, zone);
 }

@@ -46,53 +46,69 @@ class CDMReader;
 }
 class NetcdfFile;
 
-
+/**
+ * Part of a variable in a NetcdfFile, extracted to hold exactly one valid time and dataversion.
+ */
 class NetcdfField : boost::noncopyable
 {
 public:
+
 	~NetcdfField();
 
 	typedef boost::shared_ptr<NetcdfField> Ptr;
-
-
-	const boost::shared_array<float> & data() const;
-	unsigned dataSize() const;
-
-	std::string str() const;
-
-	boost::shared_ptr<GridGeometry> placeSpecification() const;
-
-	Time validtime() const;
 
 	const std::string & variableName() const
 	{
 		return variableName_;
 	}
 
-	unsigned dataVersion() const;
-	unsigned maxDataVersion() const;
-
 	typedef std::map<std::string, unsigned> IndexList;
+
+	/**
+	 * Get a list of all indexes with their sizes
+	 */
+	const IndexList & indexes() const { return indexList_; }
+
+	IndexList unHandledIndexes() const;
+
+	/**
+	 * Does this object have a built-in handling for this index?
+	 */
+	bool canHandleIndex(const std::string & name) const;
+
+	/**
+	 * Get the variable value of an index i a dimension, converted to double
+	 */
+	double indexValue(std::string dimension, unsigned index) const;
+
+	std::vector<Time> times() const;
+	std::vector<int> realizations() const;
+
+	std::string timeDimension() const;
+	std::string realizationDimension() const;
+	std::string xDimension() const;
+	std::string yDimension() const;
+
+
+	/**
+	 * Get the reference time for the this variable
+	 */
+	Time referenceTime() const;
+
+	boost::shared_ptr<GridGeometry> placeSpecification() const;
 
 private:
 
 	friend class NetcdfFile;
 
-	static void get(std::vector<Ptr> & out, const boost::shared_ptr<MetNoFimex::CDMReader> & reader, const NetcdfFile & netcdfFile);
-
-	NetcdfField(const IndexList & indexList, const NetcdfFile & netcdfFile);
+	NetcdfField(const NetcdfFile & netcdfFile, boost::shared_ptr<MetNoFimex::CDMReader> reader, const std::string & variableName);
 	NetcdfField(); // undefined
-
-	MetNoFimex::SliceBuilder getSliceBuilder_() const;
 
 	const NetcdfFile & netcdfFile_;
 	boost::shared_ptr<MetNoFimex::CDMReader> reader_;
 	std::string variableName_;
-
-
 	IndexList indexList_;
-
-	mutable boost::shared_array<float> data_;
+	mutable std::map<std::string, boost::shared_array<double> > dimensionValues_;
 };
 
 #endif /* NETCDFFIELD_H_ */

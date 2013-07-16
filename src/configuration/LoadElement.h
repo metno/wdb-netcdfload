@@ -59,38 +59,28 @@ public:
     explicit LoadElement(xmlNodePtr loadNode);
     ~LoadElement();
 
-    struct IndexElement
-    {
-        std::string indexName;
-        std::string indexValue;
-
-        unsigned cdmIndex(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const;
-    };
-
     const std::string& cfName() const { return cfName_; }
 
     const DataSpecification & wdbDataSpecification() const { return wdbDataSpecification_; }
 
-    /**
-     * Get at list of all possible dimensions and indices for this element
-     */
-    const std::vector<std::vector<IndexElement> >& permutations() const;
+    typedef std::map<std::string, double> IndexNameToValue;
+    const IndexNameToValue & indicesToLoad() const { return indicesToLoad_; }
 
-    void expandIndicePermutations(const boost::shared_ptr<MetNoFimex::CDMReader>& reader, const std::string& dimName);
+    unsigned cdmIndex(MetNoFimex::CDMReader & reader, const std::string & dimensionName, const std::string & dimensionValue) const;
 
 private:
     void addWdbSpec_(xmlNodePtr wdbNode);
     DataSpecification::Level getWdbLevelSpec_(xmlNodePtr levelNode);
     void addNetcdfSpec_(xmlNodePtr netcdfNode);
-    void makeIndicePermutations_();
+    //void makeIndicePermutations_();
+
 
     std::string cfName_;
 //    std::string wdbUnits_;
     DataSpecification wdbDataSpecification_;
 
-    std::set<std::string> indiceKeys_;
-    std::multimap<std::string, IndexElement> indicesToLoad_;
-    std::vector<std::vector<IndexElement> >  indicesPermutations_;
+    IndexNameToValue indicesToLoad_;
+    //std::vector<std::vector<IndexElement> >  indicesPermutations_;
 
 };
 

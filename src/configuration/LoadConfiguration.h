@@ -38,6 +38,7 @@ extern "C"
     typedef struct _xmlXPathContext xmlXPathContext;
     typedef xmlXPathContext *xmlXPathContextPtr;
 }
+class NetcdfField;
 
 
 
@@ -47,21 +48,11 @@ class LoadConfiguration
 	explicit LoadConfiguration(const boost::filesystem::path & translationFile);
 	~LoadConfiguration();
 
-	typedef std::vector<LoadElement>::const_iterator load_iterator;
-	typedef std::vector<LoadElement>::const_iterator load_const_iterator;
-	load_iterator load_begin() const { return loadElements_.begin(); }
-	load_iterator load_end() const { return loadElements_.end(); }
-
 	/**
 	 * Get the load specification for the given name, or NULL if no such name
 	 * exists in configuration.
 	 */
-	const LoadElement * getLoadElement(const std::string & name) const;
-
-	typedef std::vector<LoadElement>::size_type size_type;
-	size_type size() const { return loadElements_.size(); }
-
-	typedef std::vector<LoadElement>::value_type value_type;
+	std::vector<LoadElement> getLoadElement(const NetcdfField & field) const;
 
 private:
 	void init_(xmlXPathContextPtr context);

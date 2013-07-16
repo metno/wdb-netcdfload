@@ -20,6 +20,15 @@
 	</load>
 
 	<load>
+		<netcdf cfname="cloud_area_fraction" />
+		<wdb name="cloud area fraction" />
+	</load>
+	<load>
+		<netcdf cfname="precipitation_amount_acc" />
+		<wdb name="lwe thickness of precipitation amount" scale="0.001" validfrom="referencetime"/>
+	</load>
+
+	<load>
 		<netcdf cfname="air_temperature_2m" />
 		<wdb name="air temperature" />
 	</load>
