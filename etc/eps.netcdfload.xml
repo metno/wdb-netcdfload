@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE eps2probandltf_config>
+
+<netcdfloadconfiguration xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="netcdfLoad.configuration.xsd">
+
+<load>
+	<netcdf cfname="cloud_area_fraction"/>
+	<wdb name="cloud area fraction"/>
+</load>
+
+<load>
+	<netcdf cfname="y_wind_10m"/>
+	<wdb name="y wind"/>
+</load>
+
+<load>
+	<netcdf cfname="x_wind_10m"/>
+	<wdb name="x wind"/>
+</load>
+
+<load>
+	<netcdf cfname="air_temperature_2m"/>
+	<wdb name="air temperature"/>
+</load>
+
+<load>
+	<netcdf cfname="precipitation_amount_acc"/>
+	<wdb name="lwe thickness of precipitation amount" scale="0.001" validfrom="referencetime"/>
+</load>
+
+<load>
+	<netcdf cfname="sea_level_pressure"/>
+	<wdb name="air pressure at sea level"/>
+</load>
+
+<load>
+	<netcdf cfname="geopotential_surface"/>
+	<wdb name="geopotential"/>
+</load>
+	
+</netcdfloadconfiguration>

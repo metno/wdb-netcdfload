@@ -66,22 +66,18 @@ public:
     typedef std::map<std::string, double> IndexNameToValue;
     const IndexNameToValue & indicesToLoad() const { return indicesToLoad_; }
 
-    unsigned cdmIndex(MetNoFimex::CDMReader & reader, const std::string & dimensionName, const std::string & dimensionValue) const;
+    unsigned cdmIndex(MetNoFimex::CDMReader & reader, const std::string & dimensionName, double dimensionValue) const;
 
 private:
     void addWdbSpec_(xmlNodePtr wdbNode);
     DataSpecification::Level getWdbLevelSpec_(xmlNodePtr levelNode);
     void addNetcdfSpec_(xmlNodePtr netcdfNode);
-    //void makeIndicePermutations_();
 
 
     std::string cfName_;
-//    std::string wdbUnits_;
     DataSpecification wdbDataSpecification_;
 
     IndexNameToValue indicesToLoad_;
-    //std::vector<std::vector<IndexElement> >  indicesPermutations_;
-
 };
 
 

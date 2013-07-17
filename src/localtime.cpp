@@ -97,7 +97,7 @@ Time time_from_postgresql_string(const std::string & localTime)
 
 std::string time_to_postgresql_string(const Time & t)
 {
-    if(t.is_not_a_date_time())
+	if(t.is_not_a_date_time())
         return std::string();
     else if ( t.is_pos_infinity() )
     	return "infinity";

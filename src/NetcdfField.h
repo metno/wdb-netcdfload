@@ -97,6 +97,8 @@ public:
 
 	boost::shared_ptr<GridGeometry> placeSpecification() const;
 
+	boost::shared_ptr<MetNoFimex::CDMReader> reader() const { return reader_; }
+
 private:
 
 	friend class NetcdfFile;
