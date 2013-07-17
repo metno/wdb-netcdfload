@@ -88,8 +88,8 @@ int main(int argc, char ** argv)
 	wdb::WdbLogHandler logHandler(conf.logging().loglevel,
 			conf.logging().logfile);
 
-//	try
-//	{
+	try
+	{
 		wdb::load::LoaderDatabaseConnection * wdbConnection = 0;
 		if ( not conf.output().list )
 			wdbConnection = new wdb::load::LoaderDatabaseConnection(conf);
@@ -109,11 +109,11 @@ int main(int argc, char ** argv)
 				}
 			}
 		}
-//	}
-//	catch (std::exception& e)
-//	{
-//		WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
-//		log.fatal(e.what());
-//		return 1;
-//	}
+	}
+	catch (std::exception& e)
+	{
+		WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+		log.fatal(e.what());
+		return 1;
+	}
 }

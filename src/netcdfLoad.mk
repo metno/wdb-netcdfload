@@ -1,5 +1,4 @@
-netcdfLoad_SOURCES = \
-	src/main.cpp \
+MAIN_SOURCES = \
 	src/localtime.h \
 	src/localtime.cpp \
 	src/NetcdfFile.h \
@@ -21,6 +20,11 @@ netcdfLoad_SOURCES = \
 	src/configuration/parameter/TimeSpecification.h \
 	src/configuration/parameter/TimeSpecification.cpp
 
+
+netcdfLoad_SOURCES = \
+	src/main.cpp \
+	 $(MAIN_SOURCES)
+	 
 OTHER = \
 	src/CdmLoader.h \
 	src/CdmLoader.cpp \

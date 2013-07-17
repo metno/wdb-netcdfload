@@ -26,20 +26,26 @@
     MA  02110-1301, USA
 */
 
+
 #include <gtest/gtest.h>
+#include <NetcdfTranslator.h>
 #include <NetcdfFile.h>
+#include <NetcdfField.h>
 
-
-TEST(NetcdfFileTest, test)
+TEST(NetcdfTranslatorTest, test)
 {
+	CdmLoaderConfiguration conf;
+	char * options[2] = {"name", "-c"TESTDATADIR"/config.xml"};
+	conf.parse(2, options);
+
+	NetcdfTranslator translator(conf);
+
 	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
-	const std::vector<NetcdfField::Ptr> & entries = ncFile.getFields();
-	EXPECT_EQ(5, entries.size());
+	NetcdfField::Ptr temperature = ncFile.getField("air_temperature_2m");
+
+	std::vector<WriteQuery> queries = translator.queries(* temperature);
+
+	EXPECT_EQ(5, queries.size());
 }
 
-TEST(NetcdfFileTest, testReferenceTime)
-{
-	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
 
-	EXPECT_EQ(time_from_postgresql_string("2013-05-21 12:00:00Z"), ncFile.referenceTime());
-}

@@ -28,18 +28,26 @@
 
 #include <gtest/gtest.h>
 #include <NetcdfFile.h>
+#include <NetcdfField.h>
+#include <boost/foreach.hpp>
 
-
-TEST(NetcdfFileTest, test)
+TEST(NetcdfFieldTest, test)
 {
 	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
 	const std::vector<NetcdfField::Ptr> & entries = ncFile.getFields();
-	EXPECT_EQ(5, entries.size());
-}
 
-TEST(NetcdfFileTest, testReferenceTime)
-{
-	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
+	NetcdfField::Ptr temperature;
+	BOOST_FOREACH(const NetcdfField::Ptr & field, entries)
+		if ( field->variableName() == "air_temperature_2m" )
+		{
+			temperature = field;
+			break;
+		}
 
-	EXPECT_EQ(time_from_postgresql_string("2013-05-21 12:00:00Z"), ncFile.referenceTime());
+	ASSERT_TRUE(temperature) << "no temperature variable";
+
+	EXPECT_EQ(3, temperature->indexes().size());
+	EXPECT_TRUE(temperature->unHandledIndexes().empty());
+	EXPECT_EQ(5, temperature->times().size());
+	EXPECT_EQ(1, temperature->realizations().size());
 }

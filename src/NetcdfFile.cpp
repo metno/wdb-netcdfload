@@ -78,3 +78,13 @@ std::vector<NetcdfField::Ptr> NetcdfFile::getFields() const
 
 	return ret;
 }
+
+NetcdfField::Ptr NetcdfFile::getField(const std::string & variableName) const
+{
+	BOOST_FOREACH(const NetcdfField::Ptr & field, getFields())
+	{
+		if ( field->variableName() == variableName )
+			return field;
+	}
+	throw std::runtime_error(variableName + ": no such variable found");
+}

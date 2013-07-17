@@ -52,6 +52,8 @@ public:
 
 	std::vector<NetcdfField::Ptr> getFields() const;
 
+	NetcdfField::Ptr getField(const std::string & variableName) const;
+
 	Time referenceTime() const { return referenceTime_; }
 
 private:
