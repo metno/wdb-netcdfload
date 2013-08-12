@@ -18,7 +18,10 @@ BOOST_LIBS = \
 netcdfLoadTest_CPPFLAGS = -I$(top_srcdir)/src $(gtest_CFLAGS) -DTESTDATADIR=\"$(top_srcdir)/test/data\"
 netcdfLoadTest_LDADD = $(netcdfLoad_LDADD) $(BOOST_LIBS) $(gtest_LIBS) -lgtest_main
 
-EXTRA_DIST += test/netcdfLoad.mk
+EXTRA_DIST += \
+	test/netcdfLoad.mk \
+	test/data/config.xml \
+	test/data/test.nc
 
 
 include config/mk/gtest.mk
