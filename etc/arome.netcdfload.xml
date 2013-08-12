@@ -7,29 +7,27 @@
 
 	<load>
 		<netcdf cfname="altitude" />
-		<wdb name="altitude" />
+		<wdb name="altitude" validfrom="-infinity" validto="infinity"/>
 	</load>
 
-	<!-- 
 	<load>
 		<netcdf cfname="precipitation_amount_low_estimate"/>
-		<wdb name="precipitation amount" validfrom="validtime - 1 hour"/>
+		<wdb name="low estimate of precipitation amount" validfrom="validtime - 1 hours"/>
 	</load>
 	<load>
 		<netcdf cfname="precipitation_amount_middle_estimate"/>
-		<wdb name="precipitation amount" validfrom="validtime - 1 hour"/>
+		<wdb name="middle estimate of precipitation amount" validfrom="validtime - 1 hours"/>
 	</load>
 	<load>
 		<netcdf cfname="precipitation_amount_high_estimate"/>
-		<wdb name="precipitation amount" validfrom="validtime - 1 hour"/>
+		<wdb name="high estimate of precipitation amount" validfrom="validtime - 1 hours"/>
 	</load>
 	
 	<load>
 		<netcdf cfname="precipitation_amount_prob_low"/>
-		<wdb name="precipitation amount" validfrom="validtime - 1 hour"/>
+		<wdb name="probability of precipitation" validfrom="validtime - 1 hours"/>
 	</load>
-	 -->
-	
+
 	<load>
 		<netcdf cfname="thunderstorm_index_combined"/>
 		<wdb name="thunderstorm probability"/>
@@ -42,7 +40,7 @@
 
 	<load>
 		<netcdf cfname="land_area_fraction"/>
-		<wdb name="land area fraction"/>
+		<wdb name="land area fraction" validfrom="-infinity" validto="infinity"/>
 	</load>
 
 	<load>
