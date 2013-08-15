@@ -28,6 +28,7 @@
 
 #include "WriteQuery.h"
 #include <wdb/LoaderDatabaseConnection.h>
+#include <wdbLogHandler.h>
 
 WriteQuery::WriteQuery() :
 	loadPlaceDefinition_(false),
@@ -80,7 +81,8 @@ void WriteQuery::write(wdb::load::LoaderDatabaseConnection & wdbConnection) cons
 		wdbConnection.addPlaceDefinition(placeName, * location_);
 	}
 
-	std::clog << "SELECT wci.write(<data>, "
+	WDB_LOG & log = WDB_LOG::getInstance( "wdb.netcdfload.query" );
+	log.debugStream() << "SELECT wci.write(<data>, "
 			<< dataProvider_ << ", "
 			<< placeName << ", "
 			<< time_to_postgresql_string(referenceTime_) << ", "
@@ -91,7 +93,7 @@ void WriteQuery::write(wdb::load::LoaderDatabaseConnection & wdbConnection) cons
 			<< levelFrom_ << ", "
 			<< levelTo_ << ", "
 			<< dataVersion_ << ", "
-			<< "0);\n";
+			<< "0);";
 
 	wdbConnection.write(
 			rawData.data.get(),
