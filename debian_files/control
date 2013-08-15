@@ -16,7 +16,7 @@ Build-Depends: debhelper (>= 7), autotools-dev, cdbs,
  xmlto
 Standards-Version: 3.9.3 
 
-Package: wdb-netcdfload-0.9
+Package: wdb-netcdfload-0.10
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Provides: wdb-netcdfload
