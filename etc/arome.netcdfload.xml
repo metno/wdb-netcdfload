@@ -88,7 +88,7 @@
 		</wdb>
 	</load>
 	<load>
-		<netcdf cfname="mean_type_cloud_area_fraction" />
+		<netcdf cfname="medium_type_cloud_area_fraction" />
 		<wdb name="cloud area fraction in atmosphere layer">
 			<level name="atmosphere sigma coordinate" value="500"/>
 		</wdb>
