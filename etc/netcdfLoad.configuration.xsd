@@ -31,7 +31,7 @@
 		</xs:sequence>
 
 		<xs:attribute name="name" type="xs:string" use="required" />
-		<xs:attribute name="scale" type="xs:float" use="optional" />
+		<xs:attribute name="scale" default="1" type="xs:float" use="optional" />
 		<!-- 
 		Validfrom can be one of the special values "validtime", 
 		"referencetime", "infinity" or "-infinity". You may add or subtract a 

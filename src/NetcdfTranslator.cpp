@@ -47,11 +47,12 @@ NetcdfTranslator::~NetcdfTranslator()
 class DataRetriever
 {
 public:
-	DataRetriever(const LoadElement & loadElement, const NetcdfField & field, unsigned timeIndex, unsigned realizationIndex) :
+	DataRetriever(const LoadElement & loadElement, const NetcdfField & field, unsigned timeIndex, unsigned realizationIndex, float scale) :
 		loadElement_(loadElement),
 		field_(field),
 		timeIndex_(timeIndex),
-		realizationIndex_(realizationIndex)
+		realizationIndex_(realizationIndex),
+		scale_(scale)
 	{
 	}
 
@@ -82,6 +83,10 @@ public:
 		ret.numberOfValues = data->size();
 		ret.data = data->asFloat();
 
+		if ( scale_ != 1 )
+			for ( int i = 0; i < ret.numberOfValues; ++ i )
+				ret.data[i] *= scale_;
+
 		return ret;
 	}
 private:
@@ -89,6 +94,7 @@ private:
 	const NetcdfField & field_;
 	unsigned timeIndex_;
 	unsigned realizationIndex_;
+	float scale_;
 };
 
 std::vector<WriteQuery> NetcdfTranslator::queries(const NetcdfField & field) const
@@ -123,7 +129,7 @@ std::vector<WriteQuery> NetcdfTranslator::queries(const NetcdfField & field) con
 			{
 				base.dataVersion(realization);
 
-				base.data(DataRetriever(loadElement, field, timeIndex, realization));
+				base.data(DataRetriever(loadElement, field, timeIndex, realization, querySpec.scale()));
 
 				ret.push_back(base);
 			}
