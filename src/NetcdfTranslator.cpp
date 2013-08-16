@@ -28,6 +28,7 @@
 
 #include "NetcdfTranslator.h"
 #include <NetcdfField.h>
+#include <wdbLogHandler.h>
 #include <fimex/CDMReader.h>
 #include <fimex/Data.h>
 #include <boost/foreach.hpp>
@@ -47,17 +48,20 @@ NetcdfTranslator::~NetcdfTranslator()
 class DataRetriever
 {
 public:
-	DataRetriever(const LoadElement & loadElement, const NetcdfField & field, unsigned timeIndex, unsigned realizationIndex, float scale) :
+	DataRetriever(const LoadElement & loadElement, const NetcdfField & field, unsigned timeIndex, unsigned realizationIndex,
+			const DataSpecification & querySpec) :
 		loadElement_(loadElement),
 		field_(field),
 		timeIndex_(timeIndex),
 		realizationIndex_(realizationIndex),
-		scale_(scale)
+		querySpec_(querySpec)
 	{
 	}
 
 	WriteQuery::RawData operator() () const
 	{
+		WDB_LOG & log = WDB_LOG::getInstance( "wdb.netcdfload.get_data" );
+
 		WriteQuery::RawData ret;
 
 		boost::shared_ptr<MetNoFimex::CDMReader> reader = field_.reader();
@@ -78,14 +82,35 @@ public:
 			slicer.setStartAndSize(nameValue.first, index, 1);
 		}
 
-		MetNoFimex::DataPtr data = reader->getDataSlice(loadElement_.cfName(), slicer);
+		std::string unit = querySpec_.wdbUnits();
+		MetNoFimex::DataPtr data;
+		if ( not unit.empty() )
+		{
+			try
+			{
+				data = reader->getScaledDataSliceInUnit(loadElement_.cfName(), unit, slicer);
+			}
+			catch ( std::exception & e )
+			{
+				static std::set<std::string> parametersWarnedAbout;
+				if ( parametersWarnedAbout.find(querySpec_.wdbParameter()) == parametersWarnedAbout.end() )
+				{
+					log.errorStream() << e.what();
+					log.warnStream() << "Ignoring automatic conversion of units for parameter <" << querySpec_.wdbParameter() << '>';
+					parametersWarnedAbout.insert(querySpec_.wdbParameter());
+				}
+				unit.clear();
+			}
+		}
+		if ( unit.empty() )
+			data = reader->getDataSlice(loadElement_.cfName(), slicer);
 
 		ret.numberOfValues = data->size();
 		ret.data = data->asFloat();
 
-		if ( scale_ != 1 )
+		if ( querySpec_.scale() != 1 )
 			for ( int i = 0; i < ret.numberOfValues; ++ i )
-				ret.data[i] *= scale_;
+				ret.data[i] *= querySpec_.scale();
 
 		return ret;
 	}
@@ -94,7 +119,7 @@ private:
 	const NetcdfField & field_;
 	unsigned timeIndex_;
 	unsigned realizationIndex_;
-	float scale_;
+	DataSpecification querySpec_;
 };
 
 std::vector<WriteQuery> NetcdfTranslator::queries(const NetcdfField & field) const
@@ -129,7 +154,7 @@ std::vector<WriteQuery> NetcdfTranslator::queries(const NetcdfField & field) con
 			{
 				base.dataVersion(realization);
 
-				base.data(DataRetriever(loadElement, field, timeIndex, realization, querySpec.scale()));
+				base.data(DataRetriever(loadElement, field, timeIndex, realization, querySpec));
 
 				ret.push_back(base);
 			}

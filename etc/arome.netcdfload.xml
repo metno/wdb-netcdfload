@@ -7,102 +7,102 @@
 
 	<load>
 		<netcdf cfname="altitude" />
-		<wdb name="altitude" validfrom="-infinity" validto="infinity"/>
+		<wdb name="altitude" units="m" validfrom="-infinity" validto="infinity"/>
 	</load>
 
 	<load>
 		<netcdf cfname="precipitation_amount_low_estimate"/>
-		<wdb name="low estimate of precipitation amount" validfrom="validtime - 1 hours"/>
+		<wdb name="low estimate of precipitation amount" units="kg/m2" validfrom="validtime - 1 hours"/>
 	</load>
 	<load>
 		<netcdf cfname="precipitation_amount_middle_estimate"/>
-		<wdb name="middle estimate of precipitation amount" validfrom="validtime - 1 hours"/>
+		<wdb name="middle estimate of precipitation amount" units="kg/m2" validfrom="validtime - 1 hours"/>
 	</load>
 	<load>
 		<netcdf cfname="precipitation_amount_high_estimate"/>
-		<wdb name="high estimate of precipitation amount" validfrom="validtime - 1 hours"/>
+		<wdb name="high estimate of precipitation amount" units="kg/m2" validfrom="validtime - 1 hours"/>
 	</load>
 	
 	<load>
 		<netcdf cfname="precipitation_amount_prob_low"/>
-		<wdb name="probability of precipitation" validfrom="validtime - 1 hours"/>
+		<wdb name="probability of precipitation" units="%" validfrom="validtime - 1 hours"/>
 	</load>
 
 	<load>
 		<netcdf cfname="thunderstorm_index_combined"/>
-		<wdb name="thunderstorm probability"/>
+		<wdb name="thunderstorm probability" units="%"/>
 	</load>
 
 	<load>
 		<netcdf cfname="precipitation_amount_acc"/>
-		<wdb name="precipitation amount" validfrom="referencetime"/>
+		<wdb name="precipitation amount" units="kg/m2" validfrom="referencetime"/>
 	</load>
 
 	<load>
 		<netcdf cfname="land_area_fraction"/>
-		<wdb name="land area fraction" validfrom="-infinity" validto="infinity"/>
+		<wdb name="land area fraction" units="%" validfrom="-infinity" validto="infinity"/>
 	</load>
 
 	<load>
 		<netcdf cfname="cloud_area_fraction"/>
-		<wdb name="cloud area fraction"/>
+		<wdb name="cloud area fraction" units="%"/>
 	</load>
 	<load>
 		<netcdf cfname="air_temperature_2m"/>
-		<wdb name="air temperature">
+		<wdb name="air temperature" units="K">
 			<level name="height above ground" value="2" />
 		</wdb>
 	</load>
 
 	<load>
 		<netcdf cfname="relative_humidity_2m"/>
-		<wdb name="relative humidity">
+		<wdb name="relative humidity" units="%" >
 			<level name="height above ground" value="2" />
 		</wdb>
 	</load>
 
 	<load>
 		<netcdf cfname="x_wind_10m"/>
-		<wdb name="x wind">
+		<wdb name="x wind" units="m/s">
 			<level name="height above ground" value="10" />
 		</wdb>
 	</load>
 	<load>
 		<netcdf cfname="y_wind_10m"/>
-		<wdb name="y wind">
+		<wdb name="y wind" units="m/s">
 			<level name="height above ground" value="10" />
 		</wdb>
 	</load>
 
 	<load>
 		<netcdf cfname="fog_area_fraction"/>
-		<wdb name="cloud area fraction in atmosphere layer">
+		<wdb name="cloud area fraction in atmosphere layer" units="%">
 			<level name="atmosphere sigma coordinate" value="1000"/>
 		</wdb>
 	</load>
  
 	<load>
 		<netcdf cfname="high_type_cloud_area_fraction" />
-		<wdb name="cloud area fraction in atmosphere layer">
+		<wdb name="cloud area fraction in atmosphere layer" units="%">
 			<level name="atmosphere sigma coordinate" value="300"/>
 		</wdb>
 	</load>
 	<load>
 		<netcdf cfname="medium_type_cloud_area_fraction" />
-		<wdb name="cloud area fraction in atmosphere layer">
+		<wdb name="cloud area fraction in atmosphere layer" units="%">
 			<level name="atmosphere sigma coordinate" value="500"/>
 		</wdb>
 	</load>
 	<load>
 		<netcdf cfname="low_type_cloud_area_fraction" />
-		<wdb name="cloud area fraction in atmosphere layer">
+		<wdb name="cloud area fraction in atmosphere layer" units="%">
 			<level name="atmosphere sigma coordinate" value="850"/>
 		</wdb>
 	</load>
 
 	<load>
 		<netcdf cfname="air_pressure_at_sea_level"/>
-		<wdb name="air pressure at sea level" scale="100"/>
+		<wdb name="air pressure at sea level" units="Pa"/>
 	</load>
 
 
