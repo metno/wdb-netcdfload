@@ -52,11 +52,22 @@ namespace {
         return fabs(a - b) < 0.000001;
     }
 
-    string getAttribute(xmlNodePtr elementNode, const string & name, const string alternative = string())
+    /**
+     * return an empty string if attribute does not exist
+     */
+    string getAttributeNoThrow(xmlNodePtr elementNode, const string & name)
     {
         for ( xmlAttrPtr attr = elementNode->properties; attr; attr = attr->next )
                 if ( xmlStrEqual(attr->name,(xmlChar*) name.c_str()) )
                         return (char*) attr->children->content;
+        return string();
+    }
+
+    string getAttribute(xmlNodePtr elementNode, const string & name, const string alternative = string())
+    {
+    	string ret = getAttributeNoThrow(elementNode, name);
+    	if ( not ret.empty() )
+    		return ret;
 
         if ( not alternative.empty() )
                 return alternative;
@@ -113,18 +124,13 @@ void LoadElement::addNetcdfSpec_(xmlNodePtr netcdfNode)
 void LoadElement::addWdbSpec_(xmlNodePtr wdbNode)
 {
     string wdbName = getAttribute(wdbNode, "name");
-    string wdbUnits;
-    try
-    {
-    	wdbUnits = getAttribute(wdbNode, "units");
-    }
-    catch (std::exception & )
-    {}
+    string wdbUnits = getAttribute(wdbNode, "units");
+    string alternativeUnitConversion = getAttributeNoThrow(wdbNode, "alternativeunitconversion");
     float scale = boost::lexical_cast<float>(getAttribute(wdbNode, "scale", "1"));
     string validFrom = getAttribute(wdbNode, "validfrom", "validtime");
     string validTo = getAttribute(wdbNode, "validto", "validtime");
 
-    wdbDataSpecification_ = DataSpecification(wdbName, wdbUnits, scale, validFrom, validTo);
+    wdbDataSpecification_ = DataSpecification(wdbName, wdbUnits, alternativeUnitConversion, scale, validFrom, validTo);
 
     for(xmlNodePtr subNode = wdbNode->children; subNode; subNode = subNode->next)
         if(xmlStrEqual(subNode->name, (xmlChar*) "level"))

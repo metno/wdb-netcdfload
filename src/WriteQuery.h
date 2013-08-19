@@ -55,6 +55,9 @@ public:
 
 	struct RawData
 	{
+		RawData() : numberOfValues(0) {}
+		bool valid() const { return data; }
+
 		unsigned numberOfValues;
 		boost::shared_array<float> data;
 	};

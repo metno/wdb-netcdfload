@@ -82,31 +82,11 @@ public:
 			slicer.setStartAndSize(nameValue.first, index, 1);
 		}
 
-		std::string unit = querySpec_.wdbUnits();
-		MetNoFimex::DataPtr data;
-		if ( not unit.empty() )
-		{
-			try
-			{
-				data = reader->getScaledDataSliceInUnit(loadElement_.cfName(), unit, slicer);
-			}
-			catch ( std::exception & e )
-			{
-				static std::set<std::string> parametersWarnedAbout;
-				if ( parametersWarnedAbout.find(querySpec_.wdbParameter()) == parametersWarnedAbout.end() )
-				{
-					log.errorStream() << e.what();
-					log.warnStream() << "Ignoring automatic conversion of units for parameter <" << querySpec_.wdbParameter() << '>';
-					parametersWarnedAbout.insert(querySpec_.wdbParameter());
-				}
-				unit.clear();
-			}
-		}
-		if ( unit.empty() )
-			data = reader->getDataSlice(loadElement_.cfName(), slicer);
+		MetNoFimex::DataPtr data = readData_(reader, slicer);
 
 		ret.numberOfValues = data->size();
-		ret.data = data->asFloat();
+		if ( ret.numberOfValues )
+			ret.data = data->asFloat();
 
 		if ( querySpec_.scale() != 1 )
 			for ( int i = 0; i < ret.numberOfValues; ++ i )
@@ -115,6 +95,35 @@ public:
 		return ret;
 	}
 private:
+	MetNoFimex::DataPtr readData_(boost::shared_ptr<MetNoFimex::CDMReader> reader, const MetNoFimex::SliceBuilder & slicer) const
+	{
+		WDB_LOG & log = WDB_LOG::getInstance( "wdb.netcdfload.get_data" );
+		try
+		{
+			try
+			{
+				return reader->getScaledDataSliceInUnit(loadElement_.cfName(), querySpec_.wdbUnits(), slicer);
+			}
+			catch ( std::exception & e )
+			{
+				if ( querySpec_.alternativeUnitConversion().empty() )
+					throw;
+			}
+			return reader->getScaledDataSliceInUnit(loadElement_.cfName(), querySpec_.alternativeUnitConversion(), slicer);
+		}
+		catch ( std::exception & e )
+		{
+			static std::set<std::string> parametersWarnedAbout;
+			if ( parametersWarnedAbout.find(querySpec_.wdbParameter()) == parametersWarnedAbout.end() )
+			{
+				log.errorStream() << e.what();
+				log.warnStream() << "Not loading parameter <" << querySpec_.wdbParameter() << '>';
+				parametersWarnedAbout.insert(querySpec_.wdbParameter());
+			}
+		}
+		return MetNoFimex::DataPtr();
+	}
+
 	LoadElement loadElement_;
 	const NetcdfField & field_;
 	unsigned timeIndex_;

@@ -70,6 +70,8 @@ std::ostream & WriteQuery::list(std::ostream & out) const
 void WriteQuery::write(wdb::load::LoaderDatabaseConnection & wdbConnection) const
 {
 	RawData rawData = function_();
+	if ( not rawData.valid() )
+		return;
 
 	std::string placeName = placeName_;
 	if ( placeName_.empty() )

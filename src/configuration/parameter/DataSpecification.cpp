@@ -30,9 +30,10 @@
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
-DataSpecification::DataSpecification(const std::string& wdbParameterName, const std::string& wdbUnits, float scale, const std::string& validFrom, const std::string& validTo)
+DataSpecification::DataSpecification(const std::string& wdbParameterName, const std::string& wdbUnits, const std::string & alternativeUnitConversion, float scale, const std::string& validFrom, const std::string& validTo)
     : wdbParameter_(wdbParameterName),
       wdbUnits_(wdbUnits),
+      alternativeUnitConversion_(alternativeUnitConversion),
       scale_(scale),
       validTimeFrom_(validFrom.c_str()),
       validTimeTo_(validTo.c_str())

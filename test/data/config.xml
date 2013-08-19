@@ -7,12 +7,12 @@
 
 	<load>
 		<netcdf cfname="air_temperature_2m" />
-		<wdb name="air temperature" />
+		<wdb name="air temperature" units="K"/>
 	</load>
 
 	<load>
 		<netcdf cfname="precipitation_amount"/>
-		<wdb name="lwe thickness of precipitation amount" scale="0.001" validfrom="validtime - 6 hours"/>
+		<wdb name="lwe thickness of precipitation amount" units="kg/m2" validfrom="validtime - 6 hours"/>
 	</load>
 
 </netcdfloadconfiguration>

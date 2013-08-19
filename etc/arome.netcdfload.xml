@@ -12,15 +12,15 @@
 
 	<load>
 		<netcdf cfname="precipitation_amount_low_estimate"/>
-		<wdb name="low estimate of precipitation amount" units="kg/m2" validfrom="validtime - 1 hours"/>
+		<wdb name="low estimate of precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="validtime - 1 hours"/>
 	</load>
 	<load>
 		<netcdf cfname="precipitation_amount_middle_estimate"/>
-		<wdb name="middle estimate of precipitation amount" units="kg/m2" validfrom="validtime - 1 hours"/>
+		<wdb name="middle estimate of precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="validtime - 1 hours"/>
 	</load>
 	<load>
 		<netcdf cfname="precipitation_amount_high_estimate"/>
-		<wdb name="high estimate of precipitation amount" units="kg/m2" validfrom="validtime - 1 hours"/>
+		<wdb name="high estimate of precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="validtime - 1 hours"/>
 	</load>
 	
 	<load>
@@ -35,7 +35,7 @@
 
 	<load>
 		<netcdf cfname="precipitation_amount_acc"/>
-		<wdb name="precipitation amount" units="kg/m2" validfrom="referencetime"/>
+		<wdb name="precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="referencetime"/>
 	</load>
 
 	<load>
