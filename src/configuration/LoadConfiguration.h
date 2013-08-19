@@ -32,6 +32,7 @@
 #include "LoadElement.h"
 #include <boost/filesystem/path.hpp>
 #include <vector>
+#include <map>
 
 extern "C"
 {
@@ -56,7 +57,9 @@ class LoadConfiguration
 
 private:
 	void init_(xmlXPathContextPtr context);
-	std::vector<LoadElement> loadElements_;
+
+	typedef std::multimap<std::string, LoadElement> LoadElementMap;
+	LoadElementMap loadElements_;
 };
 
 #endif /* LOADCONFIGURATION_H_ */

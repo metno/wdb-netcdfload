@@ -81,36 +81,36 @@ std::vector<LoadElement> LoadConfiguration::getLoadElement(const NetcdfField & f
 {
 	std::vector<LoadElement> ret;
 
-	for ( std::vector<LoadElement>::const_iterator loadElement = loadElements_.begin(); loadElement != loadElements_.end(); ++ loadElement )
+	std::pair<LoadElementMap::const_iterator,LoadElementMap::const_iterator> find = loadElements_.equal_range(field.variableName());
+	for ( LoadElementMap::const_iterator it = find.first; it != find.second; ++ it )
 	{
-		if ( loadElement->cfName() == field.variableName() )
+		const LoadElement * loadElement = & it->second;
+
+		/// Indexes in field (name->size)
+		const NetcdfField::IndexList & fieldIndexes = field.unHandledIndexes();
+
+		/// Indexes specified in configuration (name->value)
+		const LoadElement::IndexNameToValue & configIndexes = loadElement->indicesToLoad();
+
+		// simple case
+		if ( configIndexes.empty() and fieldIndexes.empty() )
 		{
-			/// Indexes in field (name->size)
-			const NetcdfField::IndexList & fieldIndexes = field.unHandledIndexes();
-
-			/// Indexes specified in configuration (name->value)
-			const LoadElement::IndexNameToValue & configIndexes = loadElement->indicesToLoad();
-
-			// simple case
-			if ( configIndexes.empty() and fieldIndexes.empty() )
+			ret.push_back(* loadElement);
+		}
+		else if ( configIndexes.size() == fieldIndexes.size() )
+		{
+			for ( NetcdfField::IndexList::const_iterator fieldIndex = fieldIndexes.begin(); fieldIndex != fieldIndexes.end(); ++ fieldIndex )
 			{
-				ret.push_back(* loadElement);
-			}
-			else if ( configIndexes.size() == fieldIndexes.size() )
-			{
-				for ( NetcdfField::IndexList::const_iterator fieldIndex = fieldIndexes.begin(); fieldIndex != fieldIndexes.end(); ++ fieldIndex )
+				const std::string & indexName = fieldIndex->first;
+				LoadElement::IndexNameToValue::const_iterator configIndex = configIndexes.find(indexName);
+				if ( configIndex != configIndexes.end() )
 				{
-					const std::string & indexName = fieldIndex->first;
-					LoadElement::IndexNameToValue::const_iterator configIndex = configIndexes.find(indexName);
-					if ( configIndex != configIndexes.end() )
+					unsigned indexSize = fieldIndex->second;
+					for ( int i = 0; i < indexSize; ++ i )
 					{
-						unsigned indexSize = fieldIndex->second;
-						for ( int i = 0; i < indexSize; ++ i )
-						{
-							double dimensionValue = field.indexValue(indexName, i);
-							if ( std::abs(dimensionValue - configIndex->second) < 0.00001 )
-								ret.push_back(* loadElement);
-						}
+						double dimensionValue = field.indexValue(indexName, i);
+						if ( std::abs(dimensionValue - configIndex->second) < 0.00001 )
+							ret.push_back(* loadElement);
 					}
 				}
 			}
@@ -137,6 +137,7 @@ void LoadConfiguration::init_(xmlXPathContextPtr context)
         if ( elementNode->type != XML_ELEMENT_NODE )
             throw std::runtime_error("Expected element node");
 
-        loadElements_.push_back(LoadElement(elementNode));
+        LoadElement loadElement(elementNode);
+        loadElements_.insert(std::make_pair(loadElement.cfName(), loadElement));;
     }
 }
