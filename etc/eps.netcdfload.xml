@@ -6,38 +6,38 @@
 	xsi:noNamespaceSchemaLocation="netcdfLoad.configuration.xsd">
 
 <load>
-	<netcdf cfname="cloud_area_fraction"/>
-	<wdb name="cloud area fraction"/>
+	<netcdf variable_name="cloud_area_fraction"/>
+	<wdb name="cloud area fraction" units="%"/>
 </load>
 
 <load>
-	<netcdf cfname="y_wind_10m"/>
-	<wdb name="y wind"/>
+	<netcdf variable_name="y_wind_10m"/>
+	<wdb name="y wind" units="m/s"/>
 </load>
 
 <load>
-	<netcdf cfname="x_wind_10m"/>
-	<wdb name="x wind"/>
+	<netcdf variable_name="x_wind_10m"/>
+	<wdb name="x wind" units="m/s"/>
 </load>
 
 <load>
-	<netcdf cfname="air_temperature_2m"/>
-	<wdb name="air temperature"/>
+	<netcdf variable_name="air_temperature_2m"/>
+	<wdb name="air temperature" units="K"/>
 </load>
 
 <load>
-	<netcdf cfname="precipitation_amount_acc"/>
-	<wdb name="lwe thickness of precipitation amount" scale="0.001" validfrom="referencetime"/>
+	<netcdf variable_name="precipitation_amount_acc"/>
+	<wdb name="lwe thickness of precipitation amount" units="m" validfrom="referencetime"/>
 </load>
 
 <load>
-	<netcdf cfname="sea_level_pressure"/>
-	<wdb name="air pressure at sea level"/>
+	<netcdf variable_name="sea_level_pressure"/>
+	<wdb name="air pressure at sea level"  units="Pa"/>
 </load>
 
 <load>
-	<netcdf cfname="geopotential_surface"/>
-	<wdb name="geopotential"/>
+	<netcdf variable_name="geopotential_surface"/>
+	<wdb name="geopotential"  units="m"/>
 </load>
 	
 </netcdfloadconfiguration>

@@ -178,6 +178,17 @@ std::string NetcdfField::yDimension() const
 	return cdm.getHorizontalYAxis(variableName_);
 }
 
+std::string NetcdfField::attribute(const std::string & name) const
+{
+    const CDM & cdm = reader_->getCDM();
+
+	CDMAttribute attribute;
+	if ( cdm.getAttribute(variableName_, name, attribute) )
+		return attribute.getStringValue();
+
+	return std::string();
+}
+
 Time NetcdfField::referenceTime() const
 {
 	return netcdfFile_.referenceTime();

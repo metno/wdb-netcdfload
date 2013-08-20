@@ -27,6 +27,7 @@
  */
 
 #include "LoadConfiguration.h"
+//#include "AutomaticLoadConfiguration.h"
 #include <NetcdfField.h>
 #include <boost/filesystem.hpp>
 #include <libxml/tree.h>
@@ -117,6 +118,12 @@ std::vector<LoadElement> LoadConfiguration::getLoadElement(const NetcdfField & f
 		}
 	}
 
+//	if ( find.first == find.second )
+//	{
+//		AutomaticLoadConfiguration autoConfiguration;
+//		autoConfiguration.getConfiguration(ret, field);
+//	}
+
 	return ret;
 }
 
@@ -138,6 +145,6 @@ void LoadConfiguration::init_(xmlXPathContextPtr context)
             throw std::runtime_error("Expected element node");
 
         LoadElement loadElement(elementNode);
-        loadElements_.insert(std::make_pair(loadElement.cfName(), loadElement));;
+        loadElements_.insert(std::make_pair(loadElement.variableName(), loadElement));;
     }
 }

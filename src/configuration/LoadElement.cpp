@@ -90,6 +90,12 @@ LoadElement::LoadElement(xmlNodePtr loadNode)
     //makeIndicePermutations_();
 }
 
+LoadElement::LoadElement(const std::string & variableName, const DataSpecification & wdbDataSpecification) :
+		variableName_(variableName),
+		wdbDataSpecification_(wdbDataSpecification)
+{
+}
+
 LoadElement::~LoadElement() { }
 
 //unsigned LoadElement::IndexElement::cdmIndex(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const
@@ -109,7 +115,7 @@ unsigned LoadElement::cdmIndex(MetNoFimex::CDMReader & reader, const std::string
 
 void LoadElement::addNetcdfSpec_(xmlNodePtr netcdfNode)
 {
-    cfName_ = getAttribute(netcdfNode, "cfname");
+    variableName_ = getAttribute(netcdfNode, "variable_name");
     for(xmlNodePtr subNode = netcdfNode->children; subNode; subNode = subNode->next)
     {
         if(xmlStrEqual(subNode->name, (xmlChar*) "dimension"))
@@ -155,5 +161,5 @@ DataSpecification::Level LoadElement::getWdbLevelSpec_(xmlNodePtr levelNode)
 
 std::ostream & operator << (std::ostream & s, const LoadElement & loadElement)
 {
-	return s << "LoadElement(" << loadElement.cfName() << ')';
+	return s << "LoadElement(" << loadElement.variableName() << ')';
 }

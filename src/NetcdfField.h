@@ -89,6 +89,7 @@ public:
 	std::string xDimension() const;
 	std::string yDimension() const;
 
+	std::string attribute(const std::string & name) const;
 
 	/**
 	 * Get the reference time for the this variable

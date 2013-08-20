@@ -66,7 +66,7 @@ public:
 
 		boost::shared_ptr<MetNoFimex::CDMReader> reader = field_.reader();
 
-		MetNoFimex::SliceBuilder slicer(reader->getCDM(), loadElement_.cfName());
+		MetNoFimex::SliceBuilder slicer(reader->getCDM(), loadElement_.variableName());
 
 		const std::string & timeDimension = field_.timeDimension();
 		if ( not timeDimension.empty() )
@@ -102,14 +102,14 @@ private:
 		{
 			try
 			{
-				return reader->getScaledDataSliceInUnit(loadElement_.cfName(), querySpec_.wdbUnits(), slicer);
+				return reader->getScaledDataSliceInUnit(loadElement_.variableName(), querySpec_.wdbUnits(), slicer);
 			}
 			catch ( std::exception & e )
 			{
 				if ( querySpec_.alternativeUnitConversion().empty() )
 					throw;
 			}
-			return reader->getScaledDataSliceInUnit(loadElement_.cfName(), querySpec_.alternativeUnitConversion(), slicer);
+			return reader->getScaledDataSliceInUnit(loadElement_.variableName(), querySpec_.alternativeUnitConversion(), slicer);
 		}
 		catch ( std::exception & e )
 		{
