@@ -6,6 +6,11 @@
 	xsi:noNamespaceSchemaLocation="netcdfLoad.configuration.xsd">
 
 	<load>
+		<netcdf variable_name="altitude" />
+		<wdb name="altitude" units="m" validfrom="-infinity" validto="infinity"/>
+	</load>
+
+	<load>
 		<netcdf variable_name="precipitation_amount_low_estimate"/>
 		<wdb name="low estimate of precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="validtime - 1 hours"/>
 	</load>
@@ -33,6 +38,15 @@
 		<wdb name="precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="referencetime"/>
 	</load>
 
+	<load>
+		<netcdf variable_name="land_area_fraction"/>
+		<wdb name="land area fraction" units="%" validfrom="-infinity" validto="infinity"/>
+	</load>
+
+	<load>
+		<netcdf variable_name="cloud_area_fraction"/>
+		<wdb name="cloud area fraction" units="%"/>
+	</load>
 	<load>
 		<netcdf variable_name="air_temperature_2m"/>
 		<wdb name="air temperature" units="K">
@@ -84,6 +98,11 @@
 		<wdb name="cloud area fraction in atmosphere layer" units="%">
 			<level name="atmosphere sigma coordinate" value="850"/>
 		</wdb>
+	</load>
+
+	<load>
+		<netcdf variable_name="air_pressure_at_sea_level"/>
+		<wdb name="air pressure at sea level" units="Pa"/>
 	</load>
 
 

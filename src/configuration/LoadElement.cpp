@@ -115,7 +115,9 @@ unsigned LoadElement::cdmIndex(MetNoFimex::CDMReader & reader, const std::string
 
 void LoadElement::addNetcdfSpec_(xmlNodePtr netcdfNode)
 {
-    variableName_ = getAttribute(netcdfNode, "variable_name");
+    variableName_ = getAttributeNoThrow(netcdfNode, "variable_name");
+    standardName_ = getAttributeNoThrow(netcdfNode, "standard_name");
+
     for(xmlNodePtr subNode = netcdfNode->children; subNode; subNode = subNode->next)
     {
         if(xmlStrEqual(subNode->name, (xmlChar*) "dimension"))

@@ -60,7 +60,8 @@ public:
     LoadElement(const std::string & variableName, const DataSpecification & wdbDataSpecification);
     ~LoadElement();
 
-    const std::string& variableName() const { return variableName_; }
+    const std::string & variableName() const { return variableName_; }
+    const std::string & standardName() const { return standardName_; }
 
     const DataSpecification & wdbDataSpecification() const { return wdbDataSpecification_; }
 
@@ -76,6 +77,7 @@ private:
 
 
     std::string variableName_;
+    std::string standardName_;
     DataSpecification wdbDataSpecification_;
 
     IndexNameToValue indicesToLoad_;

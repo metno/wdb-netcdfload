@@ -12,9 +12,9 @@
 			<xs:element name="dimension" type="dimension_type"
 				minOccurs="0" maxOccurs="1" />  <!-- update to unbounded once many extra dimensions are supported -->
 		</xs:sequence>
-		<xs:attribute name="cfname" type="xs:string" use="optional" />
-		<xs:attribute name="variable_name" type="xs:string" use="optional" />
-		<xs:attribute name="standard_name" type="xs:string" use="optional" />
+		<!-- <xs:attribute name="cfname" type="xs:string" use="optional" /> -->
+		<xs:attribute name="variable_name" type="xs:string" use="required" />
+		<!-- <xs:attribute name="standard_name" type="xs:string" use="optional" /> -->
 	</xs:complexType>
 
 	<xs:complexType name="level_type">

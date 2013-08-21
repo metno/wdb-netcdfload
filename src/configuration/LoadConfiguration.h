@@ -59,7 +59,13 @@ private:
 	void init_(xmlXPathContextPtr context);
 
 	typedef std::multimap<std::string, LoadElement> LoadElementMap;
-	LoadElementMap loadElements_;
+
+	bool getVariableLoadElement_(std::vector<LoadElement> & out, const NetcdfField & field) const;
+	bool getStandardNameLoadElement_(std::vector<LoadElement> & out, const NetcdfField & field) const;
+
+
+	LoadElementMap variableLoadElements_;
+	LoadElementMap standardNameLoadElements_;
 };
 
 #endif /* LOADCONFIGURATION_H_ */
