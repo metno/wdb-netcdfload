@@ -37,7 +37,7 @@ class DataSpecification
 {
 public:
     DataSpecification() {}
-    DataSpecification(const std::string & wdbParameterName, const std::string & units, const std::string & alternativeUnitConversion, float scale, const std::string& validFrom, const std::string& validTo = "validtime");
+    DataSpecification(const std::string & wdbParameterName, const std::string & units, const std::string & alternativeUnitConversion = "", float scale = 1, const std::string& validFrom = "validtime", const std::string& validTo = "validtime");
     virtual ~DataSpecification();
 
     const std::string & wdbParameter() const { return wdbParameter_; }

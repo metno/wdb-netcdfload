@@ -6,102 +6,102 @@
 	xsi:noNamespaceSchemaLocation="netcdfLoad.configuration.xsd">
 
 	<load>
-		<netcdf cfname="altitude" />
+		<netcdf variable_name="altitude" />
 		<wdb name="altitude" units="m" validfrom="-infinity" validto="infinity"/>
 	</load>
 
 	<load>
-		<netcdf cfname="precipitation_amount_low_estimate"/>
+		<netcdf variable_name="precipitation_amount_low_estimate"/>
 		<wdb name="low estimate of precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="validtime - 1 hours"/>
 	</load>
 	<load>
-		<netcdf cfname="precipitation_amount_middle_estimate"/>
+		<netcdf variable_name="precipitation_amount_middle_estimate"/>
 		<wdb name="middle estimate of precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="validtime - 1 hours"/>
 	</load>
 	<load>
-		<netcdf cfname="precipitation_amount_high_estimate"/>
+		<netcdf variable_name="precipitation_amount_high_estimate"/>
 		<wdb name="high estimate of precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="validtime - 1 hours"/>
 	</load>
 	
 	<load>
-		<netcdf cfname="precipitation_amount_prob_low"/>
+		<netcdf variable_name="precipitation_amount_prob_low"/>
 		<wdb name="probability of precipitation" units="%" validfrom="validtime - 1 hours"/>
 	</load>
 
 	<load>
-		<netcdf cfname="thunderstorm_index_combined"/>
+		<netcdf variable_name="thunderstorm_index_combined"/>
 		<wdb name="thunderstorm probability" units="%"/>
 	</load>
 
 	<load>
-		<netcdf cfname="precipitation_amount_acc"/>
+		<netcdf variable_name="precipitation_amount_acc"/>
 		<wdb name="precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="referencetime"/>
 	</load>
 
 	<load>
-		<netcdf cfname="land_area_fraction"/>
+		<netcdf variable_name="land_area_fraction"/>
 		<wdb name="land area fraction" units="%" validfrom="-infinity" validto="infinity"/>
 	</load>
 
 	<load>
-		<netcdf cfname="cloud_area_fraction"/>
+		<netcdf variable_name="cloud_area_fraction"/>
 		<wdb name="cloud area fraction" units="%"/>
 	</load>
 	<load>
-		<netcdf cfname="air_temperature_2m"/>
+		<netcdf variable_name="air_temperature_2m"/>
 		<wdb name="air temperature" units="K">
 			<level name="height above ground" value="2" />
 		</wdb>
 	</load>
 
 	<load>
-		<netcdf cfname="relative_humidity_2m"/>
+		<netcdf variable_name="relative_humidity_2m"/>
 		<wdb name="relative humidity" units="%" >
 			<level name="height above ground" value="2" />
 		</wdb>
 	</load>
 
 	<load>
-		<netcdf cfname="x_wind_10m"/>
+		<netcdf variable_name="x_wind_10m"/>
 		<wdb name="x wind" units="m/s">
 			<level name="height above ground" value="10" />
 		</wdb>
 	</load>
 	<load>
-		<netcdf cfname="y_wind_10m"/>
+		<netcdf variable_name="y_wind_10m"/>
 		<wdb name="y wind" units="m/s">
 			<level name="height above ground" value="10" />
 		</wdb>
 	</load>
 
 	<load>
-		<netcdf cfname="fog_area_fraction"/>
+		<netcdf variable_name="fog_area_fraction"/>
 		<wdb name="cloud area fraction in atmosphere layer" units="%">
 			<level name="atmosphere sigma coordinate" value="1000"/>
 		</wdb>
 	</load>
  
 	<load>
-		<netcdf cfname="high_type_cloud_area_fraction" />
+		<netcdf variable_name="high_type_cloud_area_fraction" />
 		<wdb name="cloud area fraction in atmosphere layer" units="%">
 			<level name="atmosphere sigma coordinate" value="300"/>
 		</wdb>
 	</load>
 	<load>
-		<netcdf cfname="medium_type_cloud_area_fraction" />
+		<netcdf variable_name="medium_type_cloud_area_fraction" />
 		<wdb name="cloud area fraction in atmosphere layer" units="%">
 			<level name="atmosphere sigma coordinate" value="500"/>
 		</wdb>
 	</load>
 	<load>
-		<netcdf cfname="low_type_cloud_area_fraction" />
+		<netcdf variable_name="low_type_cloud_area_fraction" />
 		<wdb name="cloud area fraction in atmosphere layer" units="%">
 			<level name="atmosphere sigma coordinate" value="850"/>
 		</wdb>
 	</load>
 
 	<load>
-		<netcdf cfname="air_pressure_at_sea_level"/>
+		<netcdf variable_name="air_pressure_at_sea_level"/>
 		<wdb name="air pressure at sea level" units="Pa"/>
 	</load>
 

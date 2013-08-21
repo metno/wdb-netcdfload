@@ -57,9 +57,11 @@ class LoadElement
 {
 public:
     explicit LoadElement(xmlNodePtr loadNode);
+    LoadElement(const std::string & variableName, const DataSpecification & wdbDataSpecification);
     ~LoadElement();
 
-    const std::string& cfName() const { return cfName_; }
+    const std::string & variableName() const { return variableName_; }
+    const std::string & standardName() const { return standardName_; }
 
     const DataSpecification & wdbDataSpecification() const { return wdbDataSpecification_; }
 
@@ -74,7 +76,8 @@ private:
     void addNetcdfSpec_(xmlNodePtr netcdfNode);
 
 
-    std::string cfName_;
+    std::string variableName_;
+    std::string standardName_;
     DataSpecification wdbDataSpecification_;
 
     IndexNameToValue indicesToLoad_;

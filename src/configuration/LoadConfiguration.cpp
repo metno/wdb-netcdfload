@@ -27,7 +27,9 @@
  */
 
 #include "LoadConfiguration.h"
+//#include "AutomaticLoadConfiguration.h"
 #include <NetcdfField.h>
+#include <wdbLogHandler.h>
 #include <boost/filesystem.hpp>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -77,52 +79,22 @@ LoadConfiguration::~LoadConfiguration()
 }
 
 
+
 std::vector<LoadElement> LoadConfiguration::getLoadElement(const NetcdfField & field) const
 {
 	std::vector<LoadElement> ret;
 
-	for ( std::vector<LoadElement>::const_iterator loadElement = loadElements_.begin(); loadElement != loadElements_.end(); ++ loadElement )
-	{
-		if ( loadElement->cfName() == field.variableName() )
-		{
-			/// Indexes in field (name->size)
-			const NetcdfField::IndexList & fieldIndexes = field.unHandledIndexes();
-
-			/// Indexes specified in configuration (name->value)
-			const LoadElement::IndexNameToValue & configIndexes = loadElement->indicesToLoad();
-
-			// simple case
-			if ( configIndexes.empty() and fieldIndexes.empty() )
-			{
-				ret.push_back(* loadElement);
-			}
-			else if ( configIndexes.size() == fieldIndexes.size() )
-			{
-				for ( NetcdfField::IndexList::const_iterator fieldIndex = fieldIndexes.begin(); fieldIndex != fieldIndexes.end(); ++ fieldIndex )
-				{
-					const std::string & indexName = fieldIndex->first;
-					LoadElement::IndexNameToValue::const_iterator configIndex = configIndexes.find(indexName);
-					if ( configIndex != configIndexes.end() )
-					{
-						unsigned indexSize = fieldIndex->second;
-						for ( int i = 0; i < indexSize; ++ i )
-						{
-							double dimensionValue = field.indexValue(indexName, i);
-							if ( std::abs(dimensionValue - configIndex->second) < 0.00001 )
-								ret.push_back(* loadElement);
-						}
-					}
-				}
-			}
-		}
-	}
+	if ( ! getVariableLoadElement_(ret, field) )
+		getStandardNameLoadElement_(ret, field);
 
 	return ret;
 }
 
 void LoadConfiguration::init_(xmlXPathContextPtr context)
 {
-    boost::shared_ptr<xmlXPathObject>
+	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf.configuration");
+
+	boost::shared_ptr<xmlXPathObject>
             xpathObjLoad(xmlXPathEvalExpression((const xmlChar *) "/netcdfloadconfiguration/load", context),
                      xmlXPathFreeObject);
 
@@ -137,6 +109,58 @@ void LoadConfiguration::init_(xmlXPathContextPtr context)
         if ( elementNode->type != XML_ELEMENT_NODE )
             throw std::runtime_error("Expected element node");
 
-        loadElements_.push_back(LoadElement(elementNode));
+        LoadElement loadElement(elementNode);
+        if ( not loadElement.variableName().empty() )
+        	variableLoadElements_.insert(std::make_pair(loadElement.variableName(), loadElement));
+        else if ( not loadElement.standardName().empty() )
+        	standardNameLoadElements_.insert(std::make_pair(loadElement.variableName(), loadElement));
+        else
+    		log.warnStream() << "Element configuration without variable_name or standard_name";
     }
+}
+
+bool LoadConfiguration::getVariableLoadElement_(std::vector<LoadElement> & out, const NetcdfField & field) const
+{
+	std::pair<LoadElementMap::const_iterator,LoadElementMap::const_iterator> find = variableLoadElements_.equal_range(field.variableName());
+	for ( LoadElementMap::const_iterator it = find.first; it != find.second; ++ it )
+	{
+		const LoadElement * loadElement = & it->second;
+
+		/// Indexes in field (name->size)
+		const NetcdfField::IndexList & fieldIndexes = field.unHandledIndexes();
+
+		/// Indexes specified in configuration (name->value)
+		const LoadElement::IndexNameToValue & configIndexes = loadElement->indicesToLoad();
+
+		// simple case
+		if ( configIndexes.empty() and fieldIndexes.empty() )
+		{
+			out.push_back(* loadElement);
+		}
+		else if ( configIndexes.size() == fieldIndexes.size() )
+		{
+			for ( NetcdfField::IndexList::const_iterator fieldIndex = fieldIndexes.begin(); fieldIndex != fieldIndexes.end(); ++ fieldIndex )
+			{
+				const std::string & indexName = fieldIndex->first;
+				LoadElement::IndexNameToValue::const_iterator configIndex = configIndexes.find(indexName);
+				if ( configIndex != configIndexes.end() )
+				{
+					unsigned indexSize = fieldIndex->second;
+					for ( int i = 0; i < indexSize; ++ i )
+					{
+						double dimensionValue = field.indexValue(indexName, i);
+						if ( std::abs(dimensionValue - configIndex->second) < 0.00001 )
+							out.push_back(* loadElement);
+					}
+				}
+			}
+		}
+	}
+
+	return find.first != find.second;
+}
+
+bool LoadConfiguration::getStandardNameLoadElement_(std::vector<LoadElement> & out, const NetcdfField & field) const
+{
+	return false;
 }

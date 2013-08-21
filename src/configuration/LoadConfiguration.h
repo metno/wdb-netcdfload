@@ -32,6 +32,7 @@
 #include "LoadElement.h"
 #include <boost/filesystem/path.hpp>
 #include <vector>
+#include <map>
 
 extern "C"
 {
@@ -56,7 +57,15 @@ class LoadConfiguration
 
 private:
 	void init_(xmlXPathContextPtr context);
-	std::vector<LoadElement> loadElements_;
+
+	typedef std::multimap<std::string, LoadElement> LoadElementMap;
+
+	bool getVariableLoadElement_(std::vector<LoadElement> & out, const NetcdfField & field) const;
+	bool getStandardNameLoadElement_(std::vector<LoadElement> & out, const NetcdfField & field) const;
+
+
+	LoadElementMap variableLoadElements_;
+	LoadElementMap standardNameLoadElements_;
 };
 
 #endif /* LOADCONFIGURATION_H_ */
