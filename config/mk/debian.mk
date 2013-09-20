@@ -5,8 +5,6 @@
 PKG_DIR = $(PACKAGE)-$(VERSION)
 DEBIAN_DIR = $(PKG_DIR)/debian
 DEBIAN_PACKAGE = `head -n1 $(top_srcdir)/debian_files/changelog | sed "s/ (/_/" | sed "s/_.*//"`_$(VERSION)
-#DEBIAN_PACKAGE = $(PACKAGE)_$(VERSION)
-ARCH = `dpkg-architecture -qDEB_HOST_ARCH_CPU`
 DEBIAN_PACKAGE_NAME = *.deb
 DEBIAN_SOURCE_PACKAGE_NAME = *.dsc
 
