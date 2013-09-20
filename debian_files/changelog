@@ -114,7 +114,7 @@ netcdfload (0.2.1-1) lucid; urgency=low
 
 netcdfload (0.2.0-2) lucid; urgency=low
 
-  * Building agains correct version of fimex and wdb
+  * Building against correct version of fimex and wdb
 
  -- Vegard Bønes <vegard.bones@met.no>  Fri, 25 Nov 2011 15:48:25 +0100
 
