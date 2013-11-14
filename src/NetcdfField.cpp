@@ -218,8 +218,12 @@ boost::shared_ptr<GridGeometry> NetcdfField::placeSpecification() const
 
     boost::shared_ptr<const Projection> projections = cdm.getProjectionOf(variableName_);
 
-    std::string projDefinition = projections->getProj4String();
+    if ( projections )
+    {
+		std::string projDefinition = projections->getProj4String();
 
-    return boost::shared_ptr<GridGeometry>( new
-    		GridGeometry(projDefinition, GridGeometry::LeftLowerHorizontal, xNum, yNum, xIncrement, yIncrement, startX, startY));
+		return boost::shared_ptr<GridGeometry>( new
+				GridGeometry(projDefinition, GridGeometry::LeftLowerHorizontal, xNum, yNum, xIncrement, yIncrement, startX, startY));
+    }
+    return boost::shared_ptr<GridGeometry>();
 }
