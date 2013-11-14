@@ -39,6 +39,7 @@
 #include "fimex/CDMReader.h"
 #include "fimex/CDMFileReaderFactory.h"
 #include <boost/foreach.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <iostream>
 
 using namespace std;
@@ -90,9 +91,9 @@ int main(int argc, char ** argv)
 
 	try
 	{
-		wdb::load::LoaderDatabaseConnection * wdbConnection = 0;
-		if ( not conf.output().list )
-			wdbConnection = new wdb::load::LoaderDatabaseConnection(conf);
+		boost::scoped_ptr<wdb::load::LoaderDatabaseConnection> wdbConnection(
+				conf.output().list ? 0 : new wdb::load::LoaderDatabaseConnection(conf));
+
 		NetcdfTranslator translator(conf);
 		BOOST_FOREACH(const std::string & file, conf.input().file)
 		{
