@@ -27,6 +27,7 @@
  */
 
 #include "NetcdfTranslator.h"
+#include "DataRetriever.h"
 #include <NetcdfField.h>
 #include <wdbLogHandler.h>
 #include <fimex/CDMReader.h>
@@ -44,92 +45,6 @@ NetcdfTranslator::~NetcdfTranslator()
 {
 }
 
-
-class DataRetriever
-{
-public:
-	DataRetriever(const LoadElement & loadElement, const NetcdfField & field, unsigned timeIndex, unsigned realizationIndex,
-			const DataSpecification & querySpec) :
-		loadElement_(loadElement),
-		field_(field),
-		timeIndex_(timeIndex),
-		realizationIndex_(realizationIndex),
-		querySpec_(querySpec)
-	{
-	}
-
-	WriteQuery::RawData operator() () const
-	{
-		WDB_LOG & log = WDB_LOG::getInstance( "wdb.netcdfload.get_data" );
-
-		WriteQuery::RawData ret;
-
-		boost::shared_ptr<MetNoFimex::CDMReader> reader = field_.reader();
-
-		MetNoFimex::SliceBuilder slicer(reader->getCDM(), loadElement_.variableName());
-
-		const std::string & timeDimension = field_.timeDimension();
-		if ( not timeDimension.empty() )
-			slicer.setStartAndSize(timeDimension, timeIndex_, 1);
-
-		const std::string & realizationDimension = field_.realizationDimension();
-		if ( not realizationDimension.empty() )
-			slicer.setStartAndSize(realizationDimension, realizationIndex_, 1);
-
-		BOOST_FOREACH(const LoadElement::IndexNameToValue::value_type & nameValue, loadElement_.indicesToLoad())
-		{
-			unsigned index = loadElement_.cdmIndex(* reader, nameValue.first, nameValue.second);
-			slicer.setStartAndSize(nameValue.first, index, 1);
-		}
-
-		MetNoFimex::DataPtr data = readData_(reader, slicer);
-
-		ret.numberOfValues = data->size();
-		if ( ret.numberOfValues )
-			ret.data = data->asFloat();
-
-		if ( querySpec_.scale() != 1 )
-			for ( int i = 0; i < ret.numberOfValues; ++ i )
-				ret.data[i] *= querySpec_.scale();
-
-		return ret;
-	}
-private:
-	MetNoFimex::DataPtr readData_(boost::shared_ptr<MetNoFimex::CDMReader> reader, const MetNoFimex::SliceBuilder & slicer) const
-	{
-		WDB_LOG & log = WDB_LOG::getInstance( "wdb.netcdfload.get_data" );
-		try
-		{
-			try
-			{
-				return reader->getScaledDataSliceInUnit(loadElement_.variableName(), querySpec_.wdbUnits(), slicer);
-			}
-			catch ( std::exception & e )
-			{
-				if ( querySpec_.alternativeUnitConversion().empty() )
-					throw;
-			}
-			return reader->getScaledDataSliceInUnit(loadElement_.variableName(), querySpec_.alternativeUnitConversion(), slicer);
-		}
-		catch ( std::exception & e )
-		{
-			static std::set<std::string> parametersWarnedAbout;
-			if ( parametersWarnedAbout.find(querySpec_.wdbParameter()) == parametersWarnedAbout.end() )
-			{
-				log.errorStream() << e.what();
-				log.warnStream() << "Not loading parameter <" << querySpec_.wdbParameter() << '>';
-				parametersWarnedAbout.insert(querySpec_.wdbParameter());
-			}
-		}
-		return MetNoFimex::DataPtr();
-	}
-
-	LoadElement loadElement_;
-	const NetcdfField & field_;
-	unsigned timeIndex_;
-	unsigned realizationIndex_;
-	DataSpecification querySpec_;
-};
 
 std::vector<WriteQuery> NetcdfTranslator::queries(const NetcdfField & field) const
 {

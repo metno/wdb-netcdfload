@@ -9,6 +9,8 @@ MAIN_SOURCES = \
 	src/WriteQuery.cpp \
 	src/NetcdfTranslator.h \
 	src/NetcdfTranslator.cpp \
+	src/DataRetriever.h \
+	src/DataRetriever.cpp \
 	src/configuration/CdmLoaderConfiguration.h \
 	src/configuration/CdmLoaderConfiguration.cpp \
 	src/configuration/LoadElement.h \

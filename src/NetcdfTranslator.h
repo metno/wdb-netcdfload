@@ -36,6 +36,9 @@
 
 class NetcdfField;
 
+/**
+ * Creates WriteQuery objects from NetcdfField objects, based on program configuration.
+ */
 class NetcdfTranslator
 {
 public:
