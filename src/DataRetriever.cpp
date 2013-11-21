@@ -27,7 +27,7 @@
 */
 
 #include "DataRetriever.h"
-#include "NetcdfField.h"
+#include "AbstractNetcdfField.h"
 #include <wdbLogHandler.h>
 #include <fimex/CDMReader.h>
 #include <fimex/SliceBuilder.h>
@@ -35,25 +35,26 @@
 #include <boost/foreach.hpp>
 
 
-DataRetriever::DataRetriever(const LoadElement & loadElement, const NetcdfField & field, unsigned timeIndex, unsigned realizationIndex,
+DataRetriever::DataRetriever(const LoadElement & loadElement, const AbstractNetcdfField & field, boost::shared_ptr<MetNoFimex::CDMReader> reader, unsigned timeIndex, unsigned realizationIndex,
 		const DataSpecification & querySpec) :
 	loadElement_(loadElement),
 	field_(field),
+	reader_(reader),
 	timeIndex_(timeIndex),
 	realizationIndex_(realizationIndex),
 	querySpec_(querySpec)
 {
 }
 
-WriteQuery::RawData DataRetriever::operator() () const
+RawData DataRetriever::operator() () const
 {
 	WDB_LOG & log = WDB_LOG::getInstance( "wdb.netcdfload.get_data" );
 
-	WriteQuery::RawData ret;
+	RawData ret;
 
-	boost::shared_ptr<MetNoFimex::CDMReader> reader = field_.reader();
+	//std::clog << field_.variableName() << std::endl;
 
-	MetNoFimex::SliceBuilder slicer(reader->getCDM(), loadElement_.variableName());
+	MetNoFimex::SliceBuilder slicer(reader_->getCDM(), field_.variableName());
 
 	const std::string & timeDimension = field_.timeDimension();
 	if ( not timeDimension.empty() )
@@ -65,11 +66,11 @@ WriteQuery::RawData DataRetriever::operator() () const
 
 	BOOST_FOREACH(const LoadElement::IndexNameToValue::value_type & nameValue, loadElement_.indicesToLoad())
 	{
-		unsigned index = loadElement_.cdmIndex(* reader, nameValue.first, nameValue.second);
+		unsigned index = loadElement_.cdmIndex(* reader_, nameValue.first, nameValue.second);
 		slicer.setStartAndSize(nameValue.first, index, 1);
 	}
 
-	MetNoFimex::DataPtr data = readData_(reader, slicer);
+	MetNoFimex::DataPtr data = readData_(reader_, slicer);
 
 	ret.numberOfValues = data->size();
 	if ( ret.numberOfValues )
@@ -89,14 +90,14 @@ MetNoFimex::DataPtr DataRetriever::readData_(boost::shared_ptr<MetNoFimex::CDMRe
 	{
 		try
 		{
-			return reader->getScaledDataSliceInUnit(loadElement_.variableName(), querySpec_.wdbUnits(), slicer);
+			return reader->getScaledDataSliceInUnit(field_.variableName(), querySpec_.wdbUnits(), slicer);
 		}
 		catch ( std::exception & e )
 		{
 			if ( querySpec_.alternativeUnitConversion().empty() )
 				throw;
 		}
-		return reader->getScaledDataSliceInUnit(loadElement_.variableName(), querySpec_.alternativeUnitConversion(), slicer);
+		return reader->getScaledDataSliceInUnit(field_.variableName(), querySpec_.alternativeUnitConversion(), slicer);
 	}
 	catch ( std::exception & e )
 	{

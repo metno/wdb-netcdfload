@@ -26,32 +26,33 @@
  MA  02110-1301, USA
  */
 
-#ifndef NETCDFTRANSLATOR_H_
-#define NETCDFTRANSLATOR_H_
+#ifndef DIRECTIONCONVERTINGNETCDFFIELD_H_
+#define DIRECTIONCONVERTINGNETCDFFIELD_H_
 
-#include "WriteQuery.h"
-#include "configuration/CdmLoaderConfiguration.h"
-#include "configuration/LoadConfiguration.h"
-#include <vector>
+#include "DerivedNetcdfField.h"
 
-class AbstractNetcdfField;
-
-/**
- * Creates WriteQuery objects from AbstractNetcdfField objects, based on program configuration.
- */
-class NetcdfTranslator
+class DirectionConvertingNetcdfField: public DerivedNetcdfField
 {
 public:
-	NetcdfTranslator(const CdmLoaderConfiguration & conf);
-	~NetcdfTranslator();
+	DirectionConvertingNetcdfField(const std::string & variableName);
+	virtual ~DirectionConvertingNetcdfField();
 
-	std::vector<WriteQuery> queries(const AbstractNetcdfField & field) const;
+	void setX(AbstractNetcdfField::Ptr xVariable);
+	void setY(AbstractNetcdfField::Ptr yVariable);
+
+	bool ready() const { return xVariable_() and yVariable_(); }
+
+	virtual boost::shared_ptr<AbstractDataRetriever> retriever(
+			const LoadElement & loadElement,
+			unsigned timeIndex, unsigned realizationIndex,
+			const DataSpecification & querySpec) const;
 
 private:
-	void setLocation_(WriteQuery & out, const AbstractNetcdfField & field) const;
+	AbstractNetcdfField::Ptr xVariable_() const { return source_; }
+	AbstractNetcdfField::Ptr yVariable_() const { return source2_; }
 
-	CdmLoaderConfiguration conf_;
-	LoadConfiguration loadConfiguration_;
+	AbstractNetcdfField::Ptr source2_;
+
 };
 
-#endif /* NETCDFTRANSLATOR_H_ */
+#endif /* DIRECTIONCONVERTINGNETCDFFIELD_H_ */

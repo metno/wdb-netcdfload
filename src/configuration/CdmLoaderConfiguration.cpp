@@ -31,9 +31,8 @@
 #include <set>
 
 CdmLoaderConfiguration::CdmLoaderConfiguration()
-//    : wdb::load::LoaderConfiguration(defaultDataProvider)
 {
-    using namespace boost::program_options;
+	using namespace boost::program_options;
 
     options_description conf( "Load configuration" );
     conf.add_options()
@@ -42,11 +41,39 @@ CdmLoaderConfiguration::CdmLoaderConfiguration()
     ( "configuration,c", value(& loadConfiguration_), "Read netcdf-to-wdb configuration from the given file.")
     ;
 
-    configOptions().add(conf);
-	shownOptions().add(conf);
+    options_description point( "Point extraction" );
+    point.add_options()
+    ( "longitude", value(& point_.longitude_), "Extract only data fron this longitude (must also give latitude)")
+    ( "latitude",  value(& point_.latitude_),  "Extract only data fron this latitude (must also give longitude)")
+    ;
+
+    configOptions().add(conf).add(point);
+	shownOptions().add(conf).add(point);
 }
 
 CdmLoaderConfiguration::~CdmLoaderConfiguration() { }
+
+
+double CdmLoaderConfiguration::Point::longitude() const
+{
+	return boost::lexical_cast<double>(longitude_);
+}
+
+double CdmLoaderConfiguration::Point::latitude() const
+{
+	return boost::lexical_cast<double>(latitude_);
+}
+
+
+
+const CdmLoaderConfiguration::Point * CdmLoaderConfiguration::point() const
+{
+	if ( point_.longitude_.empty() and point_.latitude_.empty() )
+		return 0;
+	if ( point_.longitude_.empty() or point_.latitude_.empty() )
+		throw std::runtime_error("Must give both latitude and longitude");
+	return & point_;
+}
 
 
 namespace
@@ -79,4 +106,16 @@ void CdmLoaderConfiguration::parse( int argc, char ** argv )
     		msg << ' ' << * it;
     	throw std::runtime_error(msg.str());
     }
+
+    if ( point() )
+	{
+    	if ( not output().list )
+    		throw std::runtime_error("Direct loading of single points is not supported yet");
+    	if ( loading_.placeName.empty() )
+    	{
+    		std::ostringstream s;
+    		s << "POINT(" << point_.longitude_ << ' ' << point_.latitude_ << ')';
+    		loading_.placeName = s.str();
+    	}
+	}
 }

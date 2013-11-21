@@ -39,7 +39,7 @@ extern "C"
     typedef struct _xmlXPathContext xmlXPathContext;
     typedef xmlXPathContext *xmlXPathContextPtr;
 }
-class NetcdfField;
+class AbstractNetcdfField;
 
 
 
@@ -53,15 +53,15 @@ class LoadConfiguration
 	 * Get the load specification for the given name, or NULL if no such name
 	 * exists in configuration.
 	 */
-	std::vector<LoadElement> getLoadElement(const NetcdfField & field) const;
+	std::vector<LoadElement> getLoadElement(const AbstractNetcdfField & field) const;
 
 private:
 	void init_(xmlXPathContextPtr context);
 
 	typedef std::multimap<std::string, LoadElement> LoadElementMap;
 
-	bool getVariableLoadElement_(std::vector<LoadElement> & out, const NetcdfField & field) const;
-	bool getStandardNameLoadElement_(std::vector<LoadElement> & out, const NetcdfField & field) const;
+	bool getVariableLoadElement_(std::vector<LoadElement> & out, const AbstractNetcdfField & field) const;
+	bool getStandardNameLoadElement_(std::vector<LoadElement> & out, const AbstractNetcdfField & field) const;
 
 
 	LoadElementMap variableLoadElements_;

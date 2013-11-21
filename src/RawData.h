@@ -26,39 +26,24 @@
     MA  02110-1301, USA
 */
 
-#include <gtest/gtest.h>
-#include <NetcdfFile.h>
+
+#ifndef RAWDATA_H_
+#define RAWDATA_H_
 
 
-TEST(NetcdfFileTest, test)
+#include "boost/shared_array.hpp"
+
+/**
+ * Simple storage for data read from fimex.
+ */
+struct RawData
 {
-	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
-	const std::vector<NetcdfField::Ptr> & entries = ncFile.getFields();
+	RawData() : numberOfValues(0) {}
+	bool valid() const { return data; }
 
-	// BEGRENSET
-//	*forecast_reference_time
-//	*altitude
-//	*air_temperature_2m
-//	*precipitation_amount
-//	latitude
-//	longitude
+	unsigned numberOfValues;
+	boost::shared_array<float> data;
+};
 
-	// UBEGRENSET
-//	*forecast_reference_time
-//	projection_regular_ll
-//	*altitude
-//	*air_temperature_2m
-//	*precipitation_amount
 
-	for ( std::vector<NetcdfField::Ptr>::const_iterator it = entries.begin(); it != entries.end(); ++ it )
-		std::cout << (*it)->variableName() << std::endl;
-
-	EXPECT_EQ(5, entries.size());
-}
-
-TEST(NetcdfFileTest, testReferenceTime)
-{
-	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
-
-	EXPECT_EQ(time_from_postgresql_string("2013-05-21 12:00:00Z"), ncFile.referenceTime());
-}
+#endif /* RAWDATA_H_ */

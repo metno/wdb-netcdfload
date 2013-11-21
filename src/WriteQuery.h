@@ -30,8 +30,9 @@
 #define WRITEQUERY_H_
 
 #include "localtime.h"
+#include "RawData.h"
+#include "AbstractDataRetriever.h"
 #include <GridGeometry.h>
-#include <boost/function.hpp>
 #include <boost/shared_array.hpp>
 #include <iostream>
 
@@ -53,18 +54,7 @@ public:
 
 	void write(wdb::load::LoaderDatabaseConnection & wdbConnection) const;
 
-	struct RawData
-	{
-		RawData() : numberOfValues(0) {}
-		bool valid() const { return data; }
-
-		unsigned numberOfValues;
-		boost::shared_array<float> data;
-	};
-
-	typedef boost::function<RawData ()> DataRetrievalFunction;
-
-	void data(DataRetrievalFunction function) { function_ = function; }
+	void data(AbstractDataRetriever::Ptr function) { function_ = function; }
 	void dataProvider(const std::string & val) { dataProvider_ = val; }
 	void location(const boost::shared_ptr<GridGeometry> & val) { location_ = val; }
 	void placeName(const std::string & placeName) { placeName_ = placeName; }
@@ -76,11 +66,12 @@ public:
 	void levelFrom(float val) { levelFrom_ = val; }
 	void levelTo(float val) { levelTo_ = val; }
 	void dataVersion(unsigned val) { dataVersion_ = val; }
+	void maxDataVersion(unsigned val) { maxDataVersion_ = val; }
 
 	void loadPlaceDefinition(bool doLoad) { loadPlaceDefinition_ = doLoad; }
 
 private:
-	DataRetrievalFunction function_;
+	AbstractDataRetriever::Ptr function_;
 	std::string dataProvider_;
 	boost::shared_ptr<GridGeometry> location_;
 	std::string placeName_;
@@ -93,6 +84,7 @@ private:
 	float levelFrom_;
 	float levelTo_;
 	unsigned dataVersion_;
+	unsigned maxDataVersion_;
 };
 
 #endif /* WRITEQUERY_H_ */

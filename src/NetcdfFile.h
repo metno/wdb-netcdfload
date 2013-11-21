@@ -56,6 +56,11 @@ public:
 
 	Time referenceTime() const { return referenceTime_; }
 
+	/**
+	 * Modify reader to give interpolated data for the given point instead of the entire field.
+	 */
+	void setPointFilter(double longitude, double latitude);
+
 private:
 	boost::shared_ptr<MetNoFimex::CDMReader> reader_;
 	Time referenceTime_;

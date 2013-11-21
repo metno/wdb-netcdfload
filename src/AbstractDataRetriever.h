@@ -26,39 +26,22 @@
     MA  02110-1301, USA
 */
 
-#include <gtest/gtest.h>
-#include <NetcdfFile.h>
 
+#ifndef ABSTRACTDATARETIREVER_H_
+#define ABSTRACTDATARETIREVER_H_
 
-TEST(NetcdfFileTest, test)
+#include "RawData.h"
+#include <boost/shared_ptr.hpp>
+
+class AbstractDataRetriever
 {
-	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
-	const std::vector<NetcdfField::Ptr> & entries = ncFile.getFields();
+public:
+	typedef boost::shared_ptr<AbstractDataRetriever> Ptr;
 
-	// BEGRENSET
-//	*forecast_reference_time
-//	*altitude
-//	*air_temperature_2m
-//	*precipitation_amount
-//	latitude
-//	longitude
+	virtual ~AbstractDataRetriever() {}
 
-	// UBEGRENSET
-//	*forecast_reference_time
-//	projection_regular_ll
-//	*altitude
-//	*air_temperature_2m
-//	*precipitation_amount
+	virtual RawData operator() () const =0;
+};
 
-	for ( std::vector<NetcdfField::Ptr>::const_iterator it = entries.begin(); it != entries.end(); ++ it )
-		std::cout << (*it)->variableName() << std::endl;
 
-	EXPECT_EQ(5, entries.size());
-}
-
-TEST(NetcdfFileTest, testReferenceTime)
-{
-	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
-
-	EXPECT_EQ(time_from_postgresql_string("2013-05-21 12:00:00Z"), ncFile.referenceTime());
-}
+#endif /* ABSTRACTDATARETIREVER_H_ */

@@ -27,8 +27,8 @@
  */
 
 #include "NetcdfTranslator.h"
-#include "DataRetriever.h"
-#include <NetcdfField.h>
+#include "AbstractDataRetriever.h"
+#include <AbstractNetcdfField.h>
 #include <wdbLogHandler.h>
 #include <fimex/CDMReader.h>
 #include <fimex/Data.h>
@@ -46,7 +46,7 @@ NetcdfTranslator::~NetcdfTranslator()
 }
 
 
-std::vector<WriteQuery> NetcdfTranslator::queries(const NetcdfField & field) const
+std::vector<WriteQuery> NetcdfTranslator::queries(const AbstractNetcdfField & field) const
 {
 	std::vector<WriteQuery> ret;
 
@@ -59,14 +59,14 @@ std::vector<WriteQuery> NetcdfTranslator::queries(const NetcdfField & field) con
 		base.referenceTime(field.referenceTime());
 		setLocation_(base, field);
 
-		std::vector<int> realizations = field.realizations();
+		const std::vector<int> & realizations = field.realizations();
+		base.maxDataVersion(* std::max_element(realizations.begin(), realizations.end()));
 
 		base.valueParameterName(querySpec.wdbParameter());
 
 		base.levelParameterName(querySpec.level().name());
 		base.levelFrom(querySpec.level().value());
 		base.levelTo(querySpec.level().value());
-
 
 		const std::vector<Time> & times = field.times();
 		for ( unsigned timeIndex = 0; timeIndex < times.size(); ++ timeIndex )
@@ -78,7 +78,12 @@ std::vector<WriteQuery> NetcdfTranslator::queries(const NetcdfField & field) con
 			{
 				base.dataVersion(realization);
 
-				base.data(DataRetriever(loadElement, field, timeIndex, realization, querySpec));
+				//DataRetriever retriever(loadElement, field, timeIndex, realization, querySpec);
+
+				boost::shared_ptr<AbstractDataRetriever> retriever =
+						field.retriever(loadElement, timeIndex, realization, querySpec);
+
+				base.data(retriever);
 
 				ret.push_back(base);
 			}
@@ -87,7 +92,7 @@ std::vector<WriteQuery> NetcdfTranslator::queries(const NetcdfField & field) con
 	return ret;
 }
 
-void NetcdfTranslator::setLocation_(WriteQuery & out, const NetcdfField & field) const
+void NetcdfTranslator::setLocation_(WriteQuery & out, const AbstractNetcdfField & field) const
 {
 	if ( not conf_.loading().placeName.empty() )
 		out.placeName(conf_.loading().placeName);

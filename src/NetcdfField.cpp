@@ -28,9 +28,14 @@
 
 #include "NetcdfField.h"
 #include "NetcdfFile.h"
+#include "DataRetriever.h"
+#include "configuration/LoadElement.h"
+#include "configuration/parameter/DataSpecification.h"
+#include <wdbLogHandler.h>
 #include <fimex/CDMReader.h>
 #include <fimex/CDM.h>
 #include <fimex/CDMAttribute.h>
+#include <fimex/SliceBuilder.h>
 #include <fimex/Data.h>
 #include <fimex/DataDecl.h>
 #include <boost/foreach.hpp>
@@ -226,4 +231,12 @@ boost::shared_ptr<GridGeometry> NetcdfField::placeSpecification() const
 				GridGeometry(projDefinition, GridGeometry::LeftLowerHorizontal, xNum, yNum, xIncrement, yIncrement, startX, startY));
     }
     return boost::shared_ptr<GridGeometry>();
+}
+
+boost::shared_ptr<AbstractDataRetriever> NetcdfField::retriever(
+		const LoadElement & loadElement,
+		unsigned timeIndex, unsigned realizationIndex,
+		const DataSpecification & querySpec) const
+{
+	return boost::shared_ptr<AbstractDataRetriever>(new DataRetriever(loadElement, * this, reader_, timeIndex, realizationIndex, querySpec));
 }

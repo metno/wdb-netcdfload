@@ -26,38 +26,23 @@
  MA  02110-1301, USA
  */
 
-#ifndef NETCDFFIELD_H_
-#define NETCDFFIELD_H_
+#ifndef DERIVEDNETCDFFIELD_H_
+#define DERIVEDNETCDFFIELD_H_
 
 #include "AbstractNetcdfField.h"
-#include <fimex/DataDecl.h>
-#include <boost/shared_array.hpp>
 
-// remove?
-#include "RawData.h"
-
-
-namespace MetNoFimex
-{
-class SliceBuilder;
-}
-class NetcdfFile;
-
-/**
- * Part of a variable in a NetcdfFile, extracted to hold exactly one valid time and dataversion.
- */
-class NetcdfField : public AbstractNetcdfField
+class DerivedNetcdfField: public AbstractNetcdfField
 {
 public:
-
-	virtual ~NetcdfField();
+	DerivedNetcdfField(const std::string & variableName, Ptr source);
+	virtual ~DerivedNetcdfField();
 
 	virtual const std::string & variableName() const
 	{
 		return variableName_;
 	}
 
-	virtual const IndexList & indexes() const { return indexList_; }
+	virtual const IndexList & indexes() const;
 
 	virtual IndexList unHandledIndexes() const;
 
@@ -79,29 +64,9 @@ public:
 
 	virtual boost::shared_ptr<GridGeometry> placeSpecification() const;
 
-	virtual boost::shared_ptr<AbstractDataRetriever> retriever(
-			const LoadElement & loadElement,
-			unsigned timeIndex, unsigned realizationIndex,
-			const DataSpecification & querySpec) const;
-
-
 protected:
-	friend class NetcdfFile;
-	NetcdfField(const NetcdfFile & netcdfFile, boost::shared_ptr<MetNoFimex::CDMReader> reader, const std::string & variableName);
-
-	void rename(const std::string & newVariableName)
-	{
-		variableName_ = newVariableName;
-	}
-
-private:
-	NetcdfField(); // undefined
-
-	const NetcdfFile & netcdfFile_;
-	boost::shared_ptr<MetNoFimex::CDMReader> reader_;
 	std::string variableName_;
-	IndexList indexList_;
-	mutable std::map<std::string, boost::shared_array<double> > dimensionValues_;
+	Ptr source_;
 };
 
-#endif /* NETCDFFIELD_H_ */
+#endif /* DERIVEDNETCDFFIELD_H_ */

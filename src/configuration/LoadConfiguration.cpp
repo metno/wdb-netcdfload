@@ -28,7 +28,7 @@
 
 #include "LoadConfiguration.h"
 //#include "AutomaticLoadConfiguration.h"
-#include <NetcdfField.h>
+#include <AbstractNetcdfField.h>
 #include <wdbLogHandler.h>
 #include <boost/filesystem.hpp>
 #include <libxml/tree.h>
@@ -80,7 +80,7 @@ LoadConfiguration::~LoadConfiguration()
 
 
 
-std::vector<LoadElement> LoadConfiguration::getLoadElement(const NetcdfField & field) const
+std::vector<LoadElement> LoadConfiguration::getLoadElement(const AbstractNetcdfField & field) const
 {
 	std::vector<LoadElement> ret;
 
@@ -119,7 +119,7 @@ void LoadConfiguration::init_(xmlXPathContextPtr context)
     }
 }
 
-bool LoadConfiguration::getVariableLoadElement_(std::vector<LoadElement> & out, const NetcdfField & field) const
+bool LoadConfiguration::getVariableLoadElement_(std::vector<LoadElement> & out, const AbstractNetcdfField & field) const
 {
 	std::pair<LoadElementMap::const_iterator,LoadElementMap::const_iterator> find = variableLoadElements_.equal_range(field.variableName());
 	for ( LoadElementMap::const_iterator it = find.first; it != find.second; ++ it )
@@ -127,7 +127,7 @@ bool LoadConfiguration::getVariableLoadElement_(std::vector<LoadElement> & out, 
 		const LoadElement * loadElement = & it->second;
 
 		/// Indexes in field (name->size)
-		const NetcdfField::IndexList & fieldIndexes = field.unHandledIndexes();
+		const AbstractNetcdfField::IndexList & fieldIndexes = field.unHandledIndexes();
 
 		/// Indexes specified in configuration (name->value)
 		const LoadElement::IndexNameToValue & configIndexes = loadElement->indicesToLoad();
@@ -139,7 +139,7 @@ bool LoadConfiguration::getVariableLoadElement_(std::vector<LoadElement> & out, 
 		}
 		else if ( configIndexes.size() == fieldIndexes.size() )
 		{
-			for ( NetcdfField::IndexList::const_iterator fieldIndex = fieldIndexes.begin(); fieldIndex != fieldIndexes.end(); ++ fieldIndex )
+			for ( AbstractNetcdfField::IndexList::const_iterator fieldIndex = fieldIndexes.begin(); fieldIndex != fieldIndexes.end(); ++ fieldIndex )
 			{
 				const std::string & indexName = fieldIndex->first;
 				LoadElement::IndexNameToValue::const_iterator configIndex = configIndexes.find(indexName);
@@ -160,7 +160,7 @@ bool LoadConfiguration::getVariableLoadElement_(std::vector<LoadElement> & out, 
 	return find.first != find.second;
 }
 
-bool LoadConfiguration::getStandardNameLoadElement_(std::vector<LoadElement> & out, const NetcdfField & field) const
+bool LoadConfiguration::getStandardNameLoadElement_(std::vector<LoadElement> & out, const AbstractNetcdfField & field) const
 {
 	return false;
 }

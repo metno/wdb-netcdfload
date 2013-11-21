@@ -37,7 +37,8 @@ WriteQuery::WriteQuery() :
 	referenceTime_(INVALID_TIME),
 	validTimeFrom_(INVALID_TIME),
 	validTimeTo_(INVALID_TIME),
-	dataVersion_(0)
+	dataVersion_(0),
+	maxDataVersion_(0)
 {
 }
 
@@ -47,7 +48,12 @@ WriteQuery::~WriteQuery()
 
 std::ostream & WriteQuery::list(std::ostream & out) const
 {
-	out << dataProvider_ << '\t';
+	RawData rawData = (*function_)();
+	if ( rawData.valid() and rawData.numberOfValues == 1 )
+		out << rawData.data[0] << '\t';
+	else
+		out << "<data>\t";
+
 	if ( not placeName_.empty() )
 		out << placeName_;
 	else if ( location_ )
@@ -62,14 +68,19 @@ std::ostream & WriteQuery::list(std::ostream & out) const
 	out << levelParameterName_ << '\t';
 	out << levelFrom_ << '\t';
 	out << levelTo_ << '\t';
-	out << dataVersion_ << '\n';
+	if ( maxDataVersion_ )
+	{
+		out << dataVersion_ << '\t';
+		out << maxDataVersion_;
+	}
+	out << '\n';
 
 	return out;
 }
 
 void WriteQuery::write(wdb::load::LoaderDatabaseConnection & wdbConnection) const
 {
-	RawData rawData = function_();
+	RawData rawData = (*function_)();
 	if ( not rawData.valid() )
 		return;
 

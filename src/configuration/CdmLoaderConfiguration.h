@@ -30,6 +30,7 @@
 #define CDMLOADERCONFIGURATION_H_
 
 #include <wdb/LoaderConfiguration.h>
+#include <boost/lexical_cast.hpp>
 
 
 class CdmLoaderConfiguration : public wdb::load::LoaderConfiguration
@@ -42,12 +43,28 @@ public:
 	const std::string & fileTypeConfiguration() const { return fileTypeConfiguration_; }
 	const std::string & loadConfiguration() const { return loadConfiguration_; }
 
+	class Point
+	{
+	public:
+		double longitude() const;
+		double latitude() const;
+	private:
+		friend class CdmLoaderConfiguration;
+
+		// We use string types here to avoid any inconsistencies with rounding
+		std::string longitude_;
+		std::string latitude_;
+	};
+	const Point * point() const;
+
 	virtual void parse( int argc, char ** argv );
 
 private:
 	std::string fileType_;
 	std::string fileTypeConfiguration_;
 	std::string loadConfiguration_;
+
+	Point point_;
 };
 
 #endif /* CDMLOADERCONFIGURATION_H_ */

@@ -27,11 +27,14 @@
  */
 
 #include "NetcdfFile.h"
+#include "ForceConvertingNetcdfField.h"
+#include "DirectionConvertingNetcdfField.h"
 #include <fimex/CDMFileReaderFactory.h>
 #include <fimex/CDMReaderUtils.h>
 #include <fimex/CDM.h>
 #include <fimex/CDMDimension.h>
 #include <fimex/CDMVariable.h>
+#include <fimex/CDMInterpolator.h>
 #include <boost/date_time.hpp>
 #include <boost/foreach.hpp>
 
@@ -54,6 +57,35 @@ NetcdfFile::~NetcdfFile()
 }
 
 
+namespace
+{
+class FieldAdapter
+{
+public:
+	template<typename Field>
+	NetcdfField::Ptr get(const CDMVariable & var, NetcdfField::Ptr field, const std::string & name)
+	{
+		NetcdfField::Ptr & ret = fields_[name];
+		if ( ! ret )
+			ret = NetcdfField::Ptr(new Field(name));
+		Field * f = dynamic_cast<Field *>(ret.get());
+		if ( var.getSpatialVectorDirection()[0] == 'x' )
+			f->setX(field);
+		else
+			f->setY(field);
+
+		if ( f->ready() )
+			return ret;
+
+		return NetcdfField::Ptr();
+	}
+
+private:
+	std::map<std::string, NetcdfField::Ptr> fields_;
+};
+
+}
+
 std::vector<NetcdfField::Ptr> NetcdfFile::getFields() const
 {
 	std::vector<NetcdfField::Ptr> ret;
@@ -65,16 +97,32 @@ std::vector<NetcdfField::Ptr> NetcdfFile::getFields() const
 	BOOST_FOREACH(const CDMDimension & dimension, dims)
 		dimensions.insert(dimension.getName());
 
+//	std::map<std::string, NetcdfField::Ptr> fields;
+	FieldAdapter adapter;
+
 	BOOST_FOREACH(const CDMVariable & var, cdm.getVariables())
 	{
-		if ( dimensions.find(var.getName()) != dimensions.end() )
+		std::string variableName = var.getName();
+
+		if ( dimensions.find(variableName) != dimensions.end() )
 			continue;
 
-		NetcdfField::Ptr field(new NetcdfField(* this, reader_, var.getName()));
+		NetcdfField::Ptr field(new NetcdfField(* this, reader_, variableName));
 		ret.push_back(field);
-	}
 
-	//NetcdfField::get(ret, reader_, * this);
+		if ( var.isSpatialVector() )
+		{
+			//const std::string & other = var.getSpatialVectorCounterpart();
+
+			NetcdfField::Ptr p;
+			p = adapter.get<ForceConvertingNetcdfField>(var, field, "wind_speed");
+			if ( p )
+				ret.push_back(p);
+			p = adapter.get<DirectionConvertingNetcdfField>(var, field, "wind_from_direction");
+			if ( p )
+				ret.push_back(p);
+		}
+	}
 
 	return ret;
 }
@@ -87,4 +135,15 @@ NetcdfField::Ptr NetcdfFile::getField(const std::string & variableName) const
 			return field;
 	}
 	throw std::runtime_error(variableName + ": no such variable found");
+}
+
+void NetcdfFile::setPointFilter(double longitude, double latitude)
+{
+	std::vector<double> lon(1, longitude);
+	std::vector<double> lat(1, latitude);
+
+	CDMInterpolator * interpolator = new CDMInterpolator(reader_);
+	interpolator->changeProjection(MIFI_INTERPOL_BILINEAR, lon, lat);
+
+	reader_ = boost::shared_ptr<MetNoFimex::CDMReader>(interpolator);
 }

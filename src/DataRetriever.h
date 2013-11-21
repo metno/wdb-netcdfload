@@ -30,13 +30,14 @@
 #ifndef DATARETRIEVER_H_
 #define DATARETRIEVER_H_
 
+#include "AbstractDataRetriever.h"
 #include "WriteQuery.h"
 #include "configuration/LoadElement.h"
 #include "configuration/parameter/DataSpecification.h"
 #include <fimex/DataDecl.h>
 #include <boost/shared_ptr.hpp>
 
-class NetcdfField;
+class AbstractNetcdfField;
 
 namespace MetNoFimex
 {
@@ -45,19 +46,23 @@ class SliceBuilder;
 }
 
 
-class DataRetriever
+class DataRetriever : public AbstractDataRetriever
 {
 public:
-	DataRetriever(const LoadElement & loadElement, const NetcdfField & field, unsigned timeIndex, unsigned realizationIndex,
+	DataRetriever(const LoadElement & loadElement,
+			const AbstractNetcdfField & field,
+			boost::shared_ptr<MetNoFimex::CDMReader> reader,
+			unsigned timeIndex, unsigned realizationIndex,
 			const DataSpecification & querySpec);
 
-	WriteQuery::RawData operator() () const;
+	virtual RawData operator() () const;
 
 private:
 	MetNoFimex::DataPtr readData_(boost::shared_ptr<MetNoFimex::CDMReader> reader, const MetNoFimex::SliceBuilder & slicer) const;
 
 	LoadElement loadElement_;
-	const NetcdfField & field_;
+	const AbstractNetcdfField & field_;
+	boost::shared_ptr<MetNoFimex::CDMReader> reader_;
 	unsigned timeIndex_;
 	unsigned realizationIndex_;
 	DataSpecification querySpec_;

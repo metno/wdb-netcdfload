@@ -89,32 +89,42 @@ int main(int argc, char ** argv)
 	wdb::WdbLogHandler logHandler(conf.logging().loglevel,
 			conf.logging().logfile);
 
-	try
-	{
+//	try
+//	{
 		boost::scoped_ptr<wdb::load::LoaderDatabaseConnection> wdbConnection(
 				conf.output().list ? 0 : new wdb::load::LoaderDatabaseConnection(conf));
+
+		if ( conf.output().list )
+		{
+			std::cout << conf.loading().dataProvider;
+			if ( conf.point() )
+				std::cout << "\t88,0,88";
+			std::cout << '\n';
+		}
 
 		NetcdfTranslator translator(conf);
 		BOOST_FOREACH(const std::string & file, conf.input().file)
 		{
 			NetcdfFile toLoad(file, conf.fileTypeConfiguration(), conf.fileType());
+			if ( conf.point() )
+				toLoad.setPointFilter(conf.point()->longitude(), conf.point()->latitude());
 			BOOST_FOREACH(const NetcdfField::Ptr & field, toLoad.getFields())
 			{
 				BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
 				{
-
 					if ( conf.output().list )
-						query.list();
+						query.list(std::cout);
 					else
 						query.write(* wdbConnection);
 				}
 			}
+			std::cout << '\n';
 		}
-	}
-	catch (std::exception& e)
-	{
-		WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
-		log.fatal(e.what());
-		return 1;
-	}
+//	}
+//	catch (std::exception& e)
+//	{
+//		WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+//		log.fatal(e.what());
+//		return 1;
+//	}
 }
