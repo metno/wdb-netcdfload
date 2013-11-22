@@ -105,10 +105,10 @@ int main(int argc, char ** argv)
 		NetcdfTranslator translator(conf);
 		BOOST_FOREACH(const std::string & file, conf.input().file)
 		{
-			NetcdfFile toLoad(file, conf.fileTypeConfiguration(), conf.fileType());
+			NetcdfFile toLoad(file, conf.fileTypeConfiguration(), conf.fileType(), translator.loadConfiguration().vectorConversions());
 			if ( conf.point() )
 				toLoad.setPointFilter(conf.point()->longitude(), conf.point()->latitude());
-			BOOST_FOREACH(const NetcdfField::Ptr & field, toLoad.getFields())
+			BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, toLoad.getFields())
 			{
 				BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
 				{

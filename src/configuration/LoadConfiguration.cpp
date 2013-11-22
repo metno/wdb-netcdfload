@@ -71,7 +71,8 @@ LoadConfiguration::LoadConfiguration(const boost::filesystem::path& translationF
     if (not xpathCtx)
         throw std::runtime_error("unable to create xpath context");
 
-    init_(xpathCtx.get());
+    initLoadElements_(xpathCtx.get());
+	initConversionElements_(xpathCtx.get());
 }
 
 LoadConfiguration::~LoadConfiguration()
@@ -90,7 +91,7 @@ std::vector<LoadElement> LoadConfiguration::getLoadElement(const AbstractNetcdfF
 	return ret;
 }
 
-void LoadConfiguration::init_(xmlXPathContextPtr context)
+void LoadConfiguration::initLoadElements_(xmlXPathContextPtr context)
 {
 	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf.configuration");
 
@@ -116,6 +117,67 @@ void LoadConfiguration::init_(xmlXPathContextPtr context)
         	standardNameLoadElements_.insert(std::make_pair(loadElement.variableName(), loadElement));
         else
     		log.warnStream() << "Element configuration without variable_name or standard_name";
+    }
+}
+
+namespace {
+
+    bool equal(double a, double b)
+    {
+        return fabs(a - b) < 0.000001;
+    }
+
+    /**
+     * return an empty string if attribute does not exist
+     */
+    std::string getAttributeNoThrow(xmlNodePtr elementNode, const std::string & name)
+    {
+        for ( xmlAttrPtr attr = elementNode->properties; attr; attr = attr->next )
+                if ( xmlStrEqual(attr->name,(xmlChar*) name.c_str()) )
+                        return (char*) attr->children->content;
+        return std::string();
+    }
+
+    std::string getAttribute(xmlNodePtr elementNode, const std::string & name, const std::string alternative = std::string())
+    {
+    	std::string ret = getAttributeNoThrow(elementNode, name);
+    	if ( not ret.empty() )
+    		return ret;
+
+        if ( not alternative.empty() )
+                return alternative;
+        throw std::runtime_error("Missing attribute " + name);
+    }
+} // end namespace
+
+void LoadConfiguration::initConversionElements_(xmlXPathContextPtr context)
+{
+	boost::shared_ptr<xmlXPathObject>
+            xpathObjLoad(xmlXPathEvalExpression((const xmlChar *) "/netcdfloadconfiguration/conversions/vector", context),
+                     xmlXPathFreeObject);
+
+    if(not xpathObjLoad)
+        return;
+
+    xmlNodeSetPtr nodesLoad = xpathObjLoad->nodesetval;
+
+    for ( int i = 0; i < nodesLoad->nodeNr; ++ i )
+    {
+        xmlNodePtr elementNode =  nodesLoad->nodeTab[i];
+        if ( elementNode->type != XML_ELEMENT_NODE )
+            throw std::runtime_error("Expected element node");
+
+        VectorConversion conversion;
+        conversion.xElement = getAttribute(elementNode, "x");
+        conversion.yElement = getAttribute(elementNode, "y");
+        for(xmlNodePtr subNode = elementNode->children; subNode; subNode = subNode->next)
+        {
+            if(xmlStrEqual(subNode->name, (xmlChar*) "speed"))
+                conversion.speed = getAttribute(subNode, "name");
+            else if(xmlStrEqual(subNode->name, (xmlChar*) "direction"))
+            	conversion.direction = getAttribute(subNode, "name");
+        }
+        vectorConversions_.push_back(conversion);
     }
 }
 

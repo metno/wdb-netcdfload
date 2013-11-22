@@ -30,6 +30,7 @@
 #define LOADCONFIGURATION_H_
 
 #include "LoadElement.h"
+#include "Conversions.h"
 #include <boost/filesystem/path.hpp>
 #include <vector>
 #include <map>
@@ -55,17 +56,21 @@ class LoadConfiguration
 	 */
 	std::vector<LoadElement> getLoadElement(const AbstractNetcdfField & field) const;
 
+	const std::vector<VectorConversion> & vectorConversions() const { return vectorConversions_; }
+
 private:
-	void init_(xmlXPathContextPtr context);
+	void initLoadElements_(xmlXPathContextPtr context);
+	void initConversionElements_(xmlXPathContextPtr context);
 
 	typedef std::multimap<std::string, LoadElement> LoadElementMap;
 
 	bool getVariableLoadElement_(std::vector<LoadElement> & out, const AbstractNetcdfField & field) const;
 	bool getStandardNameLoadElement_(std::vector<LoadElement> & out, const AbstractNetcdfField & field) const;
 
-
 	LoadElementMap variableLoadElements_;
 	LoadElementMap standardNameLoadElements_;
+
+	std::vector<VectorConversion> vectorConversions_;
 };
 
 #endif /* LOADCONFIGURATION_H_ */

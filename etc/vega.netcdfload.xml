@@ -31,7 +31,7 @@
 		</wdb>
 	</load>
 	<load>
-		<netcdf variable_name="wind_speed"/>
+		<netcdf variable_name="wind_speed" />
 		<wdb name="wind speed" units="m/s">
 			<level name="height above ground" value="10" />
 		</wdb>
@@ -42,7 +42,8 @@
 			<level name="height above ground" value="10" />
 		</wdb>
 	</load>
-	
+
+	<!-- 	
 	<load>
 		<netcdf variable_name="x_wind_10m"/>
 		<wdb name="x wind" units="m/s">
@@ -55,6 +56,7 @@
 			<level name="height above ground" value="10" />
 		</wdb>
 	</load>
+	-->
 
 	<load>
 		<netcdf variable_name="cloud_area_fraction_in_atmosphere_layer">
@@ -94,5 +96,11 @@
 		<wdb name="air pressure at sea level" units="Pa"/>
 	</load>
 
-
+	<conversions>
+		<vector x="x_wind_10m" y="y_wind_10m">
+			<speed name="wind_speed" />
+			<direction name="wind_from_direction" />
+		</vector>
+	</conversions>
+	
 </netcdfloadconfiguration>

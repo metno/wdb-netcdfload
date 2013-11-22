@@ -3,6 +3,8 @@ MAIN_SOURCES = \
 	src/localtime.cpp \
 	src/NetcdfFile.h \
 	src/NetcdfFile.cpp \
+	src/VariableConversion.h \
+	src/VariableConversion.cpp \
 	src/AbstractNetcdfField.h \
 	src/NetcdfField.h \
 	src/NetcdfField.cpp \
@@ -25,6 +27,7 @@ MAIN_SOURCES = \
 	src/configuration/LoadElement.cpp \
 	src/configuration/LoadConfiguration.h \
 	src/configuration/LoadConfiguration.cpp \
+	src/configuration/Conversions.h \
 	src/configuration/parameter/DataSpecification.h \
 	src/configuration/parameter/DataSpecification.cpp \
 	src/configuration/parameter/TimeSpecification.h \

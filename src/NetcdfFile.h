@@ -29,8 +29,9 @@
 #ifndef NETCDFFILE_H_
 #define NETCDFFILE_H_
 
-#include "NetcdfField.h"
+#include "AbstractNetcdfField.h"
 #include "localtime.h"
+#include "configuration/Conversions.h"
 #include <boost/shared_ptr.hpp>
 #include <string>
 #include <iosfwd>
@@ -47,12 +48,12 @@ class CDMReader;
 class NetcdfFile
 {
 public:
-	NetcdfFile(const std::string & fileName, const std::string & configurationFile, const std::string & fileType = "netcdf");
+	NetcdfFile(const std::string & fileName, const std::string & configurationFile, const std::string & fileType = "netcdf", const std::vector<VectorConversion> & conversions = std::vector<VectorConversion>());
 	~NetcdfFile();
 
-	std::vector<NetcdfField::Ptr> getFields() const;
+	std::vector<AbstractNetcdfField::Ptr> getFields() const;
 
-	NetcdfField::Ptr getField(const std::string & variableName) const;
+	AbstractNetcdfField::Ptr getField(const std::string & variableName) const;
 
 	Time referenceTime() const { return referenceTime_; }
 
@@ -64,6 +65,7 @@ public:
 private:
 	boost::shared_ptr<MetNoFimex::CDMReader> reader_;
 	Time referenceTime_;
+	const std::vector<VectorConversion> conversions_;
 };
 
 

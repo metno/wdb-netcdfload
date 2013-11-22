@@ -47,6 +47,8 @@ public:
 
 	std::vector<WriteQuery> queries(const AbstractNetcdfField & field) const;
 
+	const LoadConfiguration & loadConfiguration() const { return loadConfiguration_; }
+
 private:
 	void setLocation_(WriteQuery & out, const AbstractNetcdfField & field) const;
 

@@ -26,39 +26,18 @@
     MA  02110-1301, USA
 */
 
-#include <gtest/gtest.h>
-#include <NetcdfFile.h>
+
+#ifndef CONVERSIONS_H_
+#define CONVERSIONS_H_
 
 
-TEST(NetcdfFileTest, test)
+struct VectorConversion
 {
-	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
-	const std::vector<AbstractNetcdfField::Ptr> & entries = ncFile.getFields();
+	std::string xElement;
+	std::string yElement;
+	std::string speed;
+	std::string direction;
+};
 
-	// BEGRENSET
-//	*forecast_reference_time
-//	*altitude
-//	*air_temperature_2m
-//	*precipitation_amount
-//	latitude
-//	longitude
 
-	// UBEGRENSET
-//	*forecast_reference_time
-//	projection_regular_ll
-//	*altitude
-//	*air_temperature_2m
-//	*precipitation_amount
-
-	for ( std::vector<AbstractNetcdfField::Ptr>::const_iterator it = entries.begin(); it != entries.end(); ++ it )
-		std::cout << (*it)->variableName() << std::endl;
-
-	EXPECT_EQ(5, entries.size());
-}
-
-TEST(NetcdfFileTest, testReferenceTime)
-{
-	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
-
-	EXPECT_EQ(time_from_postgresql_string("2013-05-21 12:00:00Z"), ncFile.referenceTime());
-}
+#endif /* CONVERSIONS_H_ */

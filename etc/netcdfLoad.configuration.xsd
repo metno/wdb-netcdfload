@@ -50,9 +50,33 @@
 		</xs:sequence>
 	</xs:complexType>
 
+	<xs:complexType name="conversion_target_type">
+		<xs:attribute name="name" type="xs:string" use="required" />
+	</xs:complexType>
+	
+	<xs:complexType name="vector_conversion_type">
+		<xs:sequence>
+			<xs:element name="speed" type="conversion_target_type"
+				minOccurs="0" maxOccurs="1" />
+			<xs:element name="direction" type="conversion_target_type"
+				minOccurs="0" maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="x" use="required" />
+		<xs:attribute name="y" use="required" />
+	</xs:complexType>
+	
+	<xs:complexType name="conversion_type">
+		<xs:sequence>
+			<xs:element name="vector" type="vector_conversion_type"
+				minOccurs="0" maxOccurs="unbounded" />			
+		</xs:sequence>
+	</xs:complexType>
+
 	<xs:complexType name="netcdfloadconfiguration_type">
 		<xs:sequence>
 			<xs:element name="load" type="load_type"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="conversions" 
 				minOccurs="0" maxOccurs="unbounded" />
 		</xs:sequence>
 	</xs:complexType>

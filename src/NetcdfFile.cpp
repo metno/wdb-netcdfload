@@ -27,8 +27,10 @@
  */
 
 #include "NetcdfFile.h"
+#include "NetcdfField.h"
 #include "ForceConvertingNetcdfField.h"
 #include "DirectionConvertingNetcdfField.h"
+#include "VariableConversion.h"
 #include <fimex/CDMFileReaderFactory.h>
 #include <fimex/CDMReaderUtils.h>
 #include <fimex/CDM.h>
@@ -42,8 +44,9 @@
 using namespace MetNoFimex;
 
 
-NetcdfFile::NetcdfFile(const std::string & fileName, const std::string & configurationFile, const std::string & fileType) :
-	referenceTime_(INVALID_TIME)
+NetcdfFile::NetcdfFile(const std::string & fileName, const std::string & configurationFile, const std::string & fileType, const std::vector<VectorConversion> & conversions) :
+	referenceTime_(INVALID_TIME),
+	conversions_(conversions)
 {
     reader_ = MetNoFimex::CDMFileReaderFactory::create(fileType, fileName, configurationFile);
 
@@ -63,12 +66,18 @@ class FieldAdapter
 {
 public:
 	template<typename Field>
-	NetcdfField::Ptr get(const CDMVariable & var, NetcdfField::Ptr field, const std::string & name)
+	AbstractNetcdfField::Ptr get(const CDMVariable & var, AbstractNetcdfField::Ptr field, const std::string & name)
 	{
-		NetcdfField::Ptr & ret = fields_[name];
+		AbstractNetcdfField::Ptr & ret = fields_[name];
+		Field * f;
 		if ( ! ret )
-			ret = NetcdfField::Ptr(new Field(name));
-		Field * f = dynamic_cast<Field *>(ret.get());
+		{
+			f = new Field(name);
+			ret = AbstractNetcdfField::Ptr(f);
+		}
+		else
+			f = dynamic_cast<Field *>(ret.get());
+
 		if ( var.getSpatialVectorDirection()[0] == 'x' )
 			f->setX(field);
 		else
@@ -77,18 +86,20 @@ public:
 		if ( f->ready() )
 			return ret;
 
-		return NetcdfField::Ptr();
+		return AbstractNetcdfField::Ptr();
 	}
 
 private:
-	std::map<std::string, NetcdfField::Ptr> fields_;
+	std::map<std::string, AbstractNetcdfField::Ptr> fields_;
 };
 
 }
 
-std::vector<NetcdfField::Ptr> NetcdfFile::getFields() const
+std::vector<AbstractNetcdfField::Ptr> NetcdfFile::getFields() const
 {
-	std::vector<NetcdfField::Ptr> ret;
+	std::vector<AbstractNetcdfField::Ptr> ret;
+
+	VariableConversion conversions(conversions_);
 
 	const CDM & cdm = reader_->getCDM();
 
@@ -97,7 +108,7 @@ std::vector<NetcdfField::Ptr> NetcdfFile::getFields() const
 	BOOST_FOREACH(const CDMDimension & dimension, dims)
 		dimensions.insert(dimension.getName());
 
-//	std::map<std::string, NetcdfField::Ptr> fields;
+//	std::map<std::string, AbstractNetcdfField::Ptr> fields;
 	FieldAdapter adapter;
 
 	BOOST_FOREACH(const CDMVariable & var, cdm.getVariables())
@@ -107,14 +118,19 @@ std::vector<NetcdfField::Ptr> NetcdfFile::getFields() const
 		if ( dimensions.find(variableName) != dimensions.end() )
 			continue;
 
-		NetcdfField::Ptr field(new NetcdfField(* this, reader_, variableName));
+		AbstractNetcdfField::Ptr field(new NetcdfField(* this, reader_, variableName));
 		ret.push_back(field);
 
+#define NEW_CONVERSION
+#ifdef NEW_CONVERSION
+		BOOST_FOREACH( AbstractNetcdfField::Ptr p, conversions.add(field) )
+			ret.push_back(p);
+#else
 		if ( var.isSpatialVector() )
 		{
 			//const std::string & other = var.getSpatialVectorCounterpart();
 
-			NetcdfField::Ptr p;
+			AbstractNetcdfField::Ptr p;
 			p = adapter.get<ForceConvertingNetcdfField>(var, field, "wind_speed");
 			if ( p )
 				ret.push_back(p);
@@ -122,14 +138,15 @@ std::vector<NetcdfField::Ptr> NetcdfFile::getFields() const
 			if ( p )
 				ret.push_back(p);
 		}
+#endif
 	}
 
 	return ret;
 }
 
-NetcdfField::Ptr NetcdfFile::getField(const std::string & variableName) const
+AbstractNetcdfField::Ptr NetcdfFile::getField(const std::string & variableName) const
 {
-	BOOST_FOREACH(const NetcdfField::Ptr & field, getFields())
+	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, getFields())
 	{
 		if ( field->variableName() == variableName )
 			return field;
