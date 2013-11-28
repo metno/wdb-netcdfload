@@ -114,7 +114,7 @@ void CdmLoaderConfiguration::parse( int argc, char ** argv )
     	if ( loading_.placeName.empty() )
     	{
     		std::ostringstream s;
-    		s << "POINT(" << point_.longitude_ << ' ' << point_.latitude_ << ')';
+    		s << "point(" << point_.longitude_ << ' ' << point_.latitude_ << ')';
     		loading_.placeName = s.str();
     	}
 	}

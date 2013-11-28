@@ -105,7 +105,9 @@ std::string time_to_postgresql_string(const Time & t)
 		return "-infinity";
 
     ostringstream ret;
-    ret << t.local_time() << t.zone()->to_posix_string();
+    boost::gregorian::date_facet * df = new boost::gregorian::date_facet("%Y-%m-%d");
+    ret.imbue(std::locale(ret.getloc(), df));
+    ret << t.date() << 'T' << t.time_of_day() << 'Z';
 
     return ret.str();
 }
