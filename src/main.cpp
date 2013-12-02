@@ -61,6 +61,48 @@ ostream & help(ostream& out,
 	out << options << endl;
 	return out;
 }
+
+void list(const AbstractNetcdfField::Ptr field, const NetcdfTranslator & translator)
+{
+	BOOST_FOREACH(WriteQuery query, translator.queries(* field))
+		query.list(std::cout);
+}
+
+void list(const NetcdfFile & file, const NetcdfTranslator & translator)
+{
+	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, file.getFields())
+		list(field, translator);
+}
+
+void list(const AbstractNetcdfField::Ptr field, const NetcdfTranslator & translator, const std::vector<CdmLoaderConfiguration::Point> & points)
+{
+	BOOST_FOREACH(const WriteQuery & query, translator.queries(* field, points))
+		query.list(std::cout);
+}
+
+void list(NetcdfFile & file, const NetcdfTranslator & translator, const std::vector<CdmLoaderConfiguration::Point> & points)
+{
+	std::vector<double> longitude;
+	std::vector<double> latitude;
+	BOOST_FOREACH ( const CdmLoaderConfiguration::Point & point, points )
+	{
+		longitude.push_back(point.longitude());
+		latitude.push_back(point.latitude());
+	}
+	file.setPointFilter(longitude, latitude);
+
+	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, file.getFields())
+		list(field, translator, points);
+}
+
+void write(const std::vector<AbstractNetcdfField::Ptr> & fields, NetcdfTranslator & translator,
+		wdb::load::LoaderDatabaseConnection & wdbConnection)
+{
+	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, fields)
+		BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
+				query.write(wdbConnection);
+}
+
 }
 
 int main(int argc, char ** argv)
@@ -97,7 +139,7 @@ int main(int argc, char ** argv)
 		if ( conf.output().list )
 		{
 			std::cout << conf.loading().dataProvider;
-			if ( conf.point() )
+			if ( conf.points() )
 				std::cout << "\t88,0,88";
 			std::cout << '\n';
 		}
@@ -106,19 +148,21 @@ int main(int argc, char ** argv)
 		BOOST_FOREACH(const std::string & file, conf.input().file)
 		{
 			NetcdfFile toLoad(file, conf.fileTypeConfiguration(), conf.fileType(), translator.loadConfiguration().vectorConversions());
-			if ( conf.point() )
-				toLoad.setPointFilter(conf.point()->longitude(), conf.point()->latitude());
-			BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, toLoad.getFields())
+
+			if ( conf.points() )
 			{
-				BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
-				{
-					if ( conf.output().list )
-						query.list(std::cout);
-					else
-						query.write(* wdbConnection);
-				}
+				if ( conf.output().list )
+					list(toLoad, translator, * conf.points());
+				else
+					throw std::runtime_error("point extraction is not supported when directly loading into wdb");
 			}
-			std::cout << '\n';
+			else
+			{
+				if ( conf.output().list )
+					list(toLoad, translator);
+				else
+					write(toLoad.getFields(), translator, * wdbConnection);
+			}
 		}
 //	}
 //	catch (std::exception& e)

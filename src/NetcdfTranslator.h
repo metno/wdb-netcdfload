@@ -46,11 +46,13 @@ public:
 	~NetcdfTranslator();
 
 	std::vector<WriteQuery> queries(const AbstractNetcdfField & field) const;
+	std::vector<WriteQuery> queries(const AbstractNetcdfField & field, const std::vector<CdmLoaderConfiguration::Point> & points) const;
 
 	const LoadConfiguration & loadConfiguration() const { return loadConfiguration_; }
 
 private:
 	void setLocation_(WriteQuery & out, const AbstractNetcdfField & field) const;
+	WriteQuery adaptQuery_(WriteQuery query, const CdmLoaderConfiguration::Point & point, float value) const;
 
 	CdmLoaderConfiguration conf_;
 	LoadConfiguration loadConfiguration_;

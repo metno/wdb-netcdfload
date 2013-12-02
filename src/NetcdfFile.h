@@ -62,8 +62,12 @@ public:
 	 */
 	void setPointFilter(double longitude, double latitude);
 
+	void setPointFilter(const std::vector<double> & longitude, const std::vector<double> & latitude);
+
 private:
-	boost::shared_ptr<MetNoFimex::CDMReader> reader_;
+	boost::shared_ptr<MetNoFimex::CDMReader> baseReader_;
+	boost::shared_ptr<MetNoFimex::CDMReader> usedReader_;
+
 	Time referenceTime_;
 	const std::vector<VectorConversion> conversions_;
 };

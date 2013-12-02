@@ -70,6 +70,12 @@ public:
 
 	void loadPlaceDefinition(bool doLoad) { loadPlaceDefinition_ = doLoad; }
 
+	RawData data() const
+	{
+		return (*function_)();
+	}
+
+
 private:
 	AbstractDataRetriever::Ptr function_;
 	std::string dataProvider_;

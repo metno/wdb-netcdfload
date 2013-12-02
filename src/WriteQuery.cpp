@@ -32,11 +32,11 @@
 
 WriteQuery::WriteQuery() :
 	loadPlaceDefinition_(false),
-	levelFrom_(0),
-	levelTo_(0),
 	referenceTime_(INVALID_TIME),
 	validTimeFrom_(INVALID_TIME),
 	validTimeTo_(INVALID_TIME),
+	levelFrom_(0),
+	levelTo_(0),
 	dataVersion_(0),
 	maxDataVersion_(0)
 {
@@ -50,7 +50,12 @@ std::ostream & WriteQuery::list(std::ostream & out) const
 {
 	RawData rawData = (*function_)();
 	if ( rawData.valid() and rawData.numberOfValues == 1 )
-		out << rawData.data[0] << '\t';
+	{
+		float value = rawData.data[0];
+		if ( value != value ) // NaN
+			return out;
+		out << value << '\t';
+	}
 	else
 		out << "<data>\t";
 

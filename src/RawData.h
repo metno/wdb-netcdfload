@@ -38,7 +38,7 @@
  */
 struct RawData
 {
-	RawData() : numberOfValues(0) {}
+	RawData() : numberOfValues(0), data(0) {}
 	bool valid() const { return data; }
 
 	unsigned numberOfValues;

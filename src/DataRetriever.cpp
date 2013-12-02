@@ -52,8 +52,6 @@ RawData DataRetriever::operator() () const
 
 	RawData ret;
 
-	//std::clog << field_.variableName() << std::endl;
-
 	MetNoFimex::SliceBuilder slicer(reader_->getCDM(), field_.variableName());
 
 	const std::string & timeDimension = field_.timeDimension();

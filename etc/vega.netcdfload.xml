@@ -5,10 +5,12 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="netcdfLoad.configuration.xsd">
 
+	<!--
 	<load>
 		<netcdf variable_name="altitude" />
 		<wdb name="altitude" units="m" validfrom="-infinity" validto="infinity"/>
 	</load>
+	-->
 
 	<load>
 		<netcdf variable_name="precipitation_amount"/>

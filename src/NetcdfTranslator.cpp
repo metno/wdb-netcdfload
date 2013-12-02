@@ -78,8 +78,6 @@ std::vector<WriteQuery> NetcdfTranslator::queries(const AbstractNetcdfField & fi
 			{
 				base.dataVersion(realization);
 
-				//DataRetriever retriever(loadElement, field, timeIndex, realization, querySpec);
-
 				boost::shared_ptr<AbstractDataRetriever> retriever =
 						field.retriever(loadElement, timeIndex, realization, querySpec);
 
@@ -92,10 +90,53 @@ std::vector<WriteQuery> NetcdfTranslator::queries(const AbstractNetcdfField & fi
 	return ret;
 }
 
+std::vector<WriteQuery> NetcdfTranslator::queries(const AbstractNetcdfField & field, const std::vector<CdmLoaderConfiguration::Point> & points) const
+{
+	std::vector<WriteQuery> ret;
+	BOOST_FOREACH(const WriteQuery & query, queries(field))
+	{
+		const RawData & data = query.data();
+		for ( int i = 0; i < points.size(); ++ i )
+			ret.push_back(adaptQuery_(query, points[i], data.data[i]));
+	}
+	return ret;
+}
+
 void NetcdfTranslator::setLocation_(WriteQuery & out, const AbstractNetcdfField & field) const
 {
 	if ( not conf_.loading().placeName.empty() )
 		out.placeName(conf_.loading().placeName);
 	out.location(field.placeSpecification());
 	out.loadPlaceDefinition(conf_.loading().loadPlaceDefinition);
+}
+
+
+namespace
+{
+class IndexedDataRetriever : public AbstractDataRetriever
+{
+public:
+	IndexedDataRetriever(float val) :
+		val_(val)
+	{}
+
+	virtual RawData operator() () const
+	{
+		RawData ret;
+		ret.numberOfValues = 1;
+		ret.data = boost::shared_array<float>(new float[1]);
+		ret.data[0] = val_;
+		return ret;
+	}
+
+private:
+	float val_;
+};
+}
+
+WriteQuery NetcdfTranslator::adaptQuery_(WriteQuery query, const CdmLoaderConfiguration::Point & point, float value) const
+{
+	query.placeName(point.getPlaceName());
+	query.data(AbstractDataRetriever::Ptr(new IndexedDataRetriever(value)));
+	return query;
 }

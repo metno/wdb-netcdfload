@@ -46,8 +46,10 @@ public:
 	class Point
 	{
 	public:
+		Point(const std::string & spec);
 		double longitude() const;
 		double latitude() const;
+		std::string getPlaceName() const;
 	private:
 		friend class CdmLoaderConfiguration;
 
@@ -55,7 +57,8 @@ public:
 		std::string longitude_;
 		std::string latitude_;
 	};
-	const Point * point() const;
+	//const Point * point() const;
+	const std::vector<Point> * points() const { return pointsFile_.empty() ? 0 : & points_; }
 
 	virtual void parse( int argc, char ** argv );
 
@@ -64,7 +67,9 @@ private:
 	std::string fileTypeConfiguration_;
 	std::string loadConfiguration_;
 
-	Point point_;
+	//Point point_;
+	std::string pointsFile_;
+	std::vector<Point> points_;
 };
 
 #endif /* CDMLOADERCONFIGURATION_H_ */

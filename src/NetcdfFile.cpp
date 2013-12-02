@@ -48,9 +48,10 @@ NetcdfFile::NetcdfFile(const std::string & fileName, const std::string & configu
 	referenceTime_(INVALID_TIME),
 	conversions_(conversions)
 {
-    reader_ = MetNoFimex::CDMFileReaderFactory::create(fileType, fileName, configurationFile);
+    baseReader_ = MetNoFimex::CDMFileReaderFactory::create(fileType, fileName, configurationFile);
+    usedReader_ = baseReader_;
 
-    boost::posix_time::ptime time = getUniqueForecastReferenceTime(reader_);
+    boost::posix_time::ptime time = getUniqueForecastReferenceTime(baseReader_);
 	static boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
 	referenceTime_ = Time(time, zone);
 }
@@ -101,7 +102,7 @@ std::vector<AbstractNetcdfField::Ptr> NetcdfFile::getFields() const
 
 	VariableConversion conversions(conversions_);
 
-	const CDM & cdm = reader_->getCDM();
+	const CDM & cdm = usedReader_->getCDM();
 
 	const CDM::DimVec & dims = cdm.getDimensions();
 	std::set<std::string> dimensions;
@@ -118,7 +119,7 @@ std::vector<AbstractNetcdfField::Ptr> NetcdfFile::getFields() const
 		if ( dimensions.find(variableName) != dimensions.end() )
 			continue;
 
-		AbstractNetcdfField::Ptr field(new NetcdfField(* this, reader_, variableName));
+		AbstractNetcdfField::Ptr field(new NetcdfField(* this, usedReader_, variableName));
 		ret.push_back(field);
 
 #define NEW_CONVERSION
@@ -159,8 +160,13 @@ void NetcdfFile::setPointFilter(double longitude, double latitude)
 	std::vector<double> lon(1, longitude);
 	std::vector<double> lat(1, latitude);
 
-	CDMInterpolator * interpolator = new CDMInterpolator(reader_);
-	interpolator->changeProjection(MIFI_INTERPOL_BILINEAR, lon, lat);
+	setPointFilter(lon, lat);
+}
 
-	reader_ = boost::shared_ptr<MetNoFimex::CDMReader>(interpolator);
+void NetcdfFile::setPointFilter(const std::vector<double> & longitude, const std::vector<double> & latitude)
+{
+	CDMInterpolator * interpolator = new CDMInterpolator(baseReader_);
+	interpolator->changeProjection(MIFI_INTERPOL_BILINEAR, longitude, latitude);
+
+	usedReader_ = boost::shared_ptr<MetNoFimex::CDMReader>(interpolator);
 }
