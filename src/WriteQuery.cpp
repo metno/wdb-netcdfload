@@ -29,6 +29,8 @@
 #include "WriteQuery.h"
 #include <wdb/LoaderDatabaseConnection.h>
 #include <wdbLogHandler.h>
+#include <sstream>
+#include <ctime>
 
 WriteQuery::WriteQuery() :
 	loadPlaceDefinition_(false),
@@ -90,14 +92,21 @@ void WriteQuery::write(wdb::load::LoaderDatabaseConnection & wdbConnection) cons
 		return;
 
 	std::string placeName = placeName_;
-	if ( placeName_.empty() )
-		placeName = wdbConnection.getPlaceName(* location_);
 	if ( loadPlaceDefinition_ )
 	{
 		if ( placeName.empty() )
-			placeName = "netcdfLoad auto";
+		{
+			std::ostringstream name;
+			name << "netcdfLoad auto: ";
+			name << * location_;
+//			std::time_t t = std::time(0);
+//			name << std::ctime(& t);
+			placeName = name.str();
+		}
 		wdbConnection.addPlaceDefinition(placeName, * location_);
 	}
+	else if ( placeName.empty() )
+		placeName = wdbConnection.getPlaceName(* location_);
 
 	WDB_LOG & log = WDB_LOG::getInstance( "wdb.netcdfload.query" );
 	log.debugStream() << "SELECT wci.write(<data>, "
