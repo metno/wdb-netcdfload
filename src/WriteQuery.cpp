@@ -51,7 +51,11 @@ WriteQuery::~WriteQuery()
 std::ostream & WriteQuery::list(std::ostream & out) const
 {
 	RawData rawData = (*function_)();
-	if ( rawData.valid() and rawData.numberOfValues == 1 )
+
+	if ( not rawData.valid() )
+		return out;
+
+	if ( rawData.numberOfValues == 1 )
 	{
 		float value = rawData.data[0];
 		if ( value != value ) // NaN

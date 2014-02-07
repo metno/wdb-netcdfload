@@ -69,10 +69,16 @@ RawData DataRetriever::operator() () const
 	}
 
 	MetNoFimex::DataPtr data = readData_(reader_, slicer);
-
-	ret.numberOfValues = data->size();
-	if ( ret.numberOfValues )
-		ret.data = data->asFloat();
+	if ( data )
+	{
+		ret.numberOfValues = data->size();
+		if ( ret.numberOfValues )
+			ret.data = data->asFloat();
+	}
+	else
+	{
+		ret.numberOfValues = 0;
+	}
 
 	if ( querySpec_.scale() != 1 )
 		for ( int i = 0; i < ret.numberOfValues; ++ i )
