@@ -35,6 +35,8 @@
 #include <GridGeometry.h>
 #include <boost/shared_array.hpp>
 #include <iostream>
+#include <map>
+#include <string>
 
 namespace wdb
 {
@@ -91,6 +93,8 @@ private:
 	float levelTo_;
 	unsigned dataVersion_;
 	unsigned maxDataVersion_;
+
+	static std::map<std::string, std::string> placedef2placename;
 };
 
 #endif /* WRITEQUERY_H_ */

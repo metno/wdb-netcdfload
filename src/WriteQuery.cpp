@@ -32,6 +32,9 @@
 #include <sstream>
 #include <ctime>
 
+
+std::map<std::string, std::string> WriteQuery::placedef2placename;
+
 WriteQuery::WriteQuery() :
 	loadPlaceDefinition_(false),
 	referenceTime_(INVALID_TIME),
@@ -95,22 +98,30 @@ void WriteQuery::write(wdb::load::LoaderDatabaseConnection & wdbConnection) cons
 	if ( not rawData.valid() )
 		return;
 
-	std::string placeName = placeName_;
-	if ( loadPlaceDefinition_ )
+	std::ostringstream loc;
+	loc << * location_;
+	std::string & placeName = placedef2placename[loc.str()];
+	if ( placeName.empty() )
 	{
-		if ( placeName.empty() )
+		try
 		{
-			std::ostringstream name;
-			name << "netcdfLoad auto: ";
-			name << * location_;
-//			std::time_t t = std::time(0);
-//			name << std::ctime(& t);
-			placeName = name.str();
+			placeName = wdbConnection.getPlaceName(* location_);
 		}
+		catch ( std::exception & e )
+		{
+		}
+	}
+	if ( loadPlaceDefinition_ and placeName.empty() )
+	{
+		std::ostringstream name;
+		name << "netcdfLoad auto: ";
+		name << loc.str();
+		placeName = name.str();
 		wdbConnection.addPlaceDefinition(placeName, * location_);
 	}
-	else if ( placeName.empty() )
-		placeName = wdbConnection.getPlaceName(* location_);
+	if ( placeName.empty() )
+		throw std::runtime_error("Uanble to find place name for grid");
+
 
 	WDB_LOG & log = WDB_LOG::getInstance( "wdb.netcdfload.query" );
 	log.debugStream() << "SELECT wci.write(<data>, "
