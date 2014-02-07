@@ -98,9 +98,19 @@ void list(NetcdfFile & file, const NetcdfTranslator & translator, const std::vec
 void write(const std::vector<AbstractNetcdfField::Ptr> & fields, NetcdfTranslator & translator,
 		wdb::load::LoaderDatabaseConnection & wdbConnection)
 {
+	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, fields)
 		BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
+			try
+			{
 				query.write(wdbConnection);
+			}
+			catch ( std::exception & e )
+			{
+				std::ostringstream s;
+				query.list(s);
+				log.errorStream() << e.what() << ": Uanble to load field " << s.str();
+			}
 }
 
 }
