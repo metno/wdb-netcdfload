@@ -24,6 +24,10 @@
 		<wdb name="cloud area fraction" units="%" />
 	</load>
 	<load>
+		<netcdf variable_name="lwe_thickness_of_precipitation_amount"/>
+		<wdb name="precipitation amount" units="kg/m2" alternativeunitconversion="mm" validfrom="referencetime"/>
+	</load>
+	<load>
 		<netcdf variable_name="precipitation_amount_acc" />
 		<wdb name="lwe thickness of precipitation amount" units="m" alternativeunitconversion="1000 kg/m2" validfrom="referencetime"/>
 	</load>
