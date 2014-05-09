@@ -114,7 +114,7 @@ void LoadConfiguration::initLoadElements_(xmlXPathContextPtr context)
         if ( not loadElement.variableName().empty() )
         	variableLoadElements_.insert(std::make_pair(loadElement.variableName(), loadElement));
         else if ( not loadElement.standardName().empty() )
-        	standardNameLoadElements_.insert(std::make_pair(loadElement.variableName(), loadElement));
+        	standardNameLoadElements_.insert(std::make_pair(loadElement.standardName(), loadElement));
         else
     		log.warnStream() << "Element configuration without variable_name or standard_name";
     }
@@ -192,7 +192,7 @@ bool LoadConfiguration::getVariableLoadElement_(std::vector<LoadElement> & out, 
 		const AbstractNetcdfField::IndexList & fieldIndexes = field.unHandledIndexes();
 
 		/// Indexes specified in configuration (name->value)
-		const LoadElement::IndexNameToValue & configIndexes = loadElement->indicesToLoad();
+		const NetcdfParameterSpecification::IndexNameToValue & configIndexes = loadElement->netcdfParameterSpecification().indicesToLoad();
 
 		// simple case
 		if ( configIndexes.empty() and fieldIndexes.empty() )
@@ -204,7 +204,7 @@ bool LoadConfiguration::getVariableLoadElement_(std::vector<LoadElement> & out, 
 			for ( AbstractNetcdfField::IndexList::const_iterator fieldIndex = fieldIndexes.begin(); fieldIndex != fieldIndexes.end(); ++ fieldIndex )
 			{
 				const std::string & indexName = fieldIndex->first;
-				LoadElement::IndexNameToValue::const_iterator configIndex = configIndexes.find(indexName);
+				NetcdfParameterSpecification::IndexNameToValue::const_iterator configIndex = configIndexes.find(indexName);
 				if ( configIndex != configIndexes.end() )
 				{
 					unsigned indexSize = fieldIndex->second;

@@ -62,9 +62,10 @@ RawData DataRetriever::operator() () const
 	if ( not realizationDimension.empty() )
 		slicer.setStartAndSize(realizationDimension, realizationIndex_, 1);
 
-	BOOST_FOREACH(const LoadElement::IndexNameToValue::value_type & nameValue, loadElement_.indicesToLoad())
+	const NetcdfParameterSpecification & netcdfParameterSpecification = loadElement_.netcdfParameterSpecification();
+	BOOST_FOREACH(const NetcdfParameterSpecification::IndexNameToValue::value_type & nameValue, netcdfParameterSpecification.indicesToLoad())
 	{
-		unsigned index = loadElement_.cdmIndex(* reader_, nameValue.first, nameValue.second);
+		unsigned index = netcdfParameterSpecification.cdmIndex(* reader_, nameValue.first, nameValue.second);
 		slicer.setStartAndSize(nameValue.first, index, 1);
 	}
 

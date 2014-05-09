@@ -32,6 +32,8 @@ MAIN_SOURCES = \
 	src/configuration/parameter/DataSpecification.cpp \
 	src/configuration/parameter/TimeSpecification.h \
 	src/configuration/parameter/TimeSpecification.cpp \
+	src/configuration/parameter/NetcdfParameterSpecification.h \
+	src/configuration/parameter/NetcdfParameterSpecification.cpp \
 	src/RawData.h
 
 

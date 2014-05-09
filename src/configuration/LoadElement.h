@@ -30,6 +30,7 @@
 #define LOADELEMENT_H_
 
 // project
+#include "parameter/NetcdfParameterSpecification.h"
 #include "parameter/DataSpecification.h"
 
 // boost
@@ -60,27 +61,26 @@ public:
     LoadElement(const std::string & variableName, const DataSpecification & wdbDataSpecification);
     ~LoadElement();
 
-    const std::string & variableName() const { return variableName_; }
-    const std::string & standardName() const { return standardName_; }
+    const std::string & variableName() const { return netcdfParameterSpecification_.variableName(); }
+    const std::string & standardName() const { return netcdfParameterSpecification_.standardName(); }
 
+    const NetcdfParameterSpecification & netcdfParameterSpecification() const { return netcdfParameterSpecification_; }
     const DataSpecification & wdbDataSpecification() const { return wdbDataSpecification_; }
 
-    typedef std::map<std::string, double> IndexNameToValue;
-    const IndexNameToValue & indicesToLoad() const { return indicesToLoad_; }
+//    typedef std::map<std::string, double> IndexNameToValue;
+//    const IndexNameToValue & indicesToLoad() const { return netcdfParameterSpecification_.indicesToLoad(); }
 
-    unsigned cdmIndex(MetNoFimex::CDMReader & reader, const std::string & dimensionName, double dimensionValue) const;
+//    unsigned cdmIndex(MetNoFimex::CDMReader & reader, const std::string & dimensionName, double dimensionValue) const
+//    {
+//    	return netcdfParameterSpecification_.cdmIndex(reader, dimensionName, dimensionValue);
+//    }
 
 private:
     void addWdbSpec_(xmlNodePtr wdbNode);
     DataSpecification::Level getWdbLevelSpec_(xmlNodePtr levelNode);
-    void addNetcdfSpec_(xmlNodePtr netcdfNode);
 
-
-    std::string variableName_;
-    std::string standardName_;
+    NetcdfParameterSpecification netcdfParameterSpecification_;
     DataSpecification wdbDataSpecification_;
-
-    IndexNameToValue indicesToLoad_;
 };
 
 
