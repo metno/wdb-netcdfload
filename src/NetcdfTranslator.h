@@ -54,6 +54,8 @@ private:
 	void setLocation_(WriteQuery & out, const AbstractNetcdfField & field) const;
 	WriteQuery adaptQuery_(WriteQuery query, const CdmLoaderConfiguration::Point & point, float value) const;
 
+	bool fieldInToLoadList(const AbstractNetcdfField & field) const;
+
 	CdmLoaderConfiguration conf_;
 	LoadConfiguration loadConfiguration_;
 };

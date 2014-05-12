@@ -45,6 +45,11 @@ CdmLoaderConfiguration::CdmLoaderConfiguration()
     ( "configuration,c", value(& loadConfiguration_), "Read netcdf-to-wdb configuration from the given file.")
     ;
 
+    options_description extract( "Parameter extraction" );
+    extract.add_options()
+    ("extract,e", value(& elementsToLoad_), "Only read the given parameters");
+    ;
+
     options_description point( "Point extraction" );
     point.add_options()
     //( "longitude", value(& point_.longitude_), "Extract only data from this longitude (must also give latitude)")
@@ -52,8 +57,8 @@ CdmLoaderConfiguration::CdmLoaderConfiguration()
     ( "point-file", value(& pointsFile_), "Read lat/lon coordinates from this file (one set per line, space-separated)")
     ;
 
-    configOptions().add(conf).add(point);
-	shownOptions().add(conf).add(point);
+    configOptions().add(conf).add(extract).add(point);
+	shownOptions().add(conf).add(extract).add(point);
 }
 
 CdmLoaderConfiguration::~CdmLoaderConfiguration()

@@ -50,6 +50,9 @@ std::vector<WriteQuery> NetcdfTranslator::queries(const AbstractNetcdfField & fi
 {
 	std::vector<WriteQuery> ret;
 
+	if ( not fieldInToLoadList(field) )
+		return ret;
+
 	BOOST_FOREACH( const LoadElement & loadElement, loadConfiguration_.getLoadElement(field) )
 	{
 		const DataSpecification & querySpec = loadElement.wdbDataSpecification();
@@ -139,4 +142,18 @@ WriteQuery NetcdfTranslator::adaptQuery_(WriteQuery query, const CdmLoaderConfig
 	query.placeName(point.getPlaceName());
 	query.data(AbstractDataRetriever::Ptr(new IndexedDataRetriever(value)));
 	return query;
+}
+
+bool NetcdfTranslator::fieldInToLoadList(const AbstractNetcdfField & field) const
+{
+	const std::vector<NetcdfParameterSpecification> & parameterSpec = conf_.elementsToLoad();
+
+	if ( parameterSpec.empty() )
+		return true;
+
+	for ( std::vector<NetcdfParameterSpecification>::const_iterator it = parameterSpec.begin(); it != parameterSpec.end(); ++ it )
+		if ( it->variableName() == field.variableName() )
+			return true;
+
+	return false;
 }

@@ -7,7 +7,9 @@ netcdfLoadTest_SOURCES = \
 		test/timeTest.cpp \
 		test/NetcdfFileTest.cpp \
 		test/NetcdfFieldTest.cpp \
-		test/NetcdfTranslatorTest.cpp
+		test/NetcdfTranslatorTest.cpp \
+		test/NetcdfParameterSpecificationTest.cpp
+		
 
 BOOST_LIBS = \
 	$(BOOST_PROGRAM_OPTIONS_LIB) \

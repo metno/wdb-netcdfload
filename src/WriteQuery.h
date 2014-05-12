@@ -77,6 +77,11 @@ public:
 		return (*function_)();
 	}
 
+	const std::string & valueParameterName() const
+	{
+		return valueParameterName_;
+	}
+
 
 private:
 	AbstractDataRetriever::Ptr function_;

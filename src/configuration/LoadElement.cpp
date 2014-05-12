@@ -81,53 +81,21 @@ LoadElement::LoadElement(xmlNodePtr loadNode)
 {
     for(xmlNodePtr subNode = loadNode->children; subNode; subNode = subNode->next)
     {
-        if(xmlStrEqual(subNode->name, (xmlChar*) "netcdf"))
-            addNetcdfSpec_(subNode);
+    	if(xmlStrEqual(subNode->name, (xmlChar*) "netcdf"))
+    		netcdfParameterSpecification_ = NetcdfParameterSpecification(subNode);
         else if(xmlStrEqual(subNode->name, (xmlChar*) "wdb") )
             addWdbSpec_(subNode);
     }
-
-    //makeIndicePermutations_();
 }
 
 LoadElement::LoadElement(const std::string & variableName, const DataSpecification & wdbDataSpecification) :
-		variableName_(variableName),
+		netcdfParameterSpecification_(variableName),
 		wdbDataSpecification_(wdbDataSpecification)
 {
 }
 
 LoadElement::~LoadElement() { }
 
-//unsigned LoadElement::IndexElement::cdmIndex(boost::shared_ptr<MetNoFimex::CDMReader>& reader) const
-unsigned LoadElement::cdmIndex(MetNoFimex::CDMReader & reader, const std::string & dimensionName, double dimensionValue) const
-{
-    boost::shared_ptr<MetNoFimex::Data> indexElements = reader.getData(dimensionName);
-    boost::shared_array<float> elements = indexElements->asFloat();
-
-    for(unsigned index = 0; index < indexElements->size(); ++ index)
-        if(equal(elements[index], dimensionValue))
-            return index;
-
-    ostringstream msg;
-    msg << "Unable to find index (" << dimensionName << " = " << dimensionValue << ")";
-    throw runtime_error(msg.str());
-}
-
-void LoadElement::addNetcdfSpec_(xmlNodePtr netcdfNode)
-{
-    variableName_ = getAttributeNoThrow(netcdfNode, "variable_name");
-    standardName_ = getAttributeNoThrow(netcdfNode, "standard_name");
-
-    for(xmlNodePtr subNode = netcdfNode->children; subNode; subNode = subNode->next)
-    {
-        if(xmlStrEqual(subNode->name, (xmlChar*) "dimension"))
-        {
-            string name = getAttribute(subNode, "name");
-            double value = boost::lexical_cast<double>(getAttribute(subNode, "value"));
-			indicesToLoad_[name] = value;
-        }
-    }
-}
 
 void LoadElement::addWdbSpec_(xmlNodePtr wdbNode)
 {

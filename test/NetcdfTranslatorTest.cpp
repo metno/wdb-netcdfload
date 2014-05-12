@@ -31,6 +31,7 @@
 #include <NetcdfTranslator.h>
 #include <NetcdfFile.h>
 #include <NetcdfField.h>
+#include <boost/foreach.hpp>
 
 TEST(NetcdfTranslatorTest, test)
 {
@@ -48,4 +49,45 @@ TEST(NetcdfTranslatorTest, test)
 	EXPECT_EQ(5, queries.size());
 }
 
+TEST(NetcdfTranslatorTest, ignoreEmptyExtractOption)
+{
+	CdmLoaderConfiguration conf;
+	char * options[2] = {"name", "-c"TESTDATADIR"/config.xml"};
+	conf.parse(2, options);
 
+	NetcdfTranslator translator(conf);
+
+	std::map<std::string, unsigned> count;
+	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
+	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, ncFile.getFields())
+		BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
+			++ count[query.valueParameterName()];
+
+	EXPECT_EQ(2, count.size());
+	EXPECT_EQ(5, count["air temperature"]);
+	EXPECT_EQ(5, count["lwe thickness of precipitation amount"]);
+}
+
+TEST(NetcdfTranslatorTest, respectExtractOption)
+{
+	CdmLoaderConfiguration conf;
+	char * options[3] = {"name", "-c"TESTDATADIR"/config.xml", "--extract=air_temperature_2m"};
+	conf.parse(3, options);
+
+	NetcdfTranslator translator(conf);
+
+	std::map<std::string, unsigned> count;
+	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
+	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, ncFile.getFields())
+		BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
+			++ count[query.valueParameterName()];
+
+	EXPECT_EQ(1, count.size());
+	EXPECT_EQ(5, count["air temperature"]);
+	EXPECT_EQ(0, count["lwe thickness of precipitation amount"]);
+}
+
+TEST(NetcdfTranslatorTest, respectExtractOptionWithDimensionSpec)
+{
+	FAIL() << "Not implemented";
+}

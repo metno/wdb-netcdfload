@@ -29,6 +29,7 @@
 #ifndef CDMLOADERCONFIGURATION_H_
 #define CDMLOADERCONFIGURATION_H_
 
+#include "configuration/parameter/NetcdfParameterSpecification.h"
 #include <wdb/LoaderConfiguration.h>
 #include <boost/lexical_cast.hpp>
 
@@ -60,12 +61,16 @@ public:
 	//const Point * point() const;
 	const std::vector<Point> * points() const { return pointsFile_.empty() ? 0 : & points_; }
 
+	const std::vector<NetcdfParameterSpecification> & elementsToLoad() const { return elementsToLoad_; }
+
 	virtual void parse( int argc, char ** argv );
 
 private:
 	std::string fileType_;
 	std::string fileTypeConfiguration_;
 	std::string loadConfiguration_;
+
+	std::vector<NetcdfParameterSpecification> elementsToLoad_;
 
 	//Point point_;
 	std::string pointsFile_;
