@@ -31,6 +31,11 @@
 
 #include "AbstractNetcdfField.h"
 
+/**
+ * Base class for reading "virtual" fields from a netcdf file. These are fields
+ * that do not explicitly exist in the file, but may be calculated from other
+ * fields in the file.
+ */
 class DerivedNetcdfField: public AbstractNetcdfField
 {
 public:
