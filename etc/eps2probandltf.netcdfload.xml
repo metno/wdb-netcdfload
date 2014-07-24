@@ -15,6 +15,12 @@
 	</load>
 
 	<load>
+		<netcdf variable_name="cloud_area_fraction">
+			<dimension name="percentile" value="0.5" />
+		</netcdf>
+		<wdb name="cloud area fraction" units="%" />
+	</load>
+	<load>
 		<netcdf variable_name="air_temperature" />
 		<wdb name="air temperature" units="K"/>
 	</load>
