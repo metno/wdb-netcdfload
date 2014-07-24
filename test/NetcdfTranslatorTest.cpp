@@ -54,6 +54,7 @@ TEST(NetcdfTranslatorTest, ignoreEmptyExtractOption)
 	CdmLoaderConfiguration conf;
 	char * options[2] = {"name", "-c"TESTDATADIR"/config.xml"};
 	conf.parse(2, options);
+	EXPECT_TRUE(conf.elementsToLoad().empty());
 
 	NetcdfTranslator translator(conf);
 
@@ -78,6 +79,10 @@ TEST(NetcdfTranslatorTest, respectExtractOption)
 
 	std::map<std::string, unsigned> count;
 	NetcdfFile ncFile(TESTDATADIR"/test.nc", "");
+
+	EXPECT_EQ(1, conf.elementsToLoad().size());
+	EXPECT_TRUE(ncFile.contains(conf.elementsToLoad().at(0)));
+
 	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, ncFile.getFields())
 		BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
 			++ count[query.valueParameterName()];
@@ -87,7 +92,72 @@ TEST(NetcdfTranslatorTest, respectExtractOption)
 	EXPECT_EQ(0, count["lwe thickness of precipitation amount"]);
 }
 
+TEST(NetcdfTranslatorTest, extractNonExistingVariable)
+{
+	CdmLoaderConfiguration conf;
+	char * options[3] = {"name", "-c"TESTDATADIR"/config.xml",
+			"--extract=noSuchVariable"};
+	conf.parse(3, options);
+
+	NetcdfTranslator translator(conf);
+
+	std::map<std::string, unsigned> count;
+	NetcdfFile ncFile(TESTDATADIR"/test2.nc", "");
+
+	EXPECT_EQ(1, conf.elementsToLoad().size());
+	EXPECT_FALSE(ncFile.contains(conf.elementsToLoad().at(0)));
+
+	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, ncFile.getFields())
+		BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
+			++ count[query.valueParameterName()];
+
+	EXPECT_EQ(0, count.size());
+}
+
 TEST(NetcdfTranslatorTest, respectExtractOptionWithDimensionSpec)
 {
-	FAIL() << "Not implemented";
+	CdmLoaderConfiguration conf;
+	char * options[4] = {"name", "-c"TESTDATADIR"/config.xml",
+			"--extract=cloud_area_fraction:percentile=0.5",
+			"--extract=cloud_area_fraction:percentile=0.25"};
+	conf.parse(4, options);
+
+	NetcdfTranslator translator(conf);
+
+	std::map<std::string, unsigned> count;
+	NetcdfFile ncFile(TESTDATADIR"/test2.nc", "");
+
+	EXPECT_EQ(2, conf.elementsToLoad().size());
+	EXPECT_TRUE(ncFile.contains(conf.elementsToLoad()[0]));
+	EXPECT_TRUE(ncFile.contains(conf.elementsToLoad()[1]));
+
+	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, ncFile.getFields())
+		BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
+			++ count[query.valueParameterName()];
+
+	EXPECT_EQ(2, count.size());
+	EXPECT_EQ(41, count["25th percentile of cloud area fraction"]);
+	EXPECT_EQ(41, count["50th percentile of cloud area fraction"]);
+}
+
+TEST(NetcdfTranslatorTest, extractNonExistingDimension)
+{
+	CdmLoaderConfiguration conf;
+	char * options[3] = {"name", "-c"TESTDATADIR"/config.xml",
+			"--extract=cloud_area_fraction:percentile=1.5"};
+	conf.parse(3, options);
+
+	NetcdfTranslator translator(conf);
+
+	std::map<std::string, unsigned> count;
+	NetcdfFile ncFile(TESTDATADIR"/test2.nc", "");
+
+	EXPECT_EQ(1, conf.elementsToLoad().size());
+	EXPECT_FALSE(ncFile.contains(conf.elementsToLoad().at(0)));
+
+	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, ncFile.getFields())
+		BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
+			++ count[query.valueParameterName()];
+
+	EXPECT_EQ(0, count.size());
 }

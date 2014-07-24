@@ -54,7 +54,10 @@ private:
 	void setLocation_(WriteQuery & out, const AbstractNetcdfField & field) const;
 	WriteQuery adaptQuery_(WriteQuery query, const CdmLoaderConfiguration::Point & point, float value) const;
 
-	bool fieldInToLoadList(const AbstractNetcdfField & field) const;
+	/**
+	 * Remove any elements that conf_ does not say should be there.
+	 */
+	std::vector<LoadElement> filter_(const std::vector<LoadElement> & loadElements) const;
 
 	CdmLoaderConfiguration conf_;
 	LoadConfiguration loadConfiguration_;

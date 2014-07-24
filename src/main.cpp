@@ -159,6 +159,14 @@ int main(int argc, char ** argv)
 		{
 			NetcdfFile toLoad(file, conf.fileTypeConfiguration(), conf.fileType(), translator.loadConfiguration().vectorConversions());
 
+			BOOST_FOREACH ( const NetcdfParameterSpecification & spec, conf.elementsToLoad() )
+				if ( not toLoad.contains(spec) )
+				{
+					WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+					log.fatal("Unable to find parameter " + spec.variableName() + " with the given dimensions");
+					return 1;
+				}
+
 			if ( conf.points() )
 			{
 				if ( conf.output().list )

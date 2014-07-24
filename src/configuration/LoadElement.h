@@ -67,13 +67,6 @@ public:
     const NetcdfParameterSpecification & netcdfParameterSpecification() const { return netcdfParameterSpecification_; }
     const DataSpecification & wdbDataSpecification() const { return wdbDataSpecification_; }
 
-//    typedef std::map<std::string, double> IndexNameToValue;
-//    const IndexNameToValue & indicesToLoad() const { return netcdfParameterSpecification_.indicesToLoad(); }
-
-//    unsigned cdmIndex(MetNoFimex::CDMReader & reader, const std::string & dimensionName, double dimensionValue) const
-//    {
-//    	return netcdfParameterSpecification_.cdmIndex(reader, dimensionName, dimensionValue);
-//    }
 
 private:
     void addWdbSpec_(xmlNodePtr wdbNode);

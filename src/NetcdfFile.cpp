@@ -31,6 +31,7 @@
 #include "ForceConvertingNetcdfField.h"
 #include "DirectionConvertingNetcdfField.h"
 #include "VariableConversion.h"
+#include "configuration/parameter/NetcdfParameterSpecification.h"
 #include <fimex/CDMFileReaderFactory.h>
 #include <fimex/CDMReaderUtils.h>
 #include <fimex/CDM.h>
@@ -153,6 +154,38 @@ AbstractNetcdfField::Ptr NetcdfFile::getField(const std::string & variableName) 
 			return field;
 	}
 	throw std::runtime_error(variableName + ": no such variable found");
+}
+
+bool NetcdfFile::contains(const NetcdfParameterSpecification & spec) const
+{
+	try
+	{
+		const AbstractNetcdfField::Ptr & field = getField(spec.variableName());
+
+		if ( spec.indicesToLoad().empty() )
+			return true;
+
+		for ( NetcdfParameterSpecification::IndexNameToValue::const_iterator it = spec.indicesToLoad().begin(); it != spec.indicesToLoad().end(); ++ it )
+		{
+			const AbstractNetcdfField::IndexList & fieldIndexes = field->unHandledIndexes();
+			AbstractNetcdfField::IndexList::const_iterator find = fieldIndexes.find(it->first);
+			if ( find == fieldIndexes.end() )
+				return false;
+			for ( unsigned i = 0; i < find->second; ++ i )
+			{
+				if ( std::abs(field->indexValue(find->first, i) - it->second) < 0.0001 )
+					return true;
+			}
+
+		}
+
+		// the index value was not found
+		return false;
+	}
+	catch ( std::exception & )
+	{
+		return false;
+	}
 }
 
 void NetcdfFile::setPointFilter(double longitude, double latitude)

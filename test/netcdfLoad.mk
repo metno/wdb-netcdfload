@@ -23,7 +23,8 @@ netcdfLoadTest_LDADD = $(netcdfLoad_LDADD) $(BOOST_LIBS) $(gtest_LIBS) -lgtest_m
 EXTRA_DIST += \
 	test/netcdfLoad.mk \
 	test/data/config.xml \
-	test/data/test.nc
+	test/data/test.nc \
+	test/data/test2.nc
 
 
 include config/mk/gtest.mk

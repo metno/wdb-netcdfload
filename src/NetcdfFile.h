@@ -36,11 +36,12 @@
 #include <string>
 #include <iosfwd>
 
-
+class NetcdfParameterSpecification;
 namespace MetNoFimex
 {
 class CDMReader;
 }
+
 
 /**
  * Handler class for a netcdf file
@@ -56,6 +57,8 @@ public:
 	AbstractNetcdfField::Ptr getField(const std::string & variableName) const;
 
 	Time referenceTime() const { return referenceTime_; }
+
+	bool contains(const NetcdfParameterSpecification & spec) const;
 
 	/**
 	 * Modify reader to give interpolated data for the given point instead of the entire field.

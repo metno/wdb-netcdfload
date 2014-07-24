@@ -15,4 +15,36 @@
 		<wdb name="lwe thickness of precipitation amount" units="kg/m2" validfrom="validtime - 6 hours"/>
 	</load>
 
+	<load>
+		<netcdf variable_name="cloud_area_fraction">
+			<dimension name="percentile" value="0.1" />
+		</netcdf>
+		<wdb name="10th percentile of cloud area fraction" units="K" />
+	</load>
+	<load>
+		<netcdf variable_name="cloud_area_fraction">
+			<dimension name="percentile" value="0.25" />
+		</netcdf>
+		<wdb name="25th percentile of cloud area fraction" units="K" />
+	</load>
+	<load>
+		<netcdf variable_name="cloud_area_fraction">
+			<dimension name="percentile" value="0.5" />
+		</netcdf>
+		<wdb name="50th percentile of cloud area fraction" units="K" />
+	</load>
+	<load>
+		<netcdf variable_name="cloud_area_fraction">
+			<dimension name="percentile" value="0.75" />
+		</netcdf>
+		<wdb name="75th percentile of cloud area fraction" units="K" />
+	</load>
+	<load>
+		<netcdf variable_name="cloud_area_fraction">
+			<dimension name="percentile" value="0.9" />
+		</netcdf>
+		<wdb name="90th percentile of cloud area fraction" units="K" />
+	</load>
+	
+
 </netcdfloadconfiguration>

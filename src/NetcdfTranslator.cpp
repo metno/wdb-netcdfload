@@ -45,15 +45,12 @@ NetcdfTranslator::~NetcdfTranslator()
 {
 }
 
-
 std::vector<WriteQuery> NetcdfTranslator::queries(const AbstractNetcdfField & field) const
 {
 	std::vector<WriteQuery> ret;
 
-	if ( not fieldInToLoadList(field) )
-		return ret;
-
-	BOOST_FOREACH( const LoadElement & loadElement, loadConfiguration_.getLoadElement(field) )
+	const std::vector<LoadElement> & loadElements = loadConfiguration_.getLoadElement(field);
+	BOOST_FOREACH( const LoadElement & loadElement, filter_(loadElements) )
 	{
 		const DataSpecification & querySpec = loadElement.wdbDataSpecification();
 
@@ -144,16 +141,27 @@ WriteQuery NetcdfTranslator::adaptQuery_(WriteQuery query, const CdmLoaderConfig
 	return query;
 }
 
-bool NetcdfTranslator::fieldInToLoadList(const AbstractNetcdfField & field) const
+std::vector<LoadElement> NetcdfTranslator::filter_(const std::vector<LoadElement> & loadElements) const
 {
 	const std::vector<NetcdfParameterSpecification> & parameterSpec = conf_.elementsToLoad();
 
 	if ( parameterSpec.empty() )
-		return true;
+		return loadElements;
 
-	for ( std::vector<NetcdfParameterSpecification>::const_iterator it = parameterSpec.begin(); it != parameterSpec.end(); ++ it )
-		if ( it->variableName() == field.variableName() )
-			return true;
+	std::vector<LoadElement> ret;
+	BOOST_FOREACH ( const LoadElement & loadElement, loadElements )
+	{
+		BOOST_FOREACH ( const NetcdfParameterSpecification & spec, parameterSpec )
+		{
+			if ( loadElement.variableName() == spec.variableName() )
+			{
+				if ( spec.indicesToLoad().empty())
+					ret.push_back(loadElement);
+				else if ( loadElement.netcdfParameterSpecification().indicesToLoad() == spec.indicesToLoad() )
+					ret.push_back(loadElement);
+			}
+		}
+	}
 
-	return false;
+	return ret;
 }
