@@ -64,6 +64,9 @@ public:
 	 */
 	virtual const IndexList & indexes() const = 0;
 
+	/**
+	 * Get the list of indexes that has no built-in handling
+	 */
 	virtual IndexList unHandledIndexes() const = 0;
 
 	/**
