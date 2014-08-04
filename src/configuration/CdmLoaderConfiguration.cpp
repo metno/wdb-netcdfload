@@ -47,7 +47,7 @@ CdmLoaderConfiguration::CdmLoaderConfiguration()
 
     options_description extract( "Parameter extraction" );
     extract.add_options()
-    ("extract,e", value(& elementsToLoad_), "Only read the given parameters");
+    ("extract,e", value(& elementsToLoad_), "Only read the given variables. You may express a dimension subset like this: --extract=air_temperature:dimension=value");
     ;
 
     options_description point( "Point extraction" );
