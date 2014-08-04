@@ -109,4 +109,12 @@
 		</vector>
 	</conversions>
 	
+	<conversions>
+		<vector x="x_wind" y="y_wind">
+			<speed name="wind_speed" />
+			<direction name="wind_from_direction" />
+		</vector>
+	</conversions>
+	
+	
 </netcdfloadconfiguration>
