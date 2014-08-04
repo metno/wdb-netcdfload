@@ -1,3 +1,9 @@
+wdb-netcdfload (0.13.4-1) precise; urgency=low
+
+  * new version, with more config
+
+ -- Vegard Bønes <vegard.bones@met.no>  Fri, 01 Aug 2014 13:54:13 +0200
+
 wdb-netcdfload (0.13.3-1) precise; urgency=low
 
   * new version
