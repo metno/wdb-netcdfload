@@ -42,7 +42,7 @@ CdmLoaderConfiguration::CdmLoaderConfiguration()
     conf.add_options()
     ( "type,t", value(& fileType_)->default_value("netcdf"), "Assume file is of the given type")
     ("type-configuration", value(& fileTypeConfiguration_), "Read file-to-netcdf configuration from the given file")
-    ( "configuration,c", value(& loadConfiguration_), "Read netcdf-to-wdb configuration from the given file.")
+    ( "configuration,c", value(& loadConfiguration_)->default_value(SYSCONFDIR"/default.netcdfload.xml"), "Read netcdf-to-wdb configuration from the given file.")
     ;
 
     options_description extract( "Parameter extraction" );
