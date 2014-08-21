@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT(netcdfLoad, 0.13.6, [wdb@met.no])
+AC_INIT(netcdfLoad, 0.13.7, [wdb@met.no])
 
 AC_CONFIG_SRCDIR([src/localtime.h])
 AC_CONFIG_HEADERS([config.h])
