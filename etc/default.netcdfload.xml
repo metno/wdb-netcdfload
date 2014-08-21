@@ -87,7 +87,7 @@
 	</load>
 	<load>
 		<netcdf variable_name="surface_geopotential"/>
-		<wdb name="surface geopotential" units="geopotential meters"  validfrom="-infinity" validto="infinity"/>
+		<wdb name="geopotential height" units="geopotential meters"  validfrom="-infinity" validto="infinity"/>
 	</load>
 	<load>
 		<netcdf variable_name="thunderstorm_index_combined"/>
