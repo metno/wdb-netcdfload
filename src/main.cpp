@@ -42,23 +42,22 @@
 #include <boost/scoped_ptr.hpp>
 #include <iostream>
 
-using namespace std;
 
 namespace
 {
-ostream& version(ostream& out)
+std::ostream& version(std::ostream& out)
 {
-	return out << PACKAGE_STRING << endl;
+	return out << PACKAGE_STRING << std::endl;
 }
 
-ostream & help(ostream& out,
+std::ostream & help(std::ostream& out,
 		const boost::program_options::options_description& options)
 {
 	out << "Usage: " << PACKAGE_NAME
 			<< " -c CONFIGURATION_FILE [OPTIONS] FILES...\n";
 	out << '\n';
 	out << "Options:\n";
-	out << options << endl;
+	out << options << std::endl;
 	return out;
 }
 
@@ -129,7 +128,7 @@ int main(int argc, char ** argv)
 
 	if (conf.general().version)
 	{
-		version(cout);
+		version(std::cout);
 		return 0;
 	}
 	if (conf.general().help)

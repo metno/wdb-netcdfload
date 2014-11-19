@@ -56,11 +56,11 @@ namespace
 LoadConfiguration::LoadConfiguration(const boost::filesystem::path& translationFile)
 {
     if(not exists(translationFile))
-        throw std::runtime_error(translationFile.file_string() + ": No netcdf-wdb translation file");
+        throw std::runtime_error(translationFile.string() + ": No netcdf-wdb translation file");
     if(is_directory(translationFile))
-        throw std::runtime_error(translationFile.file_string() + " is a directory, netcdf-wdb-transaltion file expected");
+        throw std::runtime_error(translationFile.string() + " is a directory, netcdf-wdb-transaltion file expected");
 
-    const std::string & fileName = translationFile.file_string();
+    const std::string & fileName = translationFile.string();
 
     XmlSession session;
     boost::shared_ptr<xmlDoc> doc(xmlParseFile(fileName.c_str()), xmlFreeDoc);
