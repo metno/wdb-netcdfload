@@ -32,6 +32,7 @@
 #include "configuration/LoadElement.h"
 #include "configuration/parameter/DataSpecification.h"
 #include <wdbLogHandler.h>
+#include <wdb/errors.h>
 #include <fimex/CDMReader.h>
 #include <fimex/CDM.h>
 #include <fimex/CDMAttribute.h>
@@ -96,12 +97,12 @@ double NetcdfField::indexValue(std::string dimension, unsigned index) const
 {
 	IndexList::const_iterator find = indexList_.find(dimension);
 	if ( find == indexList_.end() )
-		throw std::runtime_error(dimension + " does not exist for variable " + variableName_);
+		throw wdb::load::LoadError(wdb::load::ErrorWhenReadingFile, dimension + " does not exist for variable " + variableName_);
 	if ( find->second <= index )
 	{
 		std::ostringstream s;
 		s << "Invalid index for dimension " << dimension << ": " << index;
-		throw std::runtime_error(s.str());
+		throw wdb::load::LoadError(wdb::load::ErrorWhenReadingFile, s.str());
 	}
 
 	boost::shared_array<double> & values = dimensionValues_[dimension];

@@ -27,6 +27,7 @@
  */
 
 #include "NetcdfParameterSpecification.h"
+#include <wdb/errors.h>
 #include <fimex/CDM.h>
 #include <fimex/Data.h>
 #include <fimex/CDMReader.h>
@@ -66,7 +67,7 @@ namespace {
 
         if ( not alternative.empty() )
                 return alternative;
-        throw runtime_error("Missing attribute " + name);
+        throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, "Missing attribute " + name);
     }
 } // end namespace
 
@@ -105,7 +106,7 @@ NetcdfParameterSpecification::NetcdfParameterSpecification(const std::string & s
 		std::vector<std::string> nameValue;
 		boost::algorithm::split(nameValue, dimensionSpec, boost::algorithm::is_any_of("="));
 		if ( nameValue.size() != 2 )
-			throw std::logic_error("Strange specification of netcdf dimension: " + dimensionSpec);
+			throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, "Strange specification of netcdf dimension: " + dimensionSpec);
 		const std::string & name = nameValue[0];
 		double value = boost::lexical_cast<double>(nameValue[1]);
 		indicesToLoad_[name] = value;
@@ -126,7 +127,7 @@ unsigned NetcdfParameterSpecification::cdmIndex(MetNoFimex::CDMReader & reader, 
 
     ostringstream msg;
     msg << "Unable to find index (" << dimensionName << " = " << dimensionValue << ")";
-    throw runtime_error(msg.str());
+    throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, msg.str());
 }
 
 std::istream & operator >> (std::istream & s, NetcdfParameterSpecification & out)

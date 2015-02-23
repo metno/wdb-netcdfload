@@ -1,3 +1,9 @@
+wdb-netcdfload (0.13.8-1) precise; urgency=low
+
+  * new version, with new parameters for eps
+
+ -- Vegard Bønes <vegard.bones@met.no>  Wed, 04 Feb 2015 15:24:37 +0100
+
 wdb-netcdfload (0.13.7-1) precise; urgency=low
 
   * new version

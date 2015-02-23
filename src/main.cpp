@@ -33,6 +33,7 @@
 #include "NetcdfFile.h"
 #include "NetcdfTranslator.h"
 #include "configuration/CdmLoaderConfiguration.h"
+#include <wdb/errors.h>
 #include <wdb/LoaderDatabaseConnection.h>
 #include <wdbLogHandler.h>
 #include "fimex/CDM.h"
@@ -94,15 +95,21 @@ void list(NetcdfFile & file, const NetcdfTranslator & translator, const std::vec
 		list(field, translator, points);
 }
 
-void write(const std::vector<AbstractNetcdfField::Ptr> & fields, NetcdfTranslator & translator,
+/**
+ * Will return number of loaded fields
+ */
+unsigned write(const std::vector<AbstractNetcdfField::Ptr> & fields, NetcdfTranslator & translator,
 		wdb::load::LoaderDatabaseConnection & wdbConnection)
 {
+	unsigned ret = 0;
+
 	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 	BOOST_FOREACH(const AbstractNetcdfField::Ptr & field, fields)
 		BOOST_FOREACH(const WriteQuery & query, translator.queries(* field))
 			try
 			{
 				query.write(wdbConnection);
+				++ ret;
 			}
 			catch ( std::exception & e )
 			{
@@ -110,6 +117,7 @@ void write(const std::vector<AbstractNetcdfField::Ptr> & fields, NetcdfTranslato
 				query.list(s);
 				log.errorStream() << e.what() << ": Uanble to load field " << s.str();
 			}
+	return ret;
 }
 
 }
@@ -120,10 +128,10 @@ int main(int argc, char ** argv)
 	try
 	{
 		conf.parse(argc, argv);
-	} catch (std::exception & e)
+	} catch (wdb::load::LoadError & e)
 	{
-		std::clog << "ERROR: Command line arguments: " << e.what() << std::endl;
-		return 1;
+		std::clog << e.what() << std::endl;
+		return wdb::load::exitStatus();
 	}
 
 	if (conf.general().version)
@@ -139,6 +147,9 @@ int main(int argc, char ** argv)
 
 	wdb::WdbLogHandler logHandler(conf.logging().loglevel,
 			conf.logging().logfile);
+
+	// Counter for loaded fields
+	unsigned loadCount = 0;
 
 	try
 	{
@@ -160,32 +171,51 @@ int main(int argc, char ** argv)
 
 			BOOST_FOREACH ( const NetcdfParameterSpecification & spec, conf.elementsToLoad() )
 				if ( not toLoad.contains(spec) )
-				{
-					WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
-					log.fatal("Unable to find parameter " + spec.variableName() + " with the given dimensions");
-					return 1;
-				}
+					throw wdb::load::LoadError(wdb::load::ErrorWhenReadingFile, "Unable to find parameter " + spec.variableName() + " with the given dimensions");
 
 			if ( conf.points() )
 			{
 				if ( conf.output().list )
 					list(toLoad, translator, * conf.points());
 				else
-					throw std::runtime_error("point extraction is not supported when directly loading into wdb");
+					throw wdb::load::LoadError(wdb::load::InvalidCommandLineArguments, "Point extraction is not supported when directly loading into wdb");
 			}
 			else
 			{
 				if ( conf.output().list )
 					list(toLoad, translator);
 				else
-					write(toLoad.getFields(), translator, * wdbConnection);
+					loadCount += write(toLoad.getFields(), translator, * wdbConnection);
 			}
 		}
+
+		if ( not wdb::load::success() )
+		{
+			WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+			if ( loadCount == 0 and wdb::load::errorCode() == wdb::load::FieldFailedToLoad )
+			{
+				wdb::load::registerError(wdb::load::NoFieldsLoaded);
+				log.error(wdb::load::getErrorMessage());
+			}
+			else
+				log.warn(wdb::load::getErrorMessage());
+		}
+	}
+	catch ( wdb::load::LoadError & e )
+	{
+		WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+		log.fatal(e.what());
+		return wdb::load::exitStatus();
 	}
 	catch (std::exception& e)
 	{
 		WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
 		log.fatal(e.what());
-		return 1;
+		return int(wdb::load::UnknownError);
 	}
+
+	WDB_LOG & log = WDB_LOG::getInstance("wdb.load.netcdf");
+	log.infoStream() << "Loaded " << loadCount << " fields into database";
+
+	return wdb::load::exitStatus();
 }

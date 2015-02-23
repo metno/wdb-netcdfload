@@ -32,6 +32,7 @@
 #include "DirectionConvertingNetcdfField.h"
 #include "VariableConversion.h"
 #include "configuration/parameter/NetcdfParameterSpecification.h"
+#include <wdb/errors.h>
 #include <fimex/CDMFileReaderFactory.h>
 #include <fimex/CDMReaderUtils.h>
 #include <fimex/CDM.h>
@@ -40,6 +41,7 @@
 #include <fimex/CDMInterpolator.h>
 #include <boost/date_time.hpp>
 #include <boost/foreach.hpp>
+#include <boost/filesystem.hpp>
 
 
 using namespace MetNoFimex;
@@ -49,12 +51,19 @@ NetcdfFile::NetcdfFile(const std::string & fileName, const std::string & configu
 	referenceTime_(INVALID_TIME),
 	conversions_(conversions)
 {
-    baseReader_ = MetNoFimex::CDMFileReaderFactory::create(fileType, fileName, configurationFile);
-    usedReader_ = baseReader_;
+	try
+	{
+		baseReader_ = MetNoFimex::CDMFileReaderFactory::create(fileType, fileName, configurationFile);
+		usedReader_ = baseReader_;
 
-    boost::posix_time::ptime time = getUniqueForecastReferenceTime(baseReader_);
-	static boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
-	referenceTime_ = Time(time, zone);
+		boost::posix_time::ptime time = getUniqueForecastReferenceTime(baseReader_);
+		static boost::local_time::time_zone_ptr zone(new boost::local_time::posix_time_zone("+00"));
+		referenceTime_ = Time(time, zone);
+	}
+	catch ( MetNoFimex::CDMException & e )
+	{
+		throw wdb::load::LoadError(wdb::load::UnableToReadFile, e.what());
+	}
 }
 
 NetcdfFile::~NetcdfFile()
@@ -153,7 +162,7 @@ AbstractNetcdfField::Ptr NetcdfFile::getField(const std::string & variableName) 
 		if ( field->variableName() == variableName )
 			return field;
 	}
-	throw std::runtime_error(variableName + ": no such variable found");
+	throw wdb::load::LoadError(wdb::load::ErrorWhenReadingFile, variableName + ": no such variable found");
 }
 
 bool NetcdfFile::contains(const NetcdfParameterSpecification & spec) const

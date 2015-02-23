@@ -30,6 +30,7 @@
 //#include "AutomaticLoadConfiguration.h"
 #include <AbstractNetcdfField.h>
 #include <wdbLogHandler.h>
+#include <wdb/errors.h>
 #include <boost/filesystem.hpp>
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -56,20 +57,20 @@ namespace
 LoadConfiguration::LoadConfiguration(const boost::filesystem::path& translationFile)
 {
     if(not exists(translationFile))
-        throw std::runtime_error(translationFile.string() + ": No netcdf-wdb translation file");
+        throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, translationFile.string() + ": No netcdf-wdb translation file");
     if(is_directory(translationFile))
-        throw std::runtime_error(translationFile.string() + " is a directory, netcdf-wdb-transaltion file expected");
+        throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, translationFile.string() + " is a directory, netcdf-wdb-transaltion file expected");
 
     const std::string & fileName = translationFile.string();
 
     XmlSession session;
     boost::shared_ptr<xmlDoc> doc(xmlParseFile(fileName.c_str()), xmlFreeDoc);
     if (not doc)
-        throw std::runtime_error("Unable to parse doc");
+        throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, "Unable to parse " + fileName);
 
     boost::shared_ptr<xmlXPathContext> xpathCtx(xmlXPathNewContext(doc.get()), xmlXPathFreeContext);
     if (not xpathCtx)
-        throw std::runtime_error("unable to create xpath context");
+        throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, "unable to create xpath context");
 
     initLoadElements_(xpathCtx.get());
 	initConversionElements_(xpathCtx.get());
@@ -108,7 +109,7 @@ void LoadConfiguration::initLoadElements_(xmlXPathContextPtr context)
     {
         xmlNodePtr elementNode =  nodesLoad->nodeTab[i];
         if ( elementNode->type != XML_ELEMENT_NODE )
-            throw std::runtime_error("Expected element node");
+            throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, "Expected element node");
 
         LoadElement loadElement(elementNode);
         if ( not loadElement.variableName().empty() )
@@ -146,7 +147,7 @@ namespace {
 
         if ( not alternative.empty() )
                 return alternative;
-        throw std::runtime_error("Missing attribute " + name);
+        throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, "Missing attribute " + name);
     }
 } // end namespace
 
@@ -165,7 +166,7 @@ void LoadConfiguration::initConversionElements_(xmlXPathContextPtr context)
     {
         xmlNodePtr elementNode =  nodesLoad->nodeTab[i];
         if ( elementNode->type != XML_ELEMENT_NODE )
-            throw std::runtime_error("Expected element node");
+            throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, "Expected element node");
 
         VectorConversion conversion;
         conversion.xElement = getAttribute(elementNode, "x");

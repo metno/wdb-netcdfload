@@ -27,6 +27,7 @@
  */
 
 #include "CdmLoaderConfiguration.h"
+#include <wdb/errors.h>
 #include <fimex/CDMconstants.h>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -70,9 +71,9 @@ CdmLoaderConfiguration::Point::Point(const std::string & spec)
 	std::vector<std::string> data;
 	boost::algorithm::split(data, spec, boost::algorithm::is_space());
 	if ( data.size() < 2 )
-		throw std::runtime_error("Invalid specification: " + spec);
+		throw wdb::load::LoadError(wdb::load::InvalidCommandLineArguments, "Invalid specification: " + spec);
 	if ( data.size() > 2 and data[2][0] != '#' )
-		throw std::runtime_error("Invalid specification: " + spec);
+		throw wdb::load::LoadError(wdb::load::InvalidCommandLineArguments, "Invalid specification: " + spec);
 	latitude_ = data[0];
 	longitude_ = data[1];
 }
@@ -93,16 +94,6 @@ std::string CdmLoaderConfiguration::Point::getPlaceName() const
 	ret << "point(" << longitude_ << ' ' << latitude_ << ')';
 	return ret.str();
 }
-
-
-//const CdmLoaderConfiguration::Point * CdmLoaderConfiguration::point() const
-//{
-//	if ( point_.longitude_.empty() and point_.latitude_.empty() )
-//		return 0;
-//	if ( point_.longitude_.empty() or point_.latitude_.empty() )
-//		throw std::runtime_error("Must give both latitude and longitude");
-//	return & point_;
-//}
 
 
 namespace
@@ -133,32 +124,20 @@ void CdmLoaderConfiguration::parse( int argc, char ** argv )
     	msg << "Invalid file type (" << fileType_ <<"). Available types are:";
     	for ( std::set<std::string>::const_iterator it = types.begin(); it != types.end(); ++ it )
     		msg << ' ' << * it;
-    	throw std::runtime_error(msg.str());
+    	throw wdb::load::LoadError(wdb::load::InvalidCommandLineArguments, msg.str());
     }
 
     if ( not pointsFile_.empty() )
     {
     	boost::filesystem::path pointPath(pointsFile_);
     	if ( not exists(pointPath) )
-    		throw std::runtime_error(pointsFile_ + " does not exist");
+    		throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, pointsFile_ + " does not exist");
     	if ( boost::filesystem::is_directory(pointsFile_) )
-    		throw std::runtime_error(pointsFile_ + " is a directory");
+    		throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, pointsFile_ + " is a directory");
 
     	std::ifstream s(pointsFile_.c_str());
     	std::string line;
     	while ( std::getline(s, line) )
     		points_.push_back(line);
     }
-
-//    if ( point() )
-//	{
-//    	if ( not output().list )
-//    		throw std::runtime_error("Direct loading of single points is not supported yet");
-//    	if ( loading_.placeName.empty() )
-//    	{
-//    		std::ostringstream s;
-//    		s << "point(" << point_.longitude_ << ' ' << point_.latitude_ << ')';
-//    		loading_.placeName = s.str();
-//    	}
-//	}
 }

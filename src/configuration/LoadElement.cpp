@@ -28,6 +28,7 @@
 
 // project
 #include "LoadElement.h"
+#include <wdb/errors.h>
 
 // fimex
 #include <fimex/CDM.h>
@@ -71,7 +72,7 @@ namespace {
 
         if ( not alternative.empty() )
                 return alternative;
-        throw runtime_error("Missing attribute " + name);
+        throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, "Missing attribute " + name);
     }
 } // end namespace
 
@@ -106,7 +107,14 @@ void LoadElement::addWdbSpec_(xmlNodePtr wdbNode)
     string validFrom = getAttribute(wdbNode, "validfrom", "validtime");
     string validTo = getAttribute(wdbNode, "validto", "validtime");
 
-    wdbDataSpecification_ = DataSpecification(wdbName, wdbUnits, alternativeUnitConversion, scale, validFrom, validTo);
+    try
+    {
+    	wdbDataSpecification_ = DataSpecification(wdbName, wdbUnits, alternativeUnitConversion, scale, validFrom, validTo);
+    }
+    catch ( std::exception & e )
+    {
+    	throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, e.what());
+    }
 
     for(xmlNodePtr subNode = wdbNode->children; subNode; subNode = subNode->next)
         if(xmlStrEqual(subNode->name, (xmlChar*) "level"))

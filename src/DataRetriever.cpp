@@ -29,6 +29,7 @@
 #include "DataRetriever.h"
 #include "AbstractNetcdfField.h"
 #include <wdbLogHandler.h>
+#include <wdb/errors.h>
 #include <fimex/CDMReader.h>
 #include <fimex/SliceBuilder.h>
 #include <fimex/Data.h>
@@ -100,7 +101,7 @@ MetNoFimex::DataPtr DataRetriever::readData_(boost::shared_ptr<MetNoFimex::CDMRe
 		catch ( std::exception & e )
 		{
 			if ( querySpec_.alternativeUnitConversion().empty() )
-				throw;
+				throw wdb::load::LoadError(wdb::load::UnableToReadConfigFile, e.what());
 		}
 		return reader->getScaledDataSliceInUnit(field_.variableName(), querySpec_.alternativeUnitConversion(), slicer);
 	}

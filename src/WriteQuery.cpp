@@ -28,6 +28,7 @@
 
 #include "WriteQuery.h"
 #include <wdb/LoaderDatabaseConnection.h>
+#include <wdb/errors.h>
 #include <wdbLogHandler.h>
 #include <sstream>
 #include <ctime>
@@ -120,7 +121,7 @@ void WriteQuery::write(wdb::load::LoaderDatabaseConnection & wdbConnection) cons
 		wdbConnection.addPlaceDefinition(placeName, * location_);
 	}
 	if ( placeName.empty() )
-		throw std::runtime_error("Uanble to find place name for grid");
+		throw wdb::load::LoadError(wdb::load::UnableToReadFromDatabase, "Uanble to find place name for grid");
 
 
 	WDB_LOG & log = WDB_LOG::getInstance( "wdb.netcdfload.query" );
