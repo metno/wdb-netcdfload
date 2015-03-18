@@ -1,3 +1,9 @@
+wdb-netcdfload (0.13.9-1) precise; urgency=low
+
+  * Adding some config for altitude
+
+ -- Vegard Bønes <vegardb@vpn-116-54.met.no>  Wed, 18 Mar 2015 12:18:18 +0100
+
 wdb-netcdfload (0.13.8-1) precise; urgency=low
 
   * new version, with new parameters for eps
