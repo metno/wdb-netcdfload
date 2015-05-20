@@ -94,6 +94,10 @@
 		<wdb name="thunderstorm probability" units="%"/>
 	</load>
 	<load>
+		<netcdf variable_name="wind_speed_of_gust"/>
+		<wdb units="m/s" name="wind speed of gust"></wdb>
+	</load>
+	<load>
 		<netcdf variable_name="x_wind_10m"/>
 		<wdb name="x wind" units="m/s">
 			<level name="height above ground" value="10" />
