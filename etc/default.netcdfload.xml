@@ -17,6 +17,14 @@
 			<level name="height above ground" value="2" />
 		</wdb>
 	</load>
+        <load>
+                <netcdf variable_name="air_temperature_2m_max6h" />
+                <wdb name="max air temperature" units="K" validfrom="validTime - 6 hours"/>
+	</load>
+        <load>
+                <netcdf variable_name="air_temperature_2m_min6h" />
+                <wdb name="min air temperature" units="K" validfrom="validTime - 6 hours"/>
+        </load>
 	<load>
 		<netcdf variable_name="altitude" />
 		<wdb name="altitude" units="m" validfrom="-infinity" validto="infinity"/>
