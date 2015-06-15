@@ -1,3 +1,22 @@
+WDB - NetCDF Loading Program
+============================================================
+
+Norwegian Meteorological Institute (met.no),
+Box 43 Blindern,
+0313 OSLO,
+NORWAY.
+
+Contact: wdb@met.no
+
+WDB is open-source; licensed under GPL2 or (at your option) any later version.
+
+You can learn more about the project (and find links to documentation and resources) [here](https://phab.met.no/w/software/wdb/).
+
+To submit issues and bugs, use our [bug tracker](https://phab.met.no/project/view/3/).
+
+Usage
+-----
+
 Examples of how to call program:
 
 netcdfLoad \
