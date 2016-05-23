@@ -62,6 +62,10 @@
 		</wdb>
 	</load>
 	<load>
+		<netcdf variable_name="lwe_precipitation_rate" />
+		<wdb name="lwe precipitation rate" units="mm/h "/>
+	</load>
+	<load>
 		<netcdf variable_name="medium_type_cloud_area_fraction" />
 		<wdb name="cloud area fraction in atmosphere layer" units="%">
 			<level name="atmosphere sigma coordinate" value="500"/>
