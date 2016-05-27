@@ -63,7 +63,7 @@
 	</load>
 	<load>
 		<netcdf variable_name="lwe_precipitation_rate" />
-		<wdb name="lwe precipitation rate" units="mm/h "/>
+		<wdb name="lwe precipitation rate" units="mm/h"/>
 	</load>
 	<load>
 		<netcdf variable_name="medium_type_cloud_area_fraction" />
