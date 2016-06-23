@@ -120,7 +120,7 @@ std::vector<Time> NetcdfField::times() const
 	std::string dim = timeDimension();
 	if ( not dim.empty() )
 	{
-		DataPtr data = reader_->getData(dim);
+		DataPtr data = reader_->getScaledDataInUnit(dim, "seconds since 1970-01-01 00:00:00+00");
 
 		boost::shared_array<long long> values = data->asInt64();
 
