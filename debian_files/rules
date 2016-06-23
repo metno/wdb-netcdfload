@@ -3,4 +3,6 @@
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/autotools.mk
 
+DEB_CONFIGURE_EXTRA_FLAGS := --with-boost-libdir=/usr/lib/x86_64-linux-gnu/
+
 DEB_DH_LINK_ARGS = /usr/bin/netcdfLoad /usr/lib/wdb/netcdfLoad
