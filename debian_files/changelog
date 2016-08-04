@@ -1,3 +1,9 @@
+wdb-netcdfload (0.13.14-1) precise; urgency=low
+
+  * config additions
+
+ -- Vegard Bønes <vegardb@vpn-116-54.met.no>  Thu, 04 Aug 2016 10:56:04 +0000
+
 wdb-netcdfload (0.13.13-1) precise; urgency=low
 
   * config correction
