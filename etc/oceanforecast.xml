@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE eps2probandltf_config>
+
+<netcdfloadconfiguration xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="netcdfLoad.configuration.xsd">
+
+	<!-- KEEP THIS ALPHABETICALLY ORDERED ON NETCDF VARIABLE NAME! -->
+	<load>
+	  <netcdf variable_name="aice"/>
+	  <wdb name="sea ice area fraction" units="%"/>
+	</load>
+	<load>
+	  <netcdf variable_name="hs"/>
+	  <wdb name="sea surface wave significant height" units="m"/>
+	</load>
+	<load>
+	  <netcdf variable_name="temperature">
+	    <dimension name="depth" value="3" />
+	  </netcdf>
+	  <wdb name="sea water temperature" units="K">
+	    <level name="depth" value="3"/>
+	  </wdb>
+	</load>
+	<load>
+	  <netcdf variable_name="thq"/>
+	  <wdb name="sea surface wave to direction" units="degree"/>
+	</load>
+	<load>
+	  <netcdf variable_name="u">
+	    <dimension name="depth" value="3" />
+	  </netcdf>
+	  <wdb name="sea water x velocity" units="m/s">
+	    <level name="depth" value="3"/>
+	  </wdb>
+	</load>
+	<load>
+	  <netcdf variable_name="v">
+	    <dimension name="depth" value="3" />
+	  </netcdf>
+	  <wdb name="sea water y velocity" units="m/s">
+	    <level name="depth" value="3"/>
+	</wdb>
+	</load>
+
+</netcdfloadconfiguration>
