@@ -30,6 +30,9 @@
 #include <wdb/LoaderDatabaseConnection.h>
 #include <wdb/errors.h>
 #include <wdbLogHandler.h>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <sstream>
 #include <ctime>
 
@@ -116,7 +119,7 @@ void WriteQuery::write(wdb::load::LoaderDatabaseConnection & wdbConnection) cons
 	{
 		std::ostringstream name;
 		name << "netcdfLoad auto: ";
-		name << loc.str();
+		name << boost::uuids::random_generator()();
 		placeName = name.str();
 		wdbConnection.addPlaceDefinition(placeName, * location_);
 	}
