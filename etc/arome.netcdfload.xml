@@ -75,7 +75,11 @@
 	</load>
 	<load>
 		<netcdf variable_name="wind_speed_of_gust"/>
-		<wdb units="m/s" name="wind speed of gust"></wdb>
+		<wdb units="m/s" name="wind speed of gust" />
+	</load>
+	<load>
+		<netcdf variable_name="wind_speed_maxarea_10m"/>
+		<wdb units="m/s" name="max wind speed within 10 km" />
 	</load>
 	
 
