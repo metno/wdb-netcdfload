@@ -36,9 +36,6 @@
 #include <wdb/errors.h>
 #include <wdb/LoaderDatabaseConnection.h>
 #include <wdbLogHandler.h>
-#include "fimex/CDM.h"
-#include "fimex/CDMReader.h"
-#include "fimex/CDMFileReaderFactory.h"
 #include <boost/foreach.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <iostream>
